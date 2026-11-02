@@ -1,5 +1,6 @@
 ---
 title: "GEOly Data API"
+sidebarTitle: "Overview"
 description: "Read monitoring data, synchronize completed answers, and create or run prompts through versioned REST resources with brand-bound API keys."
 ---
 
@@ -20,23 +21,23 @@ The public [OpenAPI 3.1 specification](https://app.geoly.ai/openapi/data-api-v1.
 
 | Method and path | Purpose |
 | --- | --- |
-| GET /api/v1/quota | Credits and billing period |
-| GET /api/v1/brand | Brand and organization behind the key |
-| GET /api/v1/topics | Monitoring topics |
-| GET /api/v1/prompts | Prompt catalog, with keyset pagination |
-| `GET /api/v1/prompts/{prompt_id}` | One active or archived prompt |
-| `GET /api/v1/prompts/{prompt_id}/records` | Execution records, including unfinished runs |
-| `GET /api/v1/prompts/{prompt_id}/records/latest` | Latest record per platform |
-| `GET /api/v1/records/{record_id}` | Answer metadata and optional full text |
-| GET /api/v1/records | Incremental completed-record feed |
-| POST /api/v1/prompts | Create a prompt |
-| `POST /api/v1/prompts/{prompt_id}/runs` | Trigger monitoring |
-| POST /api/v1/reports/overview | Brand visibility overview |
-| POST /api/v1/reports/analytics | Daily metrics |
-| POST /api/v1/reports/brand-board | Brand leaderboard |
-| POST /api/v1/reports/citations | Citation source board |
-| POST /api/v1/reports/prompts | Prompt performance table |
-| POST /api/v1/reports/prompt-overview | One prompt's window overview |
+| [`GET /api/v1/quota`](/api-reference/account/get-quota) | Credits and billing period |
+| [`GET /api/v1/brand`](/api-reference/account/get-brand) | Brand and organization behind the key |
+| [`GET /api/v1/topics`](/api-reference/catalog/list-topics) | Monitoring topics |
+| [`GET /api/v1/prompts`](/api-reference/catalog/list-prompts) | Prompt catalog, with keyset pagination |
+| [`GET /api/v1/prompts/{prompt_id}`](/api-reference/catalog/get-prompt) | One active or archived prompt |
+| [`GET /api/v1/prompts/{prompt_id}/records`](/api-reference/records/list-prompt-records) | Execution records, including unfinished runs |
+| [`GET /api/v1/prompts/{prompt_id}/records/latest`](/api-reference/records/get-latest-records) | Latest record per platform |
+| [`GET /api/v1/records/{record_id}`](/api-reference/records/get-record) | Answer metadata and optional full text |
+| [`GET /api/v1/records`](/api-reference/records/sync-records) | Incremental completed-record feed |
+| [`POST /api/v1/prompts`](/api-reference/catalog/create-prompt) | Create a prompt |
+| [`POST /api/v1/prompts/{prompt_id}/runs`](/api-reference/records/trigger-run) | Trigger monitoring |
+| [`POST /api/v1/reports/overview`](/api-reference/reports/overview) | Brand visibility overview |
+| [`POST /api/v1/reports/analytics`](/api-reference/reports/analytics) | Daily metrics |
+| [`POST /api/v1/reports/brand-board`](/api-reference/reports/brand-board) | Brand leaderboard |
+| [`POST /api/v1/reports/citations`](/api-reference/reports/citations) | Citation source board |
+| [`POST /api/v1/reports/prompts`](/api-reference/reports/prompts) | Prompt performance table |
+| [`POST /api/v1/reports/prompt-overview`](/api-reference/reports/prompt-overview) | One prompt's window overview |
 
 Reports accept JSON bodies and do not create resources. Other GEOly tools, including capabilities without a resource listed here, remain available through [MCP](/developers/mcp) or the [Agent API](https://www.geoly.ai/docs/agent-api).
 

@@ -1,5 +1,6 @@
 ---
 title: "GEOly Data API"
+sidebarTitle: "概览"
 description: "通过品牌绑定 API key 访问版本化 REST 资源，读取监控数据、增量同步已完成回答，以及创建和触发提示词。"
 ---
 
@@ -20,23 +21,23 @@ curl --fail-with-body https://app.geoly.ai/api/v1/brand \
 
 | 方法和路径 | 用途 |
 | --- | --- |
-| GET /api/v1/quota | 积分与计费周期 |
-| GET /api/v1/brand | 密钥绑定的品牌和组织 |
-| GET /api/v1/topics | 监控主题 |
-| GET /api/v1/prompts | 提示词目录，keyset 分页 |
-| `GET /api/v1/prompts/{prompt_id}` | 一道监控中或已归档的提示词 |
-| `GET /api/v1/prompts/{prompt_id}/records` | 执行记录，包含未完成任务 |
-| `GET /api/v1/prompts/{prompt_id}/records/latest` | 各平台最新记录 |
-| `GET /api/v1/records/{record_id}` | 回答元数据和可选全文 |
-| GET /api/v1/records | 已完成记录的增量 feed |
-| POST /api/v1/prompts | 创建提示词 |
-| `POST /api/v1/prompts/{prompt_id}/runs` | 触发监控 |
-| POST /api/v1/reports/overview | 品牌可见度概览 |
-| POST /api/v1/reports/analytics | 逐日指标 |
-| POST /api/v1/reports/brand-board | 品牌榜 |
-| POST /api/v1/reports/citations | 引用来源榜 |
-| POST /api/v1/reports/prompts | 提示词表现表 |
-| POST /api/v1/reports/prompt-overview | 单道提示词的窗口概览 |
+| [`GET /api/v1/quota`](/zh/api-reference/account/get-quota) | 积分与计费周期 |
+| [`GET /api/v1/brand`](/zh/api-reference/account/get-brand) | 密钥绑定的品牌和组织 |
+| [`GET /api/v1/topics`](/zh/api-reference/catalog/list-topics) | 监控主题 |
+| [`GET /api/v1/prompts`](/zh/api-reference/catalog/list-prompts) | 提示词目录，keyset 分页 |
+| [`GET /api/v1/prompts/{prompt_id}`](/zh/api-reference/catalog/get-prompt) | 一道监控中或已归档的提示词 |
+| [`GET /api/v1/prompts/{prompt_id}/records`](/zh/api-reference/records/list-prompt-records) | 执行记录，包含未完成任务 |
+| [`GET /api/v1/prompts/{prompt_id}/records/latest`](/zh/api-reference/records/get-latest-records) | 各平台最新记录 |
+| [`GET /api/v1/records/{record_id}`](/zh/api-reference/records/get-record) | 回答元数据和可选全文 |
+| [`GET /api/v1/records`](/zh/api-reference/records/sync-records) | 已完成记录的增量 feed |
+| [`POST /api/v1/prompts`](/zh/api-reference/catalog/create-prompt) | 创建提示词 |
+| [`POST /api/v1/prompts/{prompt_id}/runs`](/zh/api-reference/records/trigger-run) | 触发监控 |
+| [`POST /api/v1/reports/overview`](/zh/api-reference/reports/overview) | 品牌可见度概览 |
+| [`POST /api/v1/reports/analytics`](/zh/api-reference/reports/analytics) | 逐日指标 |
+| [`POST /api/v1/reports/brand-board`](/zh/api-reference/reports/brand-board) | 品牌榜 |
+| [`POST /api/v1/reports/citations`](/zh/api-reference/reports/citations) | 引用来源榜 |
+| [`POST /api/v1/reports/prompts`](/zh/api-reference/reports/prompts) | 提示词表现表 |
+| [`POST /api/v1/reports/prompt-overview`](/zh/api-reference/reports/prompt-overview) | 单道提示词的窗口概览 |
 
 报表接受 JSON body，只读取数据，不创建资源。未列在这里的其他 GEOly 能力仍可通过 [MCP](/zh/developers/mcp) 或 [Agent API](https://www.geoly.ai/docs/agent-api) 调用。
 
