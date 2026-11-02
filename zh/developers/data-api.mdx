@@ -5,8 +5,6 @@ description: "通过品牌绑定 API key 访问版本化 REST 资源，读取监
 
 Data API 通过 HTTP 提供监控资源与固定结构的报表，复用产品中的鉴权、指标口径和计费，不经过托管 Agent 推理。
 
-**迁移说明：**原 `/api/v1/tools` 和 `/api/v1/tools/{tool}` HTTP 包装接口的所有方法返回 **410 TOOL_SURFACE_RETIRED**。已知工具在 `error.details.replacement` 中给出替代资源接口：只有一个替代时是一个对象，有多个 view 或多个替代的工具是数组。每个对象都有 `method` 与 `path`，可带 `when`（替代旧工具的哪种参数）与 `note`（标明不能直接替换）。请使用下面的资源接口；全部旧工具的对照表在本页最后一节。MCP、CLI 和 Agent API 仍是独立支持的入口；同一次发布里从它们移除的只有 `query_analytics`，它没有可以直接替换的接口（见最后一节）。
-
 ## 鉴权与规格
 
 在 **设置 → 开发者 → API 密钥** 创建绑定品牌的 key，通过 Bearer 头发送。品牌由密钥决定，不通过请求参数切换；缺少相应读写权限时会拒绝请求。
@@ -141,35 +139,3 @@ OpenAPI 的 `x-geoly-cost` 声明每个操作的名义价格（MCP credits，与
 鉴权通过后的每个响应都带 `X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`（距窗口重置的秒数）；执行过的调用另带 `X-DB-Budget-Limit`、`X-DB-Budget-Used`、`X-DB-Budget-Reset`，`Used` 接近 `Limit` 时请主动放慢，不要等到 429。429 一律不扣费，并带 Retry-After。
 
 单次调用在服务端最长约 45 秒，HTTP 客户端超时请设为至少 60 秒。超时返回 `503 TOOL_TIMEOUT`（不扣费），请先缩小窗口或过滤条件再重试。JSON 请求体上限 64 KB，API 响应体硬上限 4 MB。资源路由不支持的方法，包括 HEAD/OPTIONS，返回 405，不执行收费读取。
-
-## 从旧工具接口迁移
-
-`/api/v1/tools` 和 `/api/v1/tools/{tool}` 的所有方法返回 `410 TOOL_SURFACE_RETIRED`，不鉴权、不执行、不计费；`error.details.replacement` 与下表一致。表里没有的工具在 REST 上没有等价接口，请用同一把 key 通过 [MCP](/zh/developers/mcp) 调用。旧工具 POST 不会自动跳转到新操作：参数、响应和含义已经变化，请按照规格显式迁移。旧 `/api/v1/openapi.json` 现在重定向到资源接口规格，从它重新生成的客户端会得到完全不同的操作，原来按工具名生成的方法全部消失。
-
-| 旧工具（旧调用的参数） | 新资源 | 说明 |
-| --- | --- | --- |
-| get_quota | GET /api/v1/quota | 无参数 |
-| get_brand_context | GET /api/v1/brand | 字段改为带单位的 snake_case |
-| get_topic_list | GET /api/v1/topics | 计数字段改名 |
-| get_prompt_list，view=table（缺省） | POST /api/v1/reports/prompts | page / page_size 改为 cursor / limit |
-| get_prompt_list，view=catalog | GET /api/v1/prompts | 免费，不算指标 |
-| get_prompt_detail | POST /api/v1/reports/prompt-overview | 来源只给第一页和总数 |
-| list_prompt_records（缺省） | `GET /api/v1/prompts/{prompt_id}/records` | offset 改为游标 |
-| list_prompt_records，latest_per_platform=true | `GET /api/v1/prompts/{prompt_id}/records/latest` | 根数组 |
-| get_prompt_record_detail | `GET /api/v1/records/{record_id}` | include_answer_text=true 改为 include=answer_text |
-| list_brand_answers | GET /api/v1/records | 不能直接替换：品牌全部已完成回答的增量导出，没有表格的筛选和提及样本，请在客户端过滤 |
-| list_brand_answers | `GET /api/v1/prompts/{prompt_id}/records` | 不能直接替换：一道提示词在一个日期窗内的回答 |
-| create_prompt | POST /api/v1/prompts | 可选 Idempotency-Key |
-| trigger_prompt | `POST /api/v1/prompts/{prompt_id}/runs` | 提示词 id 放在路径里，body 为 `{}` |
-| get_brand_overview | POST /api/v1/reports/overview | 参数同名 |
-| get_daily_trend | POST /api/v1/reports/analytics | start_date / end_date 改为 start_utc_date / end_utc_date |
-| query_analytics | POST /api/v1/reports/analytics | 不能直接替换，见下文 |
-| get_brand_board | POST /api/v1/reports/brand-board | platform 不收 "all"，全平台请省略 |
-| get_citation_overview，section=board | POST /api/v1/reports/citations | 其他 section 在 REST 上没有等价接口 |
-
-**`query_analytics` 已删除。** MCP 上它到 2026-11-30 只返回一条免费的 `TOOL_REMOVED` 提示（指向 `get_daily_trend`），Agent API 也不再提供。`POST /api/v1/reports/analytics` 返回日派生层的固定逐日列（`get_daily_trend` 口径）：`breakdown` 为 `platform`、`total` 或 `topic`，窗口值在 `totals` 里；没有 `dataset`、自选的 `dimensions` 与 `metrics`、`domain`、`limit` 和 `citationCount`（引用计数请用 `POST /api/v1/reports/citations`）。
-
-文本子集 `prompt_text_include` / `prompt_text_exclude` 没有等价写法：
-
-- 长期的品牌词 / 非品牌词拆分：在 app 里把这批提示词移进一个话题，下一次日刷新之后按 `breakdown=topic`（或 `topic_ids`）读取。这是按话题归属统计，不再按文本匹配。
-- 一次性的窗口值：调用 `POST /api/v1/reports/prompts` 并带 `search`，读取 `data.summary`。`search` 只能「包含」、不区分大小写，匹配提示词文本或标签名（比纯文本匹配宽），给出整个窗口的汇总，没有逐日行。
