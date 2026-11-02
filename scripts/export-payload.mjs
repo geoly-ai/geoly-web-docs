@@ -93,17 +93,30 @@ export const TABS = [
     ],
   },
   {
-    tab: { en: 'Developers', zh: '开发者' },
+    // MCP 与 API 是重点入口，各自独立成顶部 Tab（同 docs.peec.ai 的 MCP Server / Customer API）
+    tab: { en: 'MCP Server', zh: 'MCP Server' },
+    icon: 'plug',
+    groups: [
+      {
+        name: { en: 'MCP Server', zh: 'MCP Server' },
+        icon: 'plug',
+        dir: 'developers',
+        slugs: ['mcp'],
+      },
+      {
+        name: { en: 'CLI', zh: 'CLI' },
+        icon: 'terminal',
+        dir: 'developers',
+        slugs: ['cli'],
+      },
+    ],
+  },
+  {
+    tab: { en: 'Data API', zh: 'Data API' },
     icon: 'square-terminal',
     groups: [
       {
-        name: { en: 'AI tools', zh: 'AI 工具' },
-        icon: 'bot',
-        dir: 'developers',
-        slugs: ['mcp', 'cli'],
-      },
-      {
-        name: { en: 'API', zh: 'API' },
+        name: { en: 'Data API', zh: 'Data API' },
         icon: 'code',
         dir: 'developers',
         slugs: ['data-api'],

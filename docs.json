@@ -85,19 +85,31 @@
             ]
           },
           {
-            "tab": "Developers",
-            "icon": "square-terminal",
+            "tab": "MCP Server",
+            "icon": "plug",
             "groups": [
               {
-                "group": "AI tools",
-                "icon": "bot",
+                "group": "MCP Server",
+                "icon": "plug",
                 "pages": [
-                  "developers/mcp",
-                  "developers/cli"
+                  "developers/mcp"
                 ]
               },
               {
-                "group": "API",
+                "group": "CLI",
+                "icon": "terminal",
+                "pages": [
+                  "developers/cli"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Data API",
+            "icon": "square-terminal",
+            "groups": [
+              {
+                "group": "Data API",
                 "icon": "code",
                 "pages": [
                   "developers/data-api"
@@ -185,19 +197,31 @@
             ]
           },
           {
-            "tab": "开发者",
-            "icon": "square-terminal",
+            "tab": "MCP Server",
+            "icon": "plug",
             "groups": [
               {
-                "group": "AI 工具",
-                "icon": "bot",
+                "group": "MCP Server",
+                "icon": "plug",
                 "pages": [
-                  "zh/developers/mcp",
-                  "zh/developers/cli"
+                  "zh/developers/mcp"
                 ]
               },
               {
-                "group": "API",
+                "group": "CLI",
+                "icon": "terminal",
+                "pages": [
+                  "zh/developers/cli"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Data API",
+            "icon": "square-terminal",
+            "groups": [
+              {
+                "group": "Data API",
                 "icon": "code",
                 "pages": [
                   "zh/developers/data-api"
