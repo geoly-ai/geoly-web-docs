@@ -1,0 +1,41 @@
+---
+title: "了解什么是 llms.txt"
+description: "了解 llms.txt 提案、文件结构、与 robots.txt 的区别，以及如何验证效果与避免错误预期。"
+---
+
+llms.txt 是一项开放提案：在网站根目录或某个路径下提供简洁的 Markdown 导览，帮助会读取它的 AI Agent 找到与任务相关的页面。它更像“内容地图”，不是给模型下达命令的文件。提案目前为 [v2](https://llmstxt.org/)；是否读取、何时读取以及如何使用，取决于具体 Agent 或服务。
+
+## 它与 robots.txt、sitemap.xml 有什么不同？
+
+- **llms.txt**：精选背景信息和重要链接，便于 Agent 按需找到更详细、最好也易于机器读取的页面。
+- **robots.txt**：声明对自动访问的抓取规则。llms.txt 不能代替它，也不能阻止页面被抓取。
+- **sitemap.xml**：列出网站页面供发现和索引。llms.txt 通常更精简，重点是说明哪些内容最值得按主题阅读。
+
+因此，把某个 URL 从 llms.txt 中移除，不等于从搜索引擎或 AI 的可访问范围中移除它。
+
+## 一个实用的文件应包含什么？
+
+提案 v2 允许将文件放在 /llms.txt，也允许放在 /docs/llms.txt 等子路径。文件以一个 H1 网站或项目名称开头；简短摘要、补充说明和按 H2 分组的链接用于帮助读者判断后续该打开哪个页面。例如：
+
+    # Example Store
+    > Official product information, policies, and support resources.
+
+    ## Products
+    - [Product catalog](https://example.com/products): Current product pages and availability.
+
+    ## Help
+    - [Shipping policy](https://example.com/shipping): Regions, costs, and delivery times.
+    - [Contact](https://example.com/contact): How to ask about a product or order.
+
+把真实、可访问的页面放进文件，并给链接写清用途。价格、库存、条款等易变信息应以原始页面为准，定期检查链接和内容；不要把机密数据写进公开文件。对于内容复杂的网站，可考虑让重要页面同时提供清晰的 Markdown 版本。
+
+## 如何验证，而不是假定它有效？
+
+1. 确认目标路径能公开访问，返回的是预期的 Markdown，而不是登录页或错误页。
+2. 随机打开几个链接，检查页面是否可访问、内容是否仍准确。
+3. 用实际会使用 llms.txt 的 Agent 测试具体问题：它能否从导览找到正确页面，并引用原文？
+4. 如需评估业务效果，分别观察服务器日志、站点分析和 GEOly 中各自有定义的数据；不要把爬虫访问、AI 回答中的引用、引荐会话和转化混为一谈。
+
+llms.txt 本身**不能保证** ChatGPT、Gemini 等服务读取文件、优先引用品牌、提高排名、带来流量或提升转化，也不能确保模型只使用最新价格。它是整理可用资料的一种补充，而不是替代可抓取的网页、准确的商品内容、结构化数据或网站访问控制。
+
+参考：[llms.txt 提案与格式](https://llmstxt.org/)。
