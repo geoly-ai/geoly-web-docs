@@ -20,40 +20,33 @@ const API = `${SITE}/payload/api/docs?limit=500&depth=0&where%5B_status%5D%5Bequ
 const LOCALES = ['en', 'zh'];
 
 /**
- * 新信息架构：唯一事实源。slug 保持原样作为文件名，只决定落在哪个目录。
- * 某语言没有该 slug 的已发布文档时自动跳过。
+ * 新信息架构：唯一事实源（参照 docs.peec.ai：少量顶部 Tab，主 Tab 下展开全部分组）。
+ * TABS → groups；每个 group 的 dir 决定页面目录（= URL），slug 保持原样作为文件名。
+ * 调整 Tab/分组归属时不要改 dir，否则官网 config/docs-site.ts 的跳转映射要同步改。
+ * 某语言没有该 slug 的已发布文档时自动跳过；leading 为手写页面（如首页 index）。
  */
-export const SECTIONS = [
+export const TABS = [
   {
-    dir: 'get-started',
-    tab: { en: 'Get Started', zh: '快速开始' },
-    icon: 'rocket',
+    tab: { en: 'Documentation', zh: '文档' },
+    icon: 'book-open',
     groups: [
       {
         name: { en: 'Get started', zh: '入门' },
-        icon: 'flag',
+        icon: 'rocket',
+        dir: 'get-started',
+        leading: ['index'],
         slugs: ['register-account', 'geoly-platform', 'geoly-operation-manual'],
       },
       {
-        name: { en: 'Concepts', zh: '概念' },
-        icon: 'book-open',
-        slugs: ['what-is-ai-llms-txt'],
-      },
-    ],
-  },
-  {
-    dir: 'analytics',
-    tab: { en: 'Analytics', zh: '分析' },
-    icon: 'chart-line',
-    groups: [
-      {
         name: { en: 'Monitoring', zh: '监测' },
         icon: 'activity',
+        dir: 'analytics',
         slugs: ['performance', 'geoly-prompts', 'ai-engine-topic'],
       },
       {
         name: { en: 'Insights', zh: '洞察' },
         icon: 'lightbulb',
+        dir: 'analytics',
         slugs: [
           'ai-engine-insight',
           'ai-engine-explore',
@@ -63,58 +56,57 @@ export const SECTIONS = [
           'chatgpt-ads-library',
         ],
       },
-    ],
-  },
-  {
-    dir: 'shopify',
-    tab: { en: 'Shopify App', zh: 'Shopify 应用' },
-    icon: 'shopping-bag',
-    groups: [
       {
         name: { en: 'Shopify app', zh: 'Shopify 应用' },
-        icon: 'store',
+        icon: 'shopping-bag',
+        dir: 'shopify',
         slugs: [
           'ai-llms-txt',
           'catalog-optimization',
           'how-to-setup-catalog-optimization',
         ],
       },
-    ],
-  },
-  {
-    dir: 'platform',
-    tab: { en: 'Platform', zh: '平台配置' },
-    icon: 'sliders-horizontal',
-    groups: [
       {
         name: { en: 'Account & organization', zh: '账号与组织' },
         icon: 'users',
+        dir: 'platform',
         slugs: ['basic-management'],
       },
-      { name: { en: 'Agency', zh: '代理商' }, icon: 'handshake', slugs: ['geo-agency'] },
-    ],
-  },
-  {
-    dir: 'integrations',
-    tab: { en: 'Integrations', zh: '集成' },
-    icon: 'plug',
-    groups: [
+      {
+        name: { en: 'Agency', zh: '代理商' },
+        icon: 'handshake',
+        dir: 'platform',
+        slugs: ['geo-agency'],
+      },
       {
         name: { en: 'Integrations', zh: '集成' },
-        icon: 'cable',
+        icon: 'plug',
+        dir: 'integrations',
         slugs: ['google-analytics-help-docs', 'cloudflare-integration'],
+      },
+      {
+        name: { en: 'Concepts', zh: '概念' },
+        icon: 'book-marked',
+        dir: 'get-started',
+        slugs: ['what-is-ai-llms-txt'],
       },
     ],
   },
   {
-    dir: 'developers',
     tab: { en: 'Developers', zh: '开发者' },
     icon: 'square-terminal',
     groups: [
       {
-        name: { en: 'Developers', zh: '开发者' },
+        name: { en: 'AI tools', zh: 'AI 工具' },
+        icon: 'bot',
+        dir: 'developers',
+        slugs: ['mcp', 'cli'],
+      },
+      {
+        name: { en: 'API', zh: 'API' },
         icon: 'code',
-        slugs: ['mcp', 'cli', 'data-api'],
+        dir: 'developers',
+        slugs: ['data-api'],
       },
     ],
   },
@@ -122,7 +114,7 @@ export const SECTIONS = [
 
 /** slug → 所属目录 */
 const SLUG_DIR = Object.fromEntries(
-  SECTIONS.flatMap((s) => s.groups.flatMap((g) => g.slugs.map((slug) => [slug, s.dir])))
+  TABS.flatMap((t) => t.groups.flatMap((g) => g.slugs.map((slug) => [slug, g.dir])))
 );
 
 /** 生成某语言下页面的路径（不含扩展名、无前导斜杠） */
@@ -180,29 +172,26 @@ async function main() {
 }
 
 /**
- * 按 SECTIONS 生成 navigation.languages 的 tabs 部分；首页作为每种语言的 Home tab。
+ * 按 TABS 生成 navigation.languages 的 tabs 部分；首页 index 作为第一个分组的首篇。
  */
 function buildNavigation(published) {
   return LOCALES.map((locale) => {
     const prefix = locale === 'en' ? '' : `${locale}/`;
-    const tabs = [
-      {
-        tab: locale === 'zh' ? '首页' : 'Home',
-        icon: 'house',
-        groups: [{ group: locale === 'zh' ? '首页' : 'Home', pages: [`${prefix}index`] }],
-      },
-    ];
-    for (const section of SECTIONS) {
-      const groups = section.groups
+    const tabs = [];
+    for (const t of TABS) {
+      const groups = t.groups
         .map((g) => ({
           group: g.name[locale],
           icon: g.icon,
-          pages: g.slugs
-            .filter((slug) => published.has(`${locale}:${slug}`))
-            .map((slug) => pagePath(locale, slug)),
+          pages: [
+            ...(g.leading ?? []).map((page) => `${prefix}${page}`),
+            ...g.slugs
+              .filter((slug) => published.has(`${locale}:${slug}`))
+              .map((slug) => pagePath(locale, slug)),
+          ],
         }))
         .filter((g) => g.pages.length);
-      if (groups.length) tabs.push({ tab: section.tab[locale], icon: section.icon, groups });
+      if (groups.length) tabs.push({ tab: t.tab[locale], icon: t.icon, groups });
     }
     return { language: locale, tabs };
   });
@@ -214,11 +203,7 @@ function frontmatter(doc) {
   if (doc.description?.trim()) {
     lines.push(`description: ${JSON.stringify(doc.description.trim())}`);
   }
-  if (doc.icon?.trim()) {
-    // Payload 存的是 Lucide 的 PascalCase 名，Mintlify 用 kebab-case
-    const icon = doc.icon.trim().replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-    lines.push(`icon: ${JSON.stringify(icon)}`);
-  }
+  // 不导出 Payload 的单页 icon：侧栏只在分组标题上显示图标（同 docs.peec.ai），保持统一
   if (doc.full) lines.push('mode: "wide"');
   lines.push('---', '');
   return lines.join('\n');

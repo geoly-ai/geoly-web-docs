@@ -1,26 +1,48 @@
 ---
-title: "GEOly 文档"
-description: "使用 GEOly 监测品牌在 AI 搜索中的表现，并基于其数据进行开发的指南与参考。"
-mode: "wide"
+title: "欢迎使用 GEOly"
+sidebarTitle: "欢迎使用 GEOly"
+description: "GEO 数据平台：看清 AI 引擎如何提及、排序、引用和推荐你的品牌。"
 ---
 
-<Columns cols={3}>
+GEOly 是一个 GEO（生成式引擎优化）数据平台。它测量 AI 引擎——ChatGPT、Google AI Mode、Gemini、Google AI Overviews、Microsoft Copilot——如何提及、排序、引用和推荐品牌，用 AIGVR 与 Share of Model 量化可见度，并用 Share of Card 把同一套测量延伸到 AI 购物货架。它还提供行业级公开数据集，无需配置即可查询任意品牌或品类。
+
+## 文档里有什么
+
+<Columns cols={2}>
   <Card title="快速开始" icon="rocket" href="/zh/get-started/geoly-platform">
-    了解 GEOly 是什么，以及完整的操作手册。
+    了解 GEOly 是什么，以及从入门到日常优化的完整操作手册。
   </Card>
-  <Card title="分析 AI 可见度" icon="chart-line" href="/zh/analytics/performance">
-    总览、提示词、主题与平台分析、洞察、探索、电商与广告。
+  <Card title="监测 AI 可见度" icon="activity" href="/zh/analytics/performance">
+    总览、提示词、主题与平台分析：看清品牌在 AI 回答中的表现。
+  </Card>
+  <Card title="洞察与研究" icon="lightbulb" href="/zh/analytics/ai-engine-insight">
+    探索公开 AI 市场信号、品牌、品类、电商与广告情报。
   </Card>
   <Card title="Shopify 应用" icon="shopping-bag" href="/zh/shopify/ai-llms-txt">
     生成 llms.txt，优化商品目录在 AI 搜索中的表现。
   </Card>
-  <Card title="配置组织" icon="sliders-horizontal" href="/zh/platform/basic-management">
+  <Card title="配置组织" icon="users" href="/zh/platform/basic-management">
     账号、组织、品牌设置，以及代理商操作手册。
   </Card>
   <Card title="连接你的工具" icon="plug" href="/zh/integrations/google-analytics-help-docs">
     接入 Google Analytics（GA4）与 Cloudflare，查看 AI 流量与爬虫数据。
   </Card>
-  <Card title="基于 GEOly 开发" icon="code" href="/zh/developers/mcp">
-    通过 MCP、CLI 与 Data API，在你自己的 Agent、报表和数据管道中使用 GEOly。
+  <Card title="在 AI 工具里使用 GEOly" icon="bot" href="/zh/developers/mcp">
+    让 Claude、Cursor、Codex 等 MCP 客户端访问你的 GEOly 数据。
+  </Card>
+  <Card title="通过 API 开发" icon="code" href="/zh/developers/data-api">
+    把监测数据接入你自己的应用、报表和数据管道。
   </Card>
 </Columns>
+
+## 常用指南
+
+- [什么是 GEOly？](/zh/get-started/geoly-platform) —— 平台导览
+- [GEOly 完整操作手册](/zh/get-started/geoly-operation-manual) —— 从基础理解到日常优化
+- [提示词](/zh/analytics/geoly-prompts) —— 管理监控 Prompt，查看 AI 回答
+- [GEOly MCP 使用指南](/zh/developers/mcp) —— 接入 Claude Code、Cursor 等客户端
+- [GEOly CLI](/zh/developers/cli) —— 在你自己的 Agent 里调用 GEOly
+
+## 需要帮助？
+
+没找到想要的内容？发邮件到 [hello@geoly.ai](mailto:hello@geoly.ai)，或访问 [geoly.ai](https://www.geoly.ai/zh)。

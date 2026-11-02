@@ -1,6 +1,6 @@
 # GEOly Docs
 
-GEOly 产品文档站（Mintlify）。内容按顶部 Tab 分为：Get Started / Analytics / Shopify App / Platform / Integrations / Developers，支持 en（根路径）与 zh（`/zh`）。
+GEOly 产品文档站（Mintlify）。内容按顶部 Tab 分为：Documentation（使用教程，按分组展开）/ Developers（MCP、CLI、API），支持 en（根路径）与 zh（`/zh`）。
 
 ## 目录
 
@@ -23,7 +23,7 @@ node scripts/export-payload.mjs
 - `scripts/navigation.generated.json`：导航结构，需同步到 `docs.json` 的 `navigation.languages`
 - `scripts/redirects-map.json`：官网旧 `/docs/<slug>`、`/zh/docs/<slug>` → 新路径，供官网 `proxy.ts` 做 301
 
-新增文档时在脚本的 `SECTIONS` 里登记 slug 所属 Tab / 分组。
+新增文档时在脚本的 `TABS` 里登记 slug 所属 Tab / 分组（分组的 `dir` 决定 URL，不要随意改）。
 
 ## 本地预览与检查
 
