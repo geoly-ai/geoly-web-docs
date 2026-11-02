@@ -2,13 +2,20 @@
 /**
  * 从 geoly.ai 官网 Payload CMS 的公开 REST API 导出已发布文档，转换为 Mintlify MDX。
  *
- * 用法：node scripts/export-payload.mjs
+ * ⚠️ 一次性迁移工具，迁移已于 2026-11-02 完成：此后文档直接在本仓库编辑，
+ * 重新运行会用 Payload 旧内容覆盖所有手工修改。确需重跑时显式加 --force：
+ *   node scripts/export-payload.mjs --force
  *
  * - 只导出 en / zh；de / jp 目前只有少量有正文的页面，暂不导出（见 SKIPPED 输出）。
  * - 正文只做语法转换（MDX 转义、图片本地化、内链改写），不改写内容。
  * - 同时生成 scripts/redirects-map.json：旧 /docs/<slug> → 新路径，供官网 proxy.ts 做 301。
- * - 可重复运行：每次都会覆盖生成的页面与图片，直到正式切换前都以 Payload 为准。
  */
+if (!process.argv.includes('--force')) {
+  console.error(
+    'Migration already done (2026-11-02). Docs are now edited in this repo; re-running overwrites them with old Payload content. Pass --force if you really mean it.'
+  );
+  process.exit(1);
+}
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -112,7 +119,9 @@ export const TABS = [
     ],
   },
   {
-    tab: { en: 'Data API', zh: 'Data API' },
+    // 菜单名用业界通用的 API Reference（AthenaHQ / Otterly / Mintlify 惯例）；
+    // 页面标题保留 "GEOly Data API"，与 App 的 OpenAPI 规格标题一致
+    tab: { en: 'API Reference', zh: 'API Reference' },
     icon: 'square-terminal',
     groups: [
       {

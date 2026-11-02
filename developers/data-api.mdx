@@ -5,8 +5,6 @@ description: "Read monitoring data, synchronize completed answers, and create or
 
 The Data API exposes monitoring resources and typed reports over HTTP. It shares GEOly's authorization, metric definitions and billing with the product. No hosted agent runs between your request and the data.
 
-**Migration:** the former `/api/v1/tools` and `/api/v1/tools/{tool}` HTTP wrappers return **410 TOOL_SURFACE_RETIRED** for every method. For a known tool, `error.details.replacement` names the resource endpoint: one replacement object, or an array of them for a tool with several views or replacements. Each object has `method` and `path` and may carry `when` (the old arguments it replaces) and `note` (marks a replacement that is not drop-in). Use the resources below; the full mapping from every former tool is in the last section of this page. MCP, the CLI and the Agent API remain separate supported interfaces. The only tool removed from them in the same release is `query_analytics`, which has no drop-in replacement (see the last section).
-
 ## Authentication and specification
 
 Create a brand-bound key under **Settings → Developers → API keys**. Send it as a Bearer token. The brand comes from the key, not a request parameter. A key without the required read/write permission is rejected.
@@ -141,35 +139,3 @@ Honor Retry-After on 429/503. Read retries may be billed again. For writes, insp
 Every authenticated response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until the window resets). Every executed call also carries `X-DB-Budget-Limit`, `X-DB-Budget-Used` and `X-DB-Budget-Reset`; slow down as `Used` approaches `Limit` instead of waiting for a 429. A 429 is never charged and always carries Retry-After.
 
 One call runs for at most about 45 seconds on the server, so set your HTTP client timeout to at least 60 seconds. A timeout returns `503 TOOL_TIMEOUT` (not charged); narrow the window or filters before retrying. JSON request bodies are limited to 64 KB. API result bodies have a 4 MB hard ceiling. Unsupported methods, including HEAD and OPTIONS on resource routes, return 405 without invoking a billable read.
-
-## Migrating from the tool wrappers
-
-Every method on `/api/v1/tools` and `/api/v1/tools/{tool}` returns `410 TOOL_SURFACE_RETIRED` without authenticating, running or billing anything; `error.details.replacement` follows the table below. A tool that is not listed has no REST equivalent: call it through [MCP](/developers/mcp) with the same key. There is no automatic redirect from an old tool POST to a new operation: parameters, response fields and semantics differ, so migrate explicitly against the specification. The old `/api/v1/openapi.json` URL now redirects to the resource specification, so a client regenerated from it gets entirely different operations and its per-tool methods disappear.
-
-| Former tool (arguments of the old call) | Resource | Notes |
-| --- | --- | --- |
-| get_quota | GET /api/v1/quota | No arguments |
-| get_brand_context | GET /api/v1/brand | Fields renamed to snake_case with units |
-| get_topic_list | GET /api/v1/topics | Counts renamed |
-| get_prompt_list, view=table (the default) | POST /api/v1/reports/prompts | page / page_size become cursor / limit |
-| get_prompt_list, view=catalog | GET /api/v1/prompts | Free, no metrics |
-| get_prompt_detail | POST /api/v1/reports/prompt-overview | Sources: first page and total only |
-| list_prompt_records (the default) | `GET /api/v1/prompts/{prompt_id}/records` | Offset becomes cursor |
-| list_prompt_records, latest_per_platform=true | `GET /api/v1/prompts/{prompt_id}/records/latest` | Root array |
-| get_prompt_record_detail | `GET /api/v1/records/{record_id}` | include_answer_text=true becomes include=answer_text |
-| list_brand_answers | GET /api/v1/records | Not drop-in: an incremental export of every completed answer of the brand, without the table filters or mention samples; filter client-side |
-| list_brand_answers | `GET /api/v1/prompts/{prompt_id}/records` | Not drop-in: the answers of one prompt in a date window |
-| create_prompt | POST /api/v1/prompts | Optional Idempotency-Key |
-| trigger_prompt | `POST /api/v1/prompts/{prompt_id}/runs` | Prompt id in the path, body `{}` |
-| get_brand_overview | POST /api/v1/reports/overview | Same argument names |
-| get_daily_trend | POST /api/v1/reports/analytics | start_date / end_date become start_utc_date / end_utc_date |
-| query_analytics | POST /api/v1/reports/analytics | Not drop-in; see below |
-| get_brand_board | POST /api/v1/reports/brand-board | platform does not accept "all"; omit it for every platform |
-| get_citation_overview, section=board | POST /api/v1/reports/citations | Other sections have no REST equivalent |
-
-**`query_analytics` has been removed.** On MCP it returns a free `TOOL_REMOVED` notice pointing to `get_daily_trend` until 2026-11-30, and the Agent API no longer offers it. `POST /api/v1/reports/analytics` returns fixed daily columns from the derived daily layer (the `get_daily_trend` definitions): `breakdown` is `platform`, `total` or `topic`, and window values are in `totals`. It has no `dataset`, free-form `dimensions` or `metrics`, `domain`, `limit` or `citationCount` (use `POST /api/v1/reports/citations` for citation counts).
-
-The text subsets `prompt_text_include` / `prompt_text_exclude` have no equivalent:
-
-- For a lasting branded / non-branded split, move those prompts into a topic in the app and read `breakdown=topic` (or `topic_ids`) after the next daily refresh. This counts by topic membership, not by text matching.
-- For a single window value, call `POST /api/v1/reports/prompts` with `search` and read `data.summary`. `search` is include-only and case-insensitive, matches the prompt text or a tag name (broader than a text match), and returns totals for the window without daily rows.
