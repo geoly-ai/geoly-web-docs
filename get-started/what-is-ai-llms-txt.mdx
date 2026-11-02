@@ -1,0 +1,41 @@
+---
+title: "What is llms.txt?"
+description: "Learn what the llms.txt proposal does, how its format differs from robots.txt, and how to test it without assuming traffic or ranking gains."
+---
+
+llms.txt is an open proposal for a concise Markdown guide at a website root or within a path. It helps AI agents that choose to read it find relevant pages for a task. Think of it as a curated content map, not a set of instructions that AI systems must obey. The proposal is now at [v2](https://llmstxt.org/); whether a particular agent reads or uses the file depends on that service.
+
+## How is it different from robots.txt and sitemap.xml?
+
+- **llms.txt** curates background information and important links so an agent can find more detailed, preferably machine-readable pages when needed.
+- **robots.txt** states crawling rules. llms.txt does not replace it and does not block access to a page.
+- **sitemap.xml** lists pages for discovery and indexing. llms.txt is usually shorter and explains which pages matter for a topic.
+
+Removing a URL from llms.txt therefore does **not** remove it from search results or prevent an AI crawler from reaching it.
+
+## What should the file contain?
+
+Proposal v2 permits /llms.txt at the site root or a scoped file such as /docs/llms.txt. Begin with one H1 naming the site or project. A short summary, additional context, and links grouped under H2 headings help readers decide what to open next. For example:
+
+    # Example Store
+    > Official product information, policies, and support resources.
+
+    ## Products
+    - [Product catalog](https://example.com/products): Current product pages and availability.
+
+    ## Help
+    - [Shipping policy](https://example.com/shipping): Regions, costs, and delivery times.
+    - [Contact](https://example.com/contact): How to ask about a product or order.
+
+Link to real, accessible pages and explain each link's purpose. Verify changing facts such as price, stock and policy terms against their source pages; review the file periodically. Do not place private data in a public llms.txt file. For complex sites, consider clean Markdown versions of important pages as well.
+
+## How to test its usefulness
+
+1. Open the target URL and confirm it returns the intended Markdown, not a login or error page.
+2. Follow several links and confirm they still work and contain accurate information.
+3. Test a real agent that uses llms.txt with specific questions: can it find the right page and cite the underlying content?
+4. To assess business outcomes, examine server logs, site analytics and each clearly defined GEOly metric separately. A crawler request, citation in an AI answer, referral session and conversion are different signals.
+
+llms.txt **cannot guarantee** that ChatGPT, Gemini or any other service reads the file, prioritizes your brand, cites it, raises a ranking, sends traffic or improves conversion. It also cannot force a model to use current prices. It complements accessible pages, accurate product information, structured data and normal access controls; it does not replace them.
+
+Reference: [The llms.txt proposal and format](https://llmstxt.org/).

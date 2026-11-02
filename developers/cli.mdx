@@ -1,0 +1,544 @@
+---
+title: "GEOly CLI: Use GEOly from Your Own Agent"
+description: "Install GEOly CLI and authorize access for your agent. Protect locally stored credentials and receipts; hosted runs use AI Credits while billable data-tool calls use MCP Credits."
+---
+
+The GEOly CLI (`geoly`) lets the agent you already work with ask GEOly for your brand's AI visibility data. Install it, authorize once, and Claude Code, Codex, Cursor, OpenCode, or an agent you built yourself can run `geoly` commands to read visibility, prompts, AI answers, citations, competitors, audits, and public industry data. The CLI stores OAuth credentials in the current user's environment on the machine where it runs; an agent host with terminal or file access may see command output or local receipts. Do not paste access tokens into prompts. Hosted `geoly run` reasoning uses AI Credits, while billable `geoly call` data tools use MCP Credits.
+
+## Paste this into your agent
+
+The fastest way to start: copy this prompt into Claude Code, Codex, Cursor, or any agent that can run commands. It installs the CLI, signs you in, and answers your first question.
+
+```prompt title="Install GEOly and connect it to my agent"
+Please set up the GEOly CLI and use it to answer a question about my brand's AI visibility.
+
+1. Install the CLI.
+   - macOS / Linux: curl -fsSL https://geoly.ai/install.sh | sh
+   - Windows PowerShell: irm https://geoly.ai/install.ps1 | iex
+2. Run `geoly init`. It installs the GEOly skill and signs me in. If it prints a sign-in URL, show it to me and wait until I have approved in the browser. On a machine without a browser, run `geoly auth login --remote`, give me the URL, and when I paste the code back, run `geoly auth login --code <code>`.
+3. Run `geoly whoami` and `geoly call get_brand_context`, and tell me which organization and brand you are connected to.
+4. Run `geoly tools --json` to see which tools are available, then answer my question with `geoly run "<question>"` (or `geoly call <tool>` when I ask for specific data).
+
+My question: How did our visibility in ChatGPT and Perplexity change over the last 30 days, and what drove it?
+```
+
+## What it looks like
+
+You ask your coding agent a question in plain language:
+
+> **You:** How did our ChatGPT visibility change over the last 7 days, and which prompts moved most?
+
+The agent recognizes a GEOly question and runs a command in your terminal:
+
+```sh
+geoly run "How did our ChatGPT visibility change over the last 7 days, and which prompts moved most?"
+```
+
+GEOly's hosted GEO agent picks the right data tools, reads your monitoring data, and returns one receipt on stdout (progress goes to stderr):
+
+```json
+{
+  "run_id": "run_…",
+  "status": "done",
+  "answer": "## ChatGPT visibility, last 7 days\n…",
+  "stopped": "done",
+  "stopped_reason": "done",
+  "steps": 4,
+  "tools_used": ["get_brand_context", "get_brand_overview", "get_prompt_list"],
+  "credits_cost": 54,
+  "credits_remaining": 9946,
+  "saved_to": ".geoly/runs/run_….json"
+}
+```
+
+Your agent reads `answer`, cites the numbers, and carries on with your task. When it needs exact fields instead of a written answer — to build a table, loop over prompts, or check a single number — it calls one data tool directly:
+
+```sh
+geoly call get_brand_overview --time_range 7d --platform chatgpt
+```
+
+## Get started in three steps
+
+### Step 1 — Install
+
+**macOS / Linux**
+
+```sh
+curl -fsSL https://geoly.ai/install.sh | sh
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://geoly.ai/install.ps1 | iex
+```
+
+The installer downloads one self-contained binary (no Node.js, no Python, no sudo) and verifies its SHA-256 against the release manifest. On macOS and Linux it installs to `~/.local/bin` and prints the exact line to add if that directory is not on your `PATH`. On Windows it installs to `%LOCALAPPDATA%\Programs\geoly` and adds it to your user `PATH`. Supported: macOS (Apple silicon and Intel), Linux (x64, arm64), Windows (x64).
+
+```sh
+geoly --version
+```
+
+Update any time with `geoly upgrade`. If github.com is slow or blocked on your network, set `GEOLY_INSTALL_BASE` to an HTTPS mirror on `*.geoly.ai`; the installers and `geoly upgrade` both honor it.
+
+### Step 2 — Run `geoly init`
+
+```sh
+geoly init
+```
+
+`geoly init` does two things:
+
+1. **Installs the GEOly Agent Skill into the agent hosts it finds on this machine.** It looks for `~/.claude`, `~/.codex`, and `~/.cursor` and writes the skill to `~/.claude/skills/geoly-mcp/`, `~/.codex/skills/geoly-mcp/`, and `~/.cursor/skills/geoly-mcp/` respectively. The skill is fetched from app.geoly.ai so it matches the live server (a copy embedded in the CLI is used if that is unreachable). It teaches the agent when to use `geoly run` versus `geoly call`, how to resolve the organization and brand first, and how to read GEOly metrics correctly. It changes no other configuration and grants no permissions.
+2. **Signs you in** (see Step 3). On a machine without a browser it starts the paste-code sign-in and tells you the command that finishes it.
+
+Variants:
+
+```sh
+geoly init --agent codex     # only one host: claude-code | codex | cursor
+geoly init --no-login        # install the skill only (dotfiles, CI images)
+```
+
+Add `.geoly/` to your project's `.gitignore`: `geoly run` writes receipts there.
+
+### Step 3 — Authorize once
+
+The CLI signs in with OAuth — the same authorization as [GEOly MCP](/developers/mcp). What the CLI can reach is exactly what you approve on the consent screen.
+
+#### On your own computer
+
+You do not have to do anything in advance: the first command that needs data starts the sign-in (or run `geoly auth login` explicitly). The CLI:
+
+1. opens your browser on the GEOly authorization page and prints the same URL on stderr in case the browser does not open;
+2. waits on a local port (`127.0.0.1`) for up to 180 seconds;
+3. continues the original command once you approve.
+
+In the browser, sign in to GEOly and complete the consent screen:
+
+- **Choose the organization** the CLI may use — one organization, or all of your organizations (read-only).
+- **Approve read access** for the resources you need (brands, prompts, citations, analytics, audits, sources, public data…).
+- **Tick Write** only for resources you want your agent to change, and only with a single organization.
+
+The terminal then shows `geoly: authorized ✓`. If several commands start at once (agents often run commands in parallel), they share one browser sign-in.
+
+```sh
+geoly auth login
+```
+
+```json
+{
+  "authorized": true,
+  "profile": "default",
+  "expiresAt": "2026-10-07T09:30:00.000Z",
+  "scope": "openid profile"
+}
+```
+
+If a browser exists but should not be launched automatically (WSL, for example), use `geoly auth login --no-browser`: the URL is printed and the CLI still listens locally.
+
+#### On a machine without a browser (SSH, containers, remote servers)
+
+The CLI switches to a **paste-code** sign-in when there is no browser to open. It does this automatically when `SSH_CONNECTION`, `SSH_TTY`, or `SSH_CLIENT` is set, when `CI` is set, or on Linux without `DISPLAY` / `WAYLAND_DISPLAY`. `--remote` forces it.
+
+```sh
+# 1. Start the sign-in on the remote machine
+geoly auth login --remote
+```
+
+Open the printed URL in a browser on any device, sign in, and complete the same consent screen. The page then shows a one-time code.
+
+```sh
+# 2a. In an interactive terminal the CLI is already waiting:
+Paste the code: 7Hk2…
+
+# 2b. Otherwise (for example, when your agent ran step 1 for you):
+geoly auth login --code 7Hk2…
+```
+
+Without an interactive terminal, step 1 prints the pending state and exits with code 0:
+
+```json
+{
+  "authorized": false,
+  "pending": true,
+  "profile": "default",
+  "url": "https://app.geoly.ai/…",
+  "next": "geoly auth login --code <code>"
+}
+```
+
+- A pending sign-in stays valid for 10 minutes; later commands reuse it instead of starting another.
+- The code is single-use and short-lived, but treat it as sensitive. Enter it only in a trusted session on the machine that started sign-in; do not post it in shared chats, logs, or tickets.
+- If an ordinary command needs credentials on such a machine, it prints the URL, stops with exit code 3, and suggests `geoly auth login --code <code>`.
+
+#### Servers and CI
+
+Sign in once on the runner itself with the paste-code flow: run `geoly auth login --remote`, open the URL in any browser, then run `geoly auth login --code <code>` on the runner. The credential is stored for that machine's user and reused until it expires (about 14 days); `geoly auth status` shows when, and after that you sign in the same way again.
+
+Automatic sign-in is turned off when `CI` is set, when `GEOLY_NO_AUTO_AUTH=1` is set, or with `--no-auto-auth`: a missing or expired credential then fails at once with exit code 3 instead of waiting for a browser, so a job never hangs on a sign-in.
+
+#### Check, switch, and sign out
+
+```sh
+geoly auth status    # signed in? until when?
+geoly whoami         # which account, organization, mode, and tools?
+geoly auth logout    # delete this profile's stored credentials
+```
+
+`geoly auth status` prints `mode`, `authorized`, `profile`, `endpoint`, `expiresAt`, and `scope`. `geoly whoami` asks the server and prints the auth mode, the organization in use, token expiry, `mode` (`single`, `multi-brand`, or `multi-org`), `toolCount`, whether public industry tools are enabled, and `writeTools` — the write tools your consent actually granted.
+
+The access token lasts about 14 days; after that the next command signs you in again.
+
+| File | Contents |
+| --- | --- |
+| `~/.geoly/credentials-<profile>.json` | OAuth client registration and access token (owner-only permissions on macOS/Linux) |
+| `~/.geoly/settings-<profile>.json` | The organization you last picked in an interactive session |
+| `./.geoly/runs/<run_id>.json` | Receipts from `geoly run`, in the current directory |
+
+**Organizations and brands.** Choosing one organization gives read access plus write for the resources you ticked; choosing all organizations is read-only. The tools you see also depend on your plan and role — a missing tool does not mean sign-in failed.
+
+```sh
+geoly call list_organizations                  # when your access spans several organizations
+geoly call list_brands                         # when an organization has several brands
+geoly call get_brand_overview --org <org_id> --brand_id <brand_id>
+geoly run "…" --org <org_id> --brand <brand_id>
+```
+
+- `--org <org_id>` works on every command and narrows it to one organization.
+- In the interactive `geoly` session, a multi-organization account is asked once, with a searchable list, and the answer is remembered in `~/.geoly/settings-<profile>.json`. Non-interactive commands never prompt: they fail with the candidates and the flag to add. Pass `--org` or delete that file to change it.
+- Use `--profile <name>` on any command to keep a second account side by side, or `geoly auth logout` and sign in again.
+
+## Using it in your agent
+
+### Claude Code, Codex, and Cursor
+
+After `geoly init`, the GEOly skill is in each host's skills folder. Start a new session and ask in plain language, for example "Use geoly to check our citation gaps this month". The agent runs `geoly` in your terminal, reads JSON from stdout, and follows up on its own. If the agent was already open when you ran `geoly init`, restart it so it picks up the new skill. `geoly upgrade` refreshes the skill together with the CLI.
+
+### Any agent that can run shell commands
+
+OpenCode, a custom agent, a CI job driven by an LLM — anything that can run a command and read its output can use GEOly. Put this in its system prompt or `AGENTS.md`:
+
+```markdown
+**GEOly (AI visibility data)**
+
+Use the `geoly` CLI for questions about our brand's visibility in AI answers
+(ChatGPT, Perplexity, Gemini, Google AI Mode, Google AI Overview, Copilot).
+
+- A whole question that ends in a written answer: `geoly run "<question>"`.
+  Read `answer` from the JSON on stdout. If `status` is `running`, run the `next`
+  command it prints (`geoly runs wait <run_id>`); never re-issue the same run.
+  If `stopped` is `max_steps`, treat the answer as partial (`stopped_reason` says why).
+- A specific data pull: discover with `geoly tools --json`, read parameters with
+  `geoly schema <tool>`, then `geoly call <tool> --<param> <value>`.
+  Parameter names are used verbatim (underscores); unknown parameters are rejected.
+- Start a session with `geoly call get_brand_context` (free) to learn the brand,
+  plan, platforms, topics, and competitors.
+- stdout is JSON data; stderr is progress and errors. Add `--error-format json`
+  to get errors as JSON.
+- Exit codes: 0 ok, 1 tool error, 2 fix the command, 3 sign in (`geoly auth login`),
+  4 rate limited (wait `retryAfter`), 5 no active plan, 6 service trouble (retry once),
+  7 credits used up.
+- Never pass `--yes` or `--allow-writes` unless the user explicitly asked for a change.
+```
+
+### Servers and CI
+
+Sign in once on the runner with `geoly auth login --remote`, then `--code`, as described in Step 3, and sign in again when the credential expires. Add `--error-format json` and branch on exit codes (3 means the runner needs a new sign-in).
+
+## What your agent can ask
+
+Tools are grouped below by the question they answer. The complete, current list for your account is always `geoly tools --json` — the server can add tools without a CLI release — and `geoly schema <tool>` shows exact parameters. Platform codes are `chatgpt`, `perplexity`, `gemini`, `google_ai`, `copilot`, and `google_ai_overview`.
+
+### Orientation
+
+| Tool | Answers |
+| --- | --- |
+| `get_brand_context` | Free, once per session: your brand, organization and plan, entitled platforms, topics, tracked competitors, data window, remaining credits. |
+| `list_organizations` / `list_brands` | Which organizations and brands you can reach (shown only for multi-organization or multi-brand access). |
+
+### Brand visibility and trends
+
+| Tool | Answers |
+| --- | --- |
+| `get_brand_overview` | The Performance page KPIs: visibility, mention rate, share of voice, best and worst platform, per-platform stats. |
+| `get_daily_trend` | Day-by-day visibility, mention rate and citation rate per platform, per topic, or in total — read from the derived layer, with `totals` for the whole window and `compare_previous` for period-over-period. |
+| `get_brand_board` | Your brand against confirmed competitors, like the Performance brand board, with an optional trend. |
+
+```sh
+geoly call get_daily_trend --start_date 2026-09-01 --end_date 2026-09-21 --breakdown platform
+```
+
+### Prompts and AI answer text
+
+| Tool | Answers |
+| --- | --- |
+| `get_prompt_list` | Monitored prompts with visibility, mention rate, and citation rate, filtered and sorted like the Prompts table. |
+| `get_prompt_detail` | One prompt over a window: ranking, competitors, trend, cited domains. |
+| `list_brand_answers` | Every AI answer for the brand in a window, newest first. |
+| `get_prompt_record_detail` | One answer in full: text, citations, the searches the AI ran, brands named. |
+
+```sh
+geoly call list_brand_answers --time_range 7d --platform perplexity --only_mentioned --page_size 20
+```
+
+### Citations and sources
+
+| Tool | Answers |
+| --- | --- |
+| `get_citation_overview` | Which domains AI answers cite, your share, and the biggest movers. |
+| `list_citation_domains` | The cited-domain table, including the gaps-only view (a competitor is mentioned, you are not). |
+| `get_domain_detail` / `get_page_detail` | One domain's or one URL's citation profile. |
+
+```sh
+geoly call list_citation_domains --time_range 30d --gap_only --page_size 20
+```
+
+### Competitors and the brand library
+
+| Tool | Answers |
+| --- | --- |
+| `get_competitor_list` | Your brand library: tracked, suggested, and removed brands, with 30-day mentions. |
+| `get_platform_matrix` | Brand and competitors × platform: visibility, share of mentions, or citation. |
+| `get_competitor_cooccurrence` | Answers where you and other brands appear together. |
+
+```sh
+geoly call get_competitor_list --status tracked
+```
+
+### AI verdict and sentiment
+
+| Tool | Answers |
+| --- | --- |
+| `get_competitor_polarity` | Which competitors AI answers prefer over you — the AI Verdict board. |
+| `get_risk_context_sources` | Sources cited in answers that judge your brand, with the share of negative judgments. |
+| `get_brand_mention_samples` | Recent answers that mention you, with the surrounding text. |
+| `get_sentiment_dashboard` | Answer-level sentiment distribution and trend. |
+
+```sh
+geoly call get_competitor_polarity --time_range 30d
+```
+
+### AI search queries
+
+| Tool | Answers |
+| --- | --- |
+| `get_brand_search_queries` | The web searches ChatGPT and Perplexity ran while answering your prompts: overview, grouped evidence, one query, or one prompt's queries. |
+
+```sh
+geoly call get_brand_search_queries --mode overview --time_range 30d --platform chatgpt
+```
+
+### Traffic: GA4 and Cloudflare
+
+| Tool | Answers |
+| --- | --- |
+| `get_ga4_traffic_data` | AI-referred sessions next to whole-site traffic from GA4; page-level data with `page_path`. |
+| `get_cf_traffic_data` | AI crawler requests to your site from Cloudflare, including blocked crawlers. |
+
+```sh
+geoly call get_ga4_traffic_data --time_range 30d
+```
+
+Both need the matching integration connected in GEOly; `get_brand_context` shows which ones are ready.
+
+### Site audits and Agent Ready
+
+| Tool | Answers |
+| --- | --- |
+| `get_audit_list` / `get_audit_detail` | Your GEO audit history, and one report with scores, issues, and how to fix them. |
+| `get_audit_pages` | Per-page results of a site audit. |
+| `get_agent_ready_scans` / `get_agent_ready_scan_detail` | Your Agent Readiness scans and one scan's full result. |
+
+```sh
+geoly call get_audit_detail --audit_id <audit_id>
+```
+
+### Public industry intelligence
+
+Cross-brand data on categories, topics, brands, shopping shelves, and citation sources. Most of it needs the Grow plan or above plus Public data read permission; the public source tools need Source read permission.
+
+| Tool | Answers |
+| --- | --- |
+| `search_public_entities` | Resolve a brand, category, topic, or domain name to public IDs. |
+| `get_public_category` / `get_public_topic_brand_leaderboard` | Who leads a category or topic in AI answers. |
+| `compare_public_brands` | Two to four brands side by side on one facet. |
+| `list_public_shopping_boards` | Which products AI recommends most across categories. |
+| `get_public_sources_overview` / `get_public_source_domain_detail` | The most-cited source domains, and one domain's profile. |
+
+```sh
+geoly call search_public_entities --query "standing desk" --limit 10
+```
+
+### Questions to paste into your agent
+
+Once the CLI is set up, copy any of these into your agent.
+
+```prompt title="Visibility trend"
+Use geoly: how did our visibility change on ChatGPT and Perplexity over the last 30 days compared with the 30 days before, and which prompts drove the change? Show the numbers you used.
+```
+
+```prompt title="Prompts where we are missing"
+Use geoly to list the monitored prompts where our brand was never mentioned in the last 30 days, and for the top 10 show which competitors the AI answers mention instead.
+```
+
+```prompt title="Citation gaps"
+With geoly, find the domains AI answers cite when they mention our competitors but not us this month (the citation gaps), and suggest which of them we should try to earn coverage on.
+```
+
+```prompt title="Who AI prefers over us"
+Ask geoly which competitors AI answers prefer over us in the last 30 days, and which sources those answers cite. Quote two or three answers as evidence.
+```
+
+```prompt title="Weekly brand health report"
+Run `geoly run "Weekly brand health report" --spec geo-weekly-brand-health -o reports/weekly-brand-health.json`, then summarize the report for me in five bullet points.
+```
+
+More ideas: "Use geoly to read our latest site audit and turn the critical issues into a fix list." · "With geoly, compare our brand with two competitors in our category's public data."
+
+## `geoly run` or `geoly call`?
+
+| | `geoly run "<question>"` | `geoly call <tool> --<param> <value>` |
+| --- | --- | --- |
+| What happens | GEOly's hosted GEO agent picks the tools, reads the data, and writes the answer. | Exactly one data tool runs and returns JSON. |
+| You get | A receipt: answer, tools used, steps, credits spent. | The tool's raw result. |
+| Use it for | Anything that ends in a narrative: a weekly review, a comparison, a "why did this move" investigation. | Exact fields for your own analysis, tables, loops, and exports. |
+
+### Calling data tools
+
+```sh
+geoly tools            # table: name, access, first line of the description
+geoly tools --json     # [{ "name", "title", "access" }] for scripts
+geoly schema get_brand_overview    # description + full input schema
+```
+
+`access` is `read-only`, `write`, or `credit-consuming`. Retired names that still forward to a newer tool are marked `"deprecated": true`. The list is cached for 60 seconds (`--refresh` bypasses it).
+
+Parameter flags use schema names verbatim, underscores included:
+
+```sh
+geoly call get_brand_overview --time_range 30d --platform chatgpt          # scalars
+geoly call get_prompt_list --page 1 --page_size 20 --compact               # booleans: presence
+geoly call compare_public_brands --brand_ids '["<id_a>","<id_b>"]' --country US --language en   # arrays: JSON
+geoly call get_prompt_list --data '{"page":1,"page_size":20,"sort_by":"visibility","sort_order":"desc"}'
+echo '{"time_range":"7d"}' | geoly call get_brand_overview --input -
+```
+
+Individual flags override the same fields in `--data` / `--input`. A tool parameter that shares its name with a CLI flag (`org`, `profile`, `output`, `timeout`, `yes`…) goes inside `--data`. Paging parameters pass through as each tool defines them (`page` / `page_size` or `limit` / `offset`); when the server marks a partial result (`_truncated`, `hasMore`, `totalPages`), the fields stay in the payload and the CLI adds a hint on stderr.
+
+**Write tools** — `create_prompt`, `create_topic`, `create_competitor`, `archive_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `trigger_prompt` — appear only when the consent granted Write on that resource for one organization. They run only after a confirmation: `[y/N]` in a terminal or `--yes` in a script; otherwise the result is `write_blocked`. `trigger_prompt` also runs monitoring right away and consumes credits.
+
+### Asking the hosted agent
+
+| Flag | What it does |
+| --- | --- |
+| `--brand <id>` | The brand to run against (needed when the organization has several) |
+| `--context <text>` / `--context @file` | Extra background; `@file` reads a UTF-8 (or UTF-16 with BOM) text file |
+| `--spec <name>` | A fixed-format deliverable defined on the server: `geo-weekly-brand-health`, `geo-content-brief`, `geo-keyword-research-report`, `geo-serp-gap` |
+| `--max-credits <n>` | Hard ceiling for this run, 25–2000 credits |
+| `--allow-writes` | Let the agent use the write tools your consent granted; without it the run is read-only |
+| `--wait <sec>` / `--no-wait` | How long to follow the run (default 100 s) / return as soon as it starts |
+| `-o <file>` / `--no-save` | Write the receipt to a chosen file / skip `./.geoly/runs/` |
+| `--output raw` | Stream the answer text to stdout instead of JSON |
+
+Reading the receipt:
+
+- `status` is the field to branch on: `done` and `failed` are final; `running` is not an answer yet.
+- `stopped: "max_steps"` means the agent did not finish on its own terms. `stopped_reason` says why: `budget` (the `--max-credits` ceiling), `deadline`, `max_steps`, or `salvaged`. The exit code stays 0, and the CLI warns on stderr that the answer is partial.
+- With `--spec`, the receipt also carries `deliverable`, the server's check of the report against the spec.
+
+## Output and exit codes
+
+Flags, output behavior, and exit codes are the stable contract. Tool names and schemas come from the server; discover them rather than hard-coding them.
+
+- **stdout is data:** JSON, pretty in a terminal and compact when piped. `--output raw` prints the raw text (for `geoly run`, the answer).
+- **stderr is status:** progress, warnings, errors. `-q` silences status lines.
+- **`--error-format json`** prints each error as one JSON object on stderr: `kind`, `message`, and when available `status`, `tool`, `retryAfter`, `hint`, `next` (the exact command that moves things forward). `kind` is one of `auth_expired`, `grant_missing`, `rate_limited`, `subscription_required`, `quota_exhausted`, `upstream_unavailable`, `tool_error`, `usage_error`, `write_blocked`.
+- **Help is plain text when piped** (`geoly --help | cat`), so agents can read it.
+- **`--timeout <sec>`** (default 30, maximum 120) bounds each request; for `geoly run` it bounds the wait for the server to respond, while `--wait` controls how long to follow the run.
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| 0 | Success (a `running` hand-off from `geoly run` is also 0) | — |
+| 1 | Tool or run error: the server answered, the operation failed | Read the error; usually do not retry |
+| 2 | Usage error: bad flag, unknown tool or parameter, rejected arguments; nothing ran | Fix the command; check `geoly schema <tool>` |
+| 3 | Authentication: no valid credential, or the grant does not cover this | `geoly auth login` |
+| 4 | Rate limited | Wait `retryAfter` seconds, then retry |
+| 5 | Subscription required: the organization has no active plan | Needs a person; do not retry |
+| 6 | Upstream unavailable: network or service trouble | Short back-off, then retry once |
+| 7 | This period's credits are used up | Do not retry; wait for the reset or raise the limit |
+
+## Long runs and safe retries
+
+If a run is still going after `--wait` seconds, `geoly run` exits 0 with:
+
+```json
+{ "status": "running", "run_id": "run_…", "elapsed_s": 100, "next": "geoly runs wait run_…" }
+```
+
+The run continues on the server; a disconnect or Ctrl-C never cancels it.
+
+```sh
+geoly runs wait run_…    # poll every 3 s (change with --interval) for up to --wait seconds
+geoly run run_…          # print a run's current state
+geoly runs list          # recent runs for the organization (--limit 1–50, default 20)
+```
+
+**Retries never pay twice.** Each `geoly run` sends an idempotency key derived from the organization, brand, spec, question, context, `--max-credits`, and `--allow-writes`. Repeating the exact same command within 10 minutes replays the existing run (stderr says `replayed run …`) instead of starting and charging a new one; changing any of those inputs starts a new run. Scripts can set their own key with `--idempotency-key` (8–128 characters of `A-Z a-z 0-9 _ - : .`).
+
+**Receipts on disk.** Every finished run is written to `./.geoly/runs/<run_id>.json` in the current directory, so your agent can read a long answer from the file instead of asking again. `-o <file>` picks the path (stdout then prints only `status`, `run_id`, `saved_to`).
+
+## Credits
+
+Some direct geoly call / MCP reads of own monitoring data are billed per call against MCP Credits. Paid public research uses registered tool/view rates; quota, navigation and eligible free tools retain their free scope. Current default monthly MCP Credits are Basic 3,000, Grow 25,000, Advanced 75,000 and Plus 200,000, subject to organization overrides. Basic credits do not unlock all public industry tools, which still require Grow or higher and resource permission. Hosted reasoning in geoly run / Agent API uses separate AI Credits; its own-data tools are not billed again as direct MCP calls, while third-party cost tools follow separate rules. Check get_quota, the account and receipts for both balances and resets.
+
+GEOly CLI uses separate credit pools: hosted `geoly run` reasoning consumes AI Credits; billable `geoly call` / MCP data tools consume MCP Credits. Free tools and third-party-cost tools follow their current published rules. Check the current account, tool schema, and receipt before estimating cost.
+
+- **See the balance:** `geoly credits` (or **Settings → Organization → Billing** in GEOly) returns each organization you can reach with its plan, remaining credits, and reset date. `geoly credits --output raw` prints the same as plain text, two lines per organization (`MCP credits` and `AI credits`).
+- **Cap a run:** `geoly run … --max-credits <n>`. The receipt's `credits_cost` never exceeds it; `credits_remaining` shows what is left.
+- **When credits run out**, commands that need them exit with code 7 and the hint gives the reset date. Plan allowances are on the [pricing page](https://www.geoly.ai/pricing).
+
+## Troubleshooting
+
+**The browser did not open.** Open the URL printed on stderr. On a machine without a browser, use `geoly auth login --remote`, then `geoly auth login --code <code>`.
+
+**`auth_expired` / exit 3 in CI.** Automatic sign-in is off when `CI` is set. Sign in once on that machine with `geoly auth login --remote`, then `--code`; repeat when the credential expires.
+
+**`grant_missing`.** The consent did not cover this. For a write tool, Write was not ticked for that resource, or you chose all organizations: run `geoly auth login` again and pick one organization with the Write permission you need. If the organization is no longer available, re-authorize and pick again.
+
+**`--x is not a parameter of <tool>` / `Unknown argument(s) … Accepted: …`.** The tool does not have that parameter; nothing was run or billed. The CLI checks your flags before sending:
+
+```text
+error[usage_error]: --time-range is not a parameter of get_brand_overview
+  hint: Did you mean --time_range? Declared parameters: --time_range, --start_date, …
+```
+
+The server applies the same rule to every call and names the accepted arguments, for example `Unknown argument(s) nope for get_prompt_list. Accepted: …`. `org_id` and `brand_id` are accepted everywhere. Use the name from the message, or `geoly schema <tool>`; names use underscores.
+
+**`Unknown tool "…"`.** Not available to this account, plan, or grant, or misspelled — the hint suggests the closest names. Try `geoly tools --refresh`.
+
+**"spans multiple organizations" or a brand is required.** Add `--org <org_id>` and, for brand tools, `--brand_id <id>` (`--brand <id>` for `geoly run`). `geoly call list_organizations` / `list_brands` show the options.
+
+**`subscription_required` (exit 5) vs `quota_exhausted` (exit 7).** Both are HTTP 402: the first means no active plan, the second means this period's credits are used up. The hint links to billing and shows the reset date.
+
+**`rate_limited` (exit 4).** Wait `retryAfter` seconds and retry.
+
+**`status: "running"`.** Not an error — run the printed `next` command.
+
+**The answer looks cut short.** Check `stopped` / `stopped_reason`. `budget` means the `--max-credits` ceiling was hit; raise it and ask again.
+
+**`SPEC_NOT_FOUND`.** The `--spec` name is unknown; the error lists the available names.
+
+## Limits and boundaries
+
+- **Scope is what you approved.** The CLI reaches only the organizations and resources granted on the consent screen; choosing all organizations makes everything read-only.
+- **Read-only by default.** Write tools need a Write grant on a single organization plus a confirmation on every call (`[y/N]` or `--yes`); `geoly run` needs `--allow-writes`. `trigger_prompt` is never available to the hosted agent.
+- **Plans.** Hosted agent runs need an active subscription; public industry intelligence needs the Grow plan or above and Public data read permission.
+- **Tool names and schemas evolve.** Discover them with `geoly tools --json`; do not hard-code a list.
+- **Size limits.** A `geoly run` question can be up to 4,000 characters and `--context` up to 16,000.
+- **Runs are bounded.** One run spends at most 2,000 credits and has a server-side time limit; an early stop is reported in `stopped_reason`.
+- **Protect local files and outputs.** Credentials, interactive session transcripts (`~/.geoly/sessions/`), and receipts (`.geoly/runs/`) may contain sensitive account or answer data. Restrict access, keep `.geoly/` out of version control, and follow your organization's retention policy. Authorized CLI requests still send data to GEOly services; an agent with terminal or file access may read local outputs.
+
+## Related
+
+- [GEOly MCP User Guide](/developers/mcp) — connect GEOly to Claude, Cursor, VS Code, Windsurf, or Codex without installing a CLI. Same tools, same authorization.
+- [GEOly CLI on GitHub](https://github.com/geoly-ai/GEOly-Cli) — releases and the full command contract.

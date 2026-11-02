@@ -1,0 +1,541 @@
+---
+title: "GEOly CLI：在你自己的 Agent 里调用 GEOly"
+description: "安装 GEOly CLI 并授权你的 Agent 使用。请保护本机凭据与回执；托管运行使用 AI Credits，需计费的数据工具调用使用 MCP Credits。"
+---
+
+GEOly CLI（命令名 `geoly`）让你已经在用的 Agent 直接向 GEOly 要品牌的 AI 可见度数据。装好、授权一次之后，Claude Code、Codex、Cursor、OpenCode，或者你自己搭的 Agent，都可以通过 `geoly` 命令读取可见度、Prompt、AI 回答原文、引用、竞品、审计和公开行业数据。CLI 会把 OAuth 凭据保存在运行机器的当前用户环境中；具备终端或文件访问权限的 Agent 宿主可能读到命令输出或本地回执，因此不要把访问令牌写入提问文本。托管的 `geoly run` 推理使用 AI Credits，需计费的 `geoly call` 数据工具使用 MCP Credits。
+
+## 直接粘给你的 Agent
+
+最快的开始方式：把下面这段提示词复制给 Claude Code、Codex、Cursor 或任何能执行命令的 Agent。它会安装 CLI、引导你登录，并回答你的第一个问题。
+
+```prompt title="安装 GEOly 并接入我的 Agent"
+请帮我安装 GEOly CLI，并用它回答一个关于我们品牌 AI 可见度的问题。
+
+1. 安装 CLI。
+   - macOS / Linux：curl -fsSL https://geoly.ai/install.sh | sh
+   - Windows PowerShell：irm https://geoly.ai/install.ps1 | iex
+2. 运行 `geoly init`。它会安装 GEOly 技能并引导我登录。如果打印出登录链接，请把链接发给我，等我在浏览器里完成授权。如果这台机器没有浏览器，请运行 `geoly auth login --remote`，把链接发给我；我把授权码贴回来后，运行 `geoly auth login --code <授权码>`。
+3. 运行 `geoly whoami` 和 `geoly call get_brand_context`，告诉我当前连接的是哪个组织和品牌。
+4. 运行 `geoly tools --json` 了解可用工具，然后用 `geoly run "<问题>"` 回答我的问题（如果我要的是具体数据，就用 `geoly call <tool>`）。
+
+我的问题：过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度怎么变的？是什么带来的？
+```
+
+## 用起来是什么样
+
+你在编码 Agent 里用一句大白话提问：
+
+> **你：** 过去 7 天我们在 ChatGPT 上的可见度怎么变的？哪些 Prompt 变化最大？
+
+Agent 识别出这是 GEOly 的问题，在你的终端里执行：
+
+```sh
+geoly run "过去 7 天我们在 ChatGPT 上的可见度怎么变的？哪些 Prompt 变化最大？"
+```
+
+GEOly 托管的 GEO Agent 自己挑选数据工具、读取你的监测数据，在 stdout 上返回一张回执（过程信息走 stderr）：
+
+```json
+{
+  "run_id": "run_…",
+  "status": "done",
+  "answer": "## 过去 7 天 ChatGPT 可见度\n…",
+  "stopped": "done",
+  "stopped_reason": "done",
+  "steps": 4,
+  "tools_used": ["get_brand_context", "get_brand_overview", "get_prompt_list"],
+  "credits_cost": 54,
+  "credits_remaining": 9946,
+  "saved_to": ".geoly/runs/run_….json"
+}
+```
+
+Agent 读取 `answer`、引用其中的数字，然后继续做你交代的事。如果它需要的是精确字段而不是一段文字——比如做表、逐个遍历 Prompt、核对某个数——就直接调用单个数据工具：
+
+```sh
+geoly call get_brand_overview --time_range 7d --platform chatgpt
+```
+
+## 三步上手
+
+### 第一步：安装
+
+**macOS / Linux**
+
+```sh
+curl -fsSL https://geoly.ai/install.sh | sh
+```
+
+**Windows（PowerShell）**
+
+```powershell
+irm https://geoly.ai/install.ps1 | iex
+```
+
+安装脚本会下载一个独立的可执行文件（不需要 Node.js、Python，也不需要 sudo），并按发布清单校验 SHA-256。macOS 和 Linux 装到 `~/.local/bin`，如果该目录不在 `PATH` 里，脚本会打印需要添加的那一行；Windows 装到 `%LOCALAPPDATA%\Programs\geoly`，并自动加入用户 `PATH`。支持 macOS（Apple 芯片与 Intel）、Linux（x64、arm64）和 Windows（x64）。
+
+```sh
+geoly --version
+```
+
+随时用 `geoly upgrade` 升级。如果你的网络访问 github.com 很慢或不通，可以把 `GEOLY_INSTALL_BASE` 设为 `*.geoly.ai` 上的 HTTPS 镜像地址，安装脚本和 `geoly upgrade` 都会使用它。
+
+### 第二步：运行 `geoly init`
+
+```sh
+geoly init
+```
+
+`geoly init` 做两件事：
+
+1. **把 GEOly Agent Skill 装进本机找到的 Agent 宿主。** 它检查 `~/.claude`、`~/.codex`、`~/.cursor` 是否存在，分别把技能写入 `~/.claude/skills/geoly-mcp/`、`~/.codex/skills/geoly-mcp/`、`~/.cursor/skills/geoly-mcp/`。技能从 app.geoly.ai 实时获取，保证与线上服务一致（取不到时使用 CLI 内置的副本）。它教 Agent 什么时候用 `geoly run`、什么时候用 `geoly call`，先确认组织和品牌，以及怎样正确解读 GEOly 的指标。除此之外不改动任何配置，也不授予任何权限。
+2. **完成登录**（见第三步）。在没有浏览器的机器上，它会发起粘贴授权码登录，并告诉你完成登录的那条命令。
+
+其他用法：
+
+```sh
+geoly init --agent codex     # 只装一个宿主：claude-code | codex | cursor
+geoly init --no-login        # 只装技能（dotfiles、CI 镜像）
+```
+
+请把 `.geoly/` 加进项目的 `.gitignore`：`geoly run` 会把回执写在那里。
+
+### 第三步：授权一次
+
+CLI 使用 OAuth 登录，与 [GEOly MCP](/zh/developers/mcp) 是同一套授权。CLI 能访问什么，完全由你在授权同意页上勾选的内容决定。
+
+#### 在自己的电脑上
+
+不需要提前做任何事：第一条需要数据的命令会自动发起登录（也可以显式运行 `geoly auth login`）。CLI 会：
+
+1. 在浏览器中打开 GEOly 授权页，同时把同一个链接打印到 stderr，以防浏览器没有自动弹出；
+2. 在本机端口（`127.0.0.1`）上最多等待 180 秒；
+3. 你同意授权后，继续执行原来那条命令。
+
+在浏览器里登录 GEOly，并在授权同意页上：
+
+- **选择组织**：一个组织，或者你的全部组织（全部组织时只读）。
+- **勾选读取权限**：按需选择品牌、Prompt、引用、分析、审计、信源、公开数据等资源。
+- **只在需要时勾选写入**：只为希望 Agent 修改的资源勾选，而且只能在选择单个组织时勾选。
+
+终端随后显示 `geoly: authorized ✓`。如果同时启动了多条命令（Agent 经常并行执行命令），它们会共用同一次浏览器登录。
+
+```sh
+geoly auth login
+```
+
+```json
+{
+  "authorized": true,
+  "profile": "default",
+  "expiresAt": "2026-10-07T09:30:00.000Z",
+  "scope": "openid profile"
+}
+```
+
+如果机器上有浏览器但不希望自动打开（例如 WSL），用 `geoly auth login --no-browser`：CLI 只打印链接，仍在本机监听回调。
+
+#### 在没有浏览器的机器上（SSH、容器、远程服务器）
+
+没有可用的浏览器时，CLI 会改用**粘贴授权码**的方式登录。以下情况会自动切换：设置了 `SSH_CONNECTION`、`SSH_TTY` 或 `SSH_CLIENT`；设置了 `CI`；或者 Linux 上没有 `DISPLAY` / `WAYLAND_DISPLAY`。也可以用 `--remote` 强制使用。
+
+```sh
+# 1. 在远程机器上发起登录
+geoly auth login --remote
+```
+
+在任意设备的浏览器中打开打印出来的链接，登录并完成同样的授权同意页，页面会显示一个一次性授权码。
+
+```sh
+# 2a. 交互式终端里，CLI 已经在等你粘贴：
+Paste the code: 7Hk2…
+
+# 2b. 非交互场景（例如第 1 步是 Agent 替你执行的）：
+geoly auth login --code 7Hk2…
+```
+
+在非交互终端里，第 1 步会输出待完成状态并以退出码 0 结束：
+
+```json
+{
+  "authorized": false,
+  "pending": true,
+  "profile": "default",
+  "url": "https://app.geoly.ai/…",
+  "next": "geoly auth login --code <code>"
+}
+```
+
+- 发起后的登录 10 分钟内有效，之后的命令会复用它，不会重复发起。
+- 授权码虽然一次性且有效期短，仍应视为敏感信息。只在发起登录的可信机器和会话中输入，不要贴到共享聊天、日志或工单中。
+- 如果在这类机器上执行普通命令时缺少凭据，CLI 会打印链接、以退出码 3 结束，并提示 `geoly auth login --code <code>`。
+
+#### 服务器与 CI
+
+在 Runner 上用粘贴授权码的方式登录一次：运行 `geoly auth login --remote`，在任意浏览器里打开链接完成授权，再在 Runner 上运行 `geoly auth login --code <授权码>`。凭据保存在该机器的当前用户下，到期前（约 14 天）一直复用；到期时间用 `geoly auth status` 查看，到期后按同样方式再登录一次。
+
+设置了 `CI`、`GEOLY_NO_AUTO_AUTH=1`，或传了 `--no-auto-auth` 时，自动登录会关闭：缺少或过期的凭据会让命令立即以退出码 3 失败，而不是等待浏览器，任务不会卡在登录上。
+
+#### 查看、切换与退出登录
+
+```sh
+geoly auth status    # 是否已登录、有效期到什么时候
+geoly whoami         # 当前账号、组织、模式和可用工具
+geoly auth logout    # 删除当前 profile 保存的凭据
+```
+
+`geoly auth status` 输出 `mode`、`authorized`、`profile`、`endpoint`、`expiresAt` 和 `scope`。`geoly whoami` 会向服务端确认，输出鉴权方式、当前组织、Token 到期时间、`mode`（`single`、`multi-brand` 或 `multi-org`）、`toolCount`、是否开启公开行业工具，以及 `writeTools`——你的授权实际开放的写入工具。
+
+访问令牌有效期约 14 天，到期后下一条命令会重新引导你登录。
+
+| 文件 | 内容 |
+| --- | --- |
+| `~/.geoly/credentials-<profile>.json` | OAuth 客户端注册信息与访问令牌（macOS/Linux 上仅本人可读写） |
+| `~/.geoly/settings-<profile>.json` | 你在交互会话里上一次选择的组织 |
+| `./.geoly/runs/<run_id>.json` | `geoly run` 的回执，写在当前目录下 |
+
+**组织与品牌。** 选择单个组织时可读，并可写入你勾选过的资源；选择全部组织时一律只读。能看到哪些工具还取决于套餐和你的角色——工具少了不代表登录失败。
+
+```sh
+geoly call list_organizations                  # 可访问多个组织时
+geoly call list_brands                         # 组织下有多个品牌时
+geoly call get_brand_overview --org <org_id> --brand_id <brand_id>
+geoly run "…" --org <org_id> --brand <brand_id>
+```
+
+- `--org <org_id>` 对所有命令都有效，把这条命令限定在一个组织。
+- 在交互式 `geoly` 会话里，如果账号能访问多个组织，CLI 会弹出一次可搜索的列表让你选择，并记在 `~/.geoly/settings-<profile>.json`。非交互命令从不弹窗，而是报错并列出候选组织和需要补的参数。想换组织，传 `--org` 或删除这个文件即可。
+- 想同时使用另一个账号，在任意命令上加 `--profile <名称>`；或者 `geoly auth logout` 后重新登录。
+
+## 在你的 Agent 里使用
+
+### Claude Code、Codex 与 Cursor
+
+运行 `geoly init` 后，GEOly 技能已经放进各宿主的 skills 目录。新开一个会话，直接用自然语言提问，例如“用 geoly 查一下这个月我们的引用缺口”。Agent 会在终端里执行 `geoly`、读取 stdout 上的 JSON，并自行继续追问。如果运行 `geoly init` 时 Agent 已经打开，请重启它以加载新技能。`geoly upgrade` 会同时更新 CLI 和技能。
+
+### 任何能执行命令行的 Agent
+
+OpenCode、自建 Agent、由大模型驱动的 CI 任务——只要能执行命令并读取输出，就能使用 GEOly。把下面这段放进它的系统提示词或 `AGENTS.md`：
+
+```markdown
+**GEOly（AI 可见度数据）**
+
+凡是涉及我们品牌在 AI 回答中表现的问题（ChatGPT、Perplexity、Gemini、
+Google AI Mode、Google AI Overview、Copilot），使用 `geoly` 命令行。
+
+- 需要一段完整结论的问题：`geoly run "<问题>"`，从 stdout 的 JSON 里读 `answer`。
+  如果 `status` 是 `running`，执行它打印的 `next` 命令（`geoly runs wait <run_id>`），
+  不要重复发起同一个 run。如果 `stopped` 是 `max_steps`，把答案视为不完整
+  （原因见 `stopped_reason`）。
+- 需要具体数据：先 `geoly tools --json` 发现工具，`geoly schema <tool>` 查看参数，
+  再 `geoly call <tool> --<参数> <值>`。参数名原样使用（下划线），未声明的参数会被拒绝。
+- 每次会话先执行 `geoly call get_brand_context`（免费），了解品牌、套餐、平台、话题和竞品。
+- stdout 是 JSON 数据，stderr 是进度与错误；加 `--error-format json` 可让错误也输出为 JSON。
+- 退出码：0 成功；1 工具出错；2 命令写错需修正；3 需要登录（`geoly auth login`）；
+  4 被限流（等待 `retryAfter`）；5 组织没有有效订阅；6 服务暂时异常（重试一次）；
+  7 本期 credits 已用完。
+- 除非用户明确要求修改数据，否则不要加 `--yes` 或 `--allow-writes`。
+```
+
+### 服务器与 CI
+
+按第三步的说明，在 Runner 上用 `geoly auth login --remote`、再 `--code` 登录一次，凭据到期后重新登录。加上 `--error-format json`，按退出码分支处理（退出码 3 表示 Runner 需要重新登录）。
+
+## 你的 Agent 能问什么
+
+下面按“你想回答的问题”对工具分组。你账号当前可用的完整工具清单永远以 `geoly tools --json` 为准——服务端可以在不发布新版 CLI 的情况下增加工具；具体参数用 `geoly schema <tool>` 查看。平台代码为 `chatgpt`、`perplexity`、`gemini`、`google_ai`、`copilot`、`google_ai_overview`。
+
+### 先摸清情况
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_brand_context` | 免费，每次会话调用一次：品牌、组织与套餐、可用平台、话题、已跟踪竞品、数据时间范围、剩余 credits。 |
+| `list_organizations` / `list_brands` | 你能访问哪些组织和品牌（仅在多组织或多品牌时出现）。 |
+
+### 品牌可见度总览与趋势
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_brand_overview` | Performance 页的核心指标：可见度、提及率、声量份额、表现最好/最差的平台，以及分平台数据。 |
+| `get_daily_trend` | 按平台、按话题或整体的每日可见度、提及率、引用率，读派生层；`totals` 给整窗值，`compare_previous` 做环比。 |
+| `get_brand_board` | 你的品牌与已确认竞品的对比榜，与 Performance 页的品牌榜一致，可附趋势。 |
+
+```sh
+geoly call get_daily_trend --start_date 2026-09-01 --end_date 2026-09-21 --breakdown platform
+```
+
+### Prompt 与 AI 回答原文
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_prompt_list` | 监测中的 Prompt 及其可见度、提及率、引用率，筛选和排序方式与 Prompts 列表一致。 |
+| `get_prompt_detail` | 单个 Prompt 在一段时间内的排名、竞品、趋势和被引用域名。 |
+| `list_brand_answers` | 一段时间内品牌的全部 AI 回答，按时间倒序。 |
+| `get_prompt_record_detail` | 单条回答的完整内容：原文、引用、AI 实际搜索的词、提到的品牌。 |
+
+```sh
+geoly call list_brand_answers --time_range 7d --platform perplexity --only_mentioned --page_size 20
+```
+
+### 引用与信源
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_citation_overview` | AI 回答引用了哪些域名、你的占比、变化最大的域名。 |
+| `list_citation_domains` | 被引用域名列表，包括“只看缺口”视图（提到了竞品、没提到你）。 |
+| `get_domain_detail` / `get_page_detail` | 单个域名或单个 URL 的引用详情。 |
+
+```sh
+geoly call list_citation_domains --time_range 30d --gap_only --page_size 20
+```
+
+### 竞品与品牌库
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_competitor_list` | 品牌库：已跟踪、建议、已移除的品牌及近 30 天提及量。 |
+| `get_platform_matrix` | 品牌与竞品 × 平台矩阵：可见度、提及份额或引用。 |
+| `get_competitor_cooccurrence` | 你和其他品牌同时出现的回答。 |
+
+```sh
+geoly call get_competitor_list --status tracked
+```
+
+### AI 评价与情感
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_competitor_polarity` | AI 在回答里更偏向哪些竞品而不是你——即 AI Verdict 页的对比榜。 |
+| `get_risk_context_sources` | 评价你品牌的回答引用了哪些信源，以及其中负面评价的占比。 |
+| `get_brand_mention_samples` | 最近提到你的回答样本及上下文。 |
+| `get_sentiment_dashboard` | 回答级别的情感分布与趋势。 |
+
+```sh
+geoly call get_competitor_polarity --time_range 30d
+```
+
+### AI 检索词
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_brand_search_queries` | ChatGPT 和 Perplexity 在回答你的 Prompt 时实际发起的网页搜索：总览、按 Prompt 分组的证据、单个检索词或单个 Prompt 的检索词。 |
+
+```sh
+geoly call get_brand_search_queries --mode overview --time_range 30d --platform chatgpt
+```
+
+### 流量：GA4 与 Cloudflare
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_ga4_traffic_data` | GA4 中来自 AI 的会话与全站流量对比；传 `page_path` 可看单页数据。 |
+| `get_cf_traffic_data` | Cloudflare 记录的 AI 爬虫访问，包括被拦截的爬虫。 |
+
+```sh
+geoly call get_ga4_traffic_data --time_range 30d
+```
+
+两者都需要先在 GEOly 里连接对应的集成；`get_brand_context` 会显示哪些已就绪。
+
+### 网站审计与 Agent Ready
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `get_audit_list` / `get_audit_detail` | GEO 审计历史，以及单份报告的得分、问题和修复建议。 |
+| `get_audit_pages` | 整站审计的逐页结果。 |
+| `get_agent_ready_scans` / `get_agent_ready_scan_detail` | 你的 Agent Readiness 扫描记录与单次扫描的完整结果。 |
+
+```sh
+geoly call get_audit_detail --audit_id <audit_id>
+```
+
+### 公开行业情报
+
+跨品牌的品类、话题、品牌、购物货架和引用信源数据。大部分需要 Grow 及以上套餐并授予“公开数据”读取权限；公开信源工具需要“信源”读取权限。
+
+| 工具 | 能回答什么 |
+| --- | --- |
+| `search_public_entities` | 把品牌、品类、话题或域名解析成公开数据 ID。 |
+| `get_public_category` / `get_public_topic_brand_leaderboard` | 某个品类或话题下，谁在 AI 回答中领先。 |
+| `compare_public_brands` | 2–4 个品牌在同一维度上并排对比。 |
+| `list_public_shopping_boards` | 跨品类看 AI 最常推荐哪些商品。 |
+| `get_public_sources_overview` / `get_public_source_domain_detail` | 被引用最多的信源域名，以及单个域名的画像。 |
+
+```sh
+geoly call search_public_entities --query "standing desk" --limit 10
+```
+
+### 可以直接发给 Agent 的问法
+
+CLI 装好之后，把下面任意一段复制给你的 Agent。
+
+```prompt title="可见度趋势"
+用 geoly：过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度与前 30 天相比怎么变的？是哪些 Prompt 带来的变化？请列出你用到的数字。
+```
+
+```prompt title="没被提到的 Prompt"
+用 geoly 列出过去 30 天里从没提到我们品牌的监测 Prompt，并对前 10 个说明这些 AI 回答里提到的是哪些竞品。
+```
+
+```prompt title="引用缺口"
+用 geoly 找出这个月 AI 回答提到竞品、却没提到我们时引用的域名（引用缺口），并建议我们优先去哪些域名争取曝光。
+```
+
+```prompt title="AI 更偏向谁"
+问问 geoly：过去 30 天 AI 回答更偏向哪些竞品而不是我们？这些回答引用了哪些信源？引用两三条回答作为证据。
+```
+
+```prompt title="周度品牌健康报告"
+运行 `geoly run "周度品牌健康报告" --spec geo-weekly-brand-health -o reports/weekly-brand-health.json`，然后用五条要点给我总结这份报告。
+```
+
+更多思路：“用 geoly 读取我们最新的网站审计，把严重问题整理成修复清单。”·“用 geoly 在公开行业数据里把我们和两个竞品做个对比。”
+
+## `geoly run` 还是 `geoly call`？
+
+| | `geoly run "<问题>"` | `geoly call <tool> --<参数> <值>` |
+| --- | --- | --- |
+| 发生了什么 | GEOly 托管的 GEO Agent 自己选工具、读数据、写答案。 | 只执行一个数据工具，返回 JSON。 |
+| 你拿到 | 回执：答案、用到的工具、步数、消耗的 credits。 | 工具的原始结果。 |
+| 适合 | 最终要一段结论的事：周报、对比、“为什么变了”的排查。 | 需要精确字段自己分析、做表、批量遍历或导出。 |
+
+### 调用数据工具
+
+```sh
+geoly tools            # 表格：工具名、访问类型、描述首行
+geoly tools --json     # [{ "name", "title", "access" }]，供脚本使用
+geoly schema get_brand_overview    # 工具描述 + 完整入参 schema
+```
+
+`access` 为 `read-only`、`write` 或 `credit-consuming`。已退役、仍会转发到新工具的旧名字标记为 `"deprecated": true`。工具列表缓存 60 秒（`--refresh` 可跳过缓存）。
+
+参数名与 schema 完全一致，包括下划线：
+
+```sh
+geoly call get_brand_overview --time_range 30d --platform chatgpt          # 普通参数
+geoly call get_prompt_list --page 1 --page_size 20 --compact               # 布尔参数：写上即为 true
+geoly call compare_public_brands --brand_ids '["<id_a>","<id_b>"]' --country US --language en   # 数组：传 JSON
+geoly call get_prompt_list --data '{"page":1,"page_size":20,"sort_by":"visibility","sort_order":"desc"}'
+echo '{"time_range":"7d"}' | geoly call get_brand_overview --input -
+```
+
+单独写的参数会覆盖 `--data` / `--input` 里的同名字段。如果工具参数与 CLI 自身的选项同名（`org`、`profile`、`output`、`timeout`、`yes` 等），请放进 `--data`。分页参数按各工具自己的定义透传（`page` / `page_size` 或 `limit` / `offset`）；服务端标记结果不完整时（`_truncated`、`hasMore`、`totalPages`），这些字段会保留在结果中，CLI 还会在 stderr 上提示。
+
+**写入工具**——`create_prompt`、`create_topic`、`create_competitor`、`archive_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`trigger_prompt`——只有在授权时为单个组织勾选了对应资源的写入权限才会出现。每次执行都需要确认：终端里回答 `[y/N]`，或在脚本里加 `--yes`，否则返回 `write_blocked`。`trigger_prompt` 还会立即执行一次监测并消耗 credits。
+
+### 交给托管 Agent
+
+| 参数 | 作用 |
+| --- | --- |
+| `--brand <id>` | 指定品牌（组织下有多个品牌时需要） |
+| `--context <文本>` / `--context @文件` | 补充背景；`@文件` 读取 UTF-8（或带 BOM 的 UTF-16）文本文件 |
+| `--spec <名称>` | 服务端定义的固定格式交付物：`geo-weekly-brand-health`、`geo-content-brief`、`geo-keyword-research-report`、`geo-serp-gap` |
+| `--max-credits <n>` | 本次运行的消耗上限，25–2000 credits |
+| `--allow-writes` | 允许 Agent 使用你已授权的写入工具；不加则只读 |
+| `--wait <秒>` / `--no-wait` | 跟随运行多久（默认 100 秒）/ 运行一开始就返回 |
+| `-o <文件>` / `--no-save` | 把回执写到指定文件 / 不写入 `./.geoly/runs/` |
+| `--output raw` | 在 stdout 上以文本流式输出答案，而不是 JSON |
+
+怎么读回执：
+
+- 以 `status` 为准：`done` 和 `failed` 是最终状态；`running` 还不是答案。
+- `stopped: "max_steps"` 表示 Agent 没有按自己的判断正常收尾，原因见 `stopped_reason`：`budget`（触到 `--max-credits` 上限）、`deadline`、`max_steps` 或 `salvaged`。此时退出码仍为 0，CLI 会在 stderr 上提示答案不完整。
+- 带 `--spec` 时，回执还包含 `deliverable`，即服务端按规范对报告做的校验结果。
+
+## 输出与退出码
+
+参数、输出行为和退出码是稳定的约定；工具名和 schema 来自服务端，应在运行时发现，不要写死。
+
+- **stdout 是数据：** JSON，在终端里格式化显示，管道输出时为紧凑格式。`--output raw` 输出原始文本（对 `geoly run` 来说就是答案）。
+- **stderr 是状态：** 进度、警告和错误。`-q` 可屏蔽状态行。
+- **`--error-format json`** 让每个错误在 stderr 上输出为一个 JSON 对象：`kind`、`message`，以及可用时的 `status`、`tool`、`retryAfter`、`hint`、`next`（`next` 是推进下一步的那条确切命令）。`kind` 的取值为 `auth_expired`、`grant_missing`、`rate_limited`、`subscription_required`、`quota_exhausted`、`upstream_unavailable`、`tool_error`、`usage_error`、`write_blocked`。
+- **管道输出时帮助信息是纯文本**（`geoly --help | cat`），方便 Agent 阅读。
+- **`--timeout <秒>`**（默认 30，最大 120）限制每个请求的等待时间；对 `geoly run` 来说它限制的是等待服务端响应的时间，跟随运行多久由 `--wait` 决定。
+
+| 退出码 | 含义 | 怎么处理 |
+| --- | --- | --- |
+| 0 | 成功（`geoly run` 返回 `running` 交接时也是 0） | — |
+| 1 | 工具或运行出错：服务端有响应，但操作本身失败 | 查看错误信息，一般不要重试 |
+| 2 | 用法错误：参数写错、工具或参数不存在、参数被拒绝；没有执行任何操作 | 修正命令，用 `geoly schema <tool>` 核对 |
+| 3 | 鉴权：没有有效凭据，或授权范围不包含此操作 | `geoly auth login` |
+| 4 | 被限流 | 等待 `retryAfter` 秒后重试 |
+| 5 | 需要订阅：组织没有有效套餐 | 需要人工处理，不要重试 |
+| 6 | 上游不可用：网络或服务异常 | 稍等片刻，重试一次 |
+| 7 | 本期 credits 已用完 | 不要重试；等待重置或提升额度 |
+
+## 长任务与安全重试
+
+如果 `--wait` 秒后运行仍未结束，`geoly run` 会以退出码 0 输出：
+
+```json
+{ "status": "running", "run_id": "run_…", "elapsed_s": 100, "next": "geoly runs wait run_…" }
+```
+
+运行会在服务端继续；断线或按 Ctrl-C 都不会取消它。
+
+```sh
+geoly runs wait run_…    # 每 3 秒轮询一次（--interval 可调），最多等 --wait 秒
+geoly run run_…          # 查看某次运行的当前状态
+geoly runs list          # 组织最近的运行（--limit 1–50，默认 20）
+```
+
+**重试不会重复扣费。** 每次 `geoly run` 都会带上一个幂等键，由组织、品牌、spec、问题、context、`--max-credits` 和 `--allow-writes` 共同生成。10 分钟内重复执行完全相同的命令，会回放已有的那次运行（stderr 提示 `replayed run …`），不会新开一次、也不会再扣一次费；上述任一输入变了，就是一次新的运行。脚本可以用 `--idempotency-key` 自定义键（8–128 位，字符限 `A-Z a-z 0-9 _ - : .`）。
+
+**回执落盘。** 每次完成的运行都会写入当前目录的 `./.geoly/runs/<run_id>.json`，Agent 可以直接读文件拿到长答案，不必重问。`-o <文件>` 可指定路径（此时 stdout 只输出 `status`、`run_id`、`saved_to`）。
+
+## Credits
+
+直接 geoly call / MCP 的部分自有监测读取按调用消耗 MCP Credits，公开行业分析按登记的工具/view 费率计费；免费导航、额度与获授权的免费工具仍有免费范围。Basic 当前默认每月 MCP Credits 为 3,000，Grow 25,000、Advanced 75,000、Plus 200,000，组织定制额度优先。Basic 的额度不解锁全部公开行业工具，公开行业仍有 Grow 及以上与资源权限要求。geoly run / Agent API 的托管推理使用独立 AI Credits，自家数据工具在该运行中不重复计为直接 MCP 消费；第三方成本工具按独立规则处理。以 get_quota、账户页及回执区分两池余额与重置时间。
+
+GEOly CLI 使用独立的额度池：托管 `geoly run` 推理消耗 AI Credits；需计费的 `geoly call` / MCP 数据工具消耗 MCP Credits。免费工具和第三方成本工具以当前规则为准，估算成本前请查看账户、工具说明和回执。
+
+- **查看余额：** `geoly credits`（或在 GEOly 的 **设置 → 组织 → 套餐与账单** 查看）返回你能访问的每个组织的套餐、剩余 credits 和重置日期。`geoly credits --output raw` 以纯文本显示，每个组织两行（`MCP credits` 与 `AI credits`）。
+- **给运行封顶：** `geoly run … --max-credits <n>`。回执中的 `credits_cost` 不会超过这个值，`credits_remaining` 显示剩余额度。
+- **credits 用完时，** 需要消耗 credits 的命令以退出码 7 结束，提示中会给出重置日期。各套餐额度见 [定价页](https://www.geoly.ai/zh/pricing)。
+
+## 常见报错
+
+**浏览器没有打开。** 手动打开 stderr 上打印的链接。没有浏览器的机器请用 `geoly auth login --remote`，再 `geoly auth login --code <code>`。
+
+**CI 里出现 `auth_expired` / 退出码 3。** 设置了 `CI` 时自动登录是关闭的。在这台机器上用 `geoly auth login --remote`、再 `--code` 登录一次；凭据到期后重复一次。
+
+**`grant_missing`。** 授权范围不包含此操作。如果是写入工具：没有为该资源勾选写入，或者选择了全部组织——重新运行 `geoly auth login`，选择单个组织并勾选需要的写入权限。如果提示组织已不可用，重新授权并再次选择组织。
+
+**`--x is not a parameter of <tool>` / `Unknown argument(s) … Accepted: …`。** 这个工具没有该参数，没有执行也没有扣费。CLI 会在发送前先校验参数：
+
+```text
+error[usage_error]: --time-range is not a parameter of get_brand_overview
+  hint: Did you mean --time_range? Declared parameters: --time_range, --start_date, …
+```
+
+服务端对所有调用也执行同样的规则，并列出可用参数，例如 `Unknown argument(s) nope for get_prompt_list. Accepted: …`。`org_id` 和 `brand_id` 在所有工具上都被接受。按报错里给出的名字改，或用 `geoly schema <tool>` 核对；参数名使用下划线。
+
+**`Unknown tool "…"`。** 该工具对当前账号、套餐或授权不可用，或者名字拼错了——提示会给出最接近的工具名。可以试试 `geoly tools --refresh`。
+
+**提示 “spans multiple organizations” 或需要指定品牌。** 加上 `--org <org_id>`；品牌类工具再加 `--brand_id <id>`（`geoly run` 用 `--brand <id>`）。`geoly call list_organizations` / `list_brands` 会列出可选项。
+
+**`subscription_required`（退出码 5）与 `quota_exhausted`（退出码 7）。** 两者都是 HTTP 402：前者表示组织没有有效套餐，后者表示本期 credits 已用完。提示里会附上账单链接和重置日期。
+
+**`rate_limited`（退出码 4）。** 等待 `retryAfter` 秒后重试。
+
+**返回 `status: "running"`。** 不是错误——执行打印出来的 `next` 命令即可。
+
+**答案看起来被截断了。** 查看 `stopped` / `stopped_reason`。`budget` 表示触到了 `--max-credits` 上限，调高后再问一次。
+
+**`SPEC_NOT_FOUND`。** `--spec` 名称不存在，报错中会列出可用的名称。
+
+## 边界与限制
+
+- **范围以授权为准。** CLI 只能访问你在授权同意页上批准的组织和资源；选择全部组织时一律只读。
+- **默认只读。** 写入工具需要单个组织的写入授权，且每次调用都要确认（`[y/N]` 或 `--yes`）；`geoly run` 需要 `--allow-writes`。托管 Agent 永远不能使用 `trigger_prompt`。
+- **套餐要求。** 托管 Agent 运行需要有效订阅；公开行业情报需要 Grow 及以上套餐并授予“公开数据”读取权限。
+- **工具名与 schema 会演进。** 用 `geoly tools --json` 发现，不要写死清单。
+- **长度限制。** `geoly run` 的问题最多 4,000 个字符，`--context` 最多 16,000 个字符。
+- **运行有上限。** 单次运行最多消耗 2,000 credits，并有服务端时长限制；提前结束时会在 `stopped_reason` 中说明。
+- **保护本地文件与输出。** 凭据、交互会话记录（`~/.geoly/sessions/`）和回执（`.geoly/runs/`）可能包含账号或回答数据。限制访问权限，将 `.geoly/` 排除出版本控制，并遵循组织的数据保留策略。已授权的 CLI 请求仍会向 GEOly 服务发送数据；具备终端或文件访问权限的 Agent 也可能读取本地输出。
+
+## 相关文档
+
+- [GEOly MCP 使用指南](/zh/developers/mcp)——无需安装 CLI，把 GEOly 接入 Claude、Cursor、VS Code、Windsurf 或 Codex。工具和授权与 CLI 相同。
+- [GitHub 上的 GEOly CLI](https://github.com/geoly-ai/GEOly-Cli)——版本发布说明与完整的命令约定。

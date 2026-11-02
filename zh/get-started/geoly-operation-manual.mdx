@@ -1,0 +1,1109 @@
+---
+title: "GEOly 完整操作手册：从基础理解到日常优化"
+description: "面向 GEOly 使用者的完整操作指南，说明 GEOly 是什么、进入工作区后应该看哪里、各功能如何打开、如何判断结果，以及如何制定日常优化动作。"
+mode: "wide"
+---
+
+本文是一篇面向 GEOly 使用者的完整操作手册。无论你是刚开始配置，还是已经在做日常复盘，都可以按照本文顺序理解功能、查看数据并制定下一步优化动作。读完以后，你会知道：
+
+- GEOly 是用来解决什么问题的。
+- 进入工作区后应该先看哪里。
+- 每个功能入口在哪里。
+- 每个页面的核心指标是什么意思。
+- 看到结果以后下一步该做什么。
+- 如果团队启用了 Agent / MCP，应该如何把分析结果推进到执行。
+
+建议不要从所有菜单开始学。更好的方式是先完成一次完整工作流：
+
+1. 进入品牌工作区。
+2. 查看 Dashboard，了解品牌在 AI 里的总体表现。
+3. 打开 Prompts，查看 AI 对关键问题怎么回答。
+4. 打开 Citations，查看 AI 引用了哪些网站和页面。
+5. 打开 Sentiment，查看 AI 对品牌的语气是正面还是负面。
+6. 打开 Competitors 或 Industry Intelligence，看看竞品和行业位置。
+7. 根据发现的问题，用 Agent、Audit、GA4 和 Content Opportunities 制定优化计划。
+
+
+
+## 2026-09-10 最新界面截图
+
+以下截图均来自今天实际打开的 GEOly AI 页面。页面中的数字会随时间范围、平台、主题、品牌和采集进度变化；截图用于帮助定位入口和理解字段，不代表固定结果。
+
+### Overview
+![GEOly Overview 当前界面（2026-09-10）](/images/geoly-operation-manual/e6fe8e2e77.png "GEOly Overview 当前界面（2026-09-10）")
+
+### Prompts
+![GEOly Prompts 当前界面（2026-09-10）](/images/geoly-operation-manual/1de1512c58.png "GEOly Prompts 当前界面（2026-09-10）")
+
+### Perception
+![GEOly Perception 当前界面（2026-09-10）](/images/geoly-operation-manual/84ee0fdfaa.jpg "GEOly Perception 当前界面（2026-09-10）")
+
+### Shopping / AI Shelf
+![GEOly Shopping AI Shelf 当前界面（2026-09-10）](/images/geoly-operation-manual/d26d54d761.jpg "GEOly Shopping AI Shelf 当前界面（2026-09-10）")
+
+## 1. 先理解 GEOly 在做什么
+
+### 用一句话解释
+
+GEOly 用来监控品牌在 AI 搜索和 AI 回答里的表现。
+
+过去品牌主要看 Google 搜索排名、SEO 流量和广告投放。现在很多用户会直接问 ChatGPT、Gemini、Perplexity、Grok 或 Google AI，例如：
+
+- “Best ergonomic chair for back pain”
+- “Which DTC skincare brand is best for sensitive skin?”
+- “What are good alternatives to Brand A?”
+- “Is this product worth buying?”
+
+GEOly 关心的是：AI 在回答这些问题时，有没有提到你的品牌、有没有推荐你的产品、有没有引用你的官网、有没有把竞品放在你前面，以及它给用户的印象是否正面。
+
+### 你需要记住的 3 个基础概念
+
+#### Mention
+
+Mention 是“AI 回答里有没有提到你的品牌”。
+
+如果 AI 说 “Brand X is a popular option”，这就是一次 Mention。Mention 代表 AI 知道你、愿意把你放进答案里。
+
+#### Citation
+
+Citation 是“AI 回答里有没有引用你的品牌自有 URL”。
+
+如果 AI 回答里引用了你的官网、产品页、博客、帮助中心或其他品牌自有页面，这就是 Citation。Citation 比 Mention 更进一步，因为它说明 AI 不只是提到你，还把你的页面当作信息来源。
+
+#### Prompt
+
+Prompt 是 GEOly 用来监控的一条问题。
+
+你可以把 Prompt 理解成用户可能会问 AI 的问题。例如：
+
+- “What is the best standing desk for home office?”
+- “Compare Brand A and Brand B”
+- “Best supplements for sleep”
+
+GEOly 会定期拿这些 Prompt 去问不同 AI 平台，然后记录 AI 的回答、品牌出现情况、引用来源、竞品、情绪和趋势。
+
+## 2. 进入工作区后应该先做什么
+
+### 如何打开
+
+1. 打开 GEOly 应用。
+2. 使用团队账号登录。
+3. 如果你有多个组织或品牌，先选择正确的组织和品牌。
+4. 进入品牌工作区后，查看左侧导航。
+
+你通常会看到这些入口：
+
+- Dashboard 或 Overview
+- Prompts
+- Citations
+- Competitors
+- Topics
+- Sentiment
+- Agent
+- Audit 或 AI Readiness
+- GA4 或 Analytics
+- Industry Intelligence
+- Shopping
+- Settings
+
+不同账号的菜单可能不同。如果看不到某个功能，通常是套餐、权限、品牌配置或数据状态不同。
+
+
+这类账户页面通常用于确认当前登录账号、组织和可访问的品牌。开始分析前，先确认自己进入的是正确的品牌工作区；如果品牌或组织选错，后面看到的 Dashboard、Prompt、Citation 和竞品数据都会跟着错。
+
+### 推荐查看顺序
+
+不要急着点完所有菜单。建议按这个顺序走：
+
+1. 先看 Dashboard，知道现在总体表现好不好。
+2. 再看 Prompts，知道哪些问题里 AI 会提到你、哪些不会。
+3. 再看 Citations，知道 AI 引用的是你的网站还是别人的网站。
+4. 再看 Sentiment，确认 AI 对品牌有没有负面描述。
+5. 最后看 Competitors 和 Industry Intelligence，判断和竞品差在哪里。
+
+这样你会从“总览”走到“原因”，再走到“下一步行动”。
+
+## 3. Dashboard：先看品牌整体健康度
+
+### 这个页面解决什么问题
+
+Dashboard 是最适合先看的页面。它回答三个问题：
+
+1. AI 是否知道我的品牌？
+2. AI 是否引用我的官网或品牌页面？
+3. 我的品牌在不同 AI 平台上的表现是否稳定？
+
+### 如何打开
+
+在左侧导航点击 Dashboard、Overview 或 Brand Overview。
+
+### 页面上会看到什么
+
+你通常会看到这些指标：
+
+- AIGVR
+- Mention Rate
+- Citation Rate
+- Platform Performance
+- Trend Chart
+- Top Prompts 或 Recent Prompts
+
+
+看 Dashboard 时，不要只盯着一个分数。建议先看 AIGVR 作为总体健康度，再同时看 Mention Rate 和 Citation Rate：前者判断 AI 是否会想到品牌，后者判断 AI 是否愿意把品牌页面当作来源。图中的趋势和平台对比，适合用来判断问题是整体下降，还是只集中在某个 AI 平台。
+
+### 指标怎么理解
+
+#### AIGVR
+
+AIGVR 是品牌 AI 可见性的综合评分。
+
+你可以把它理解成“AI 对你的品牌熟悉、愿意推荐、并愿意引用你的程度”。它通常会综合品牌是否被提到、出现位置、出现频次、是否有 Citation 等因素。
+
+不需要一开始就记公式，先把它当作总分看：
+
+- 分数上升：品牌在 AI 回答里的可见度变好。
+- 分数下降：需要进一步看 Prompt、Citation 或竞品变化。
+
+#### Mention Rate
+
+Mention Rate 是 AI 回答中提到品牌的比例。
+
+如果 Mention Rate 偏低，说明 AI 在回答相关问题时不太会想到你的品牌。下一步应该去 Prompts 里找“没有提到品牌的问题”。
+
+#### Citation Rate
+
+Citation Rate 是 AI 回答中引用品牌自有 URL 的比例。
+
+如果 Mention Rate 高但 Citation Rate 低，说明 AI 知道你，但不太引用你的官网页面。下一步应该去 Citations 和 Content Opportunities 看哪些页面需要优化。
+
+### 如何操作
+
+1. 在页面顶部选择时间范围，例如 7 天、30 天或 90 天。
+2. 先看 AIGVR、Mention Rate、Citation Rate 的整体数值。
+3. 再看趋势线，判断最近是上升、下降还是稳定。
+4. 切换平台筛选，例如 ChatGPT、Gemini、Perplexity、Grok、Google AI。
+5. 如果某个平台明显更差，记录下来，后续去 Prompts 里按平台筛选。
+
+### 看到结果后怎么判断
+
+如果 AIGVR、Mention Rate 和 Citation Rate 都低：
+
+说明品牌在 AI 里的基础可见性还不够，需要从 Prompt 覆盖、内容建设和引用来源开始优化。
+
+如果 Mention Rate 高但 Citation Rate 低：
+
+说明 AI 会提到品牌，但没有引用品牌页面。重点看 Citations、Domain Detail、Page Detail 和 Content Opportunities。
+
+如果某个平台特别低：
+
+说明不同 AI 引擎对品牌理解不一致。进入 Prompts，按平台查看具体回答差异。
+
+## 4. Prompts：查看 AI 对关键问题怎么回答
+
+### 这个页面解决什么问题
+
+Prompts 页面告诉你：当用户问某个问题时，AI 到底怎么回答。
+
+这是 GEOly 最重要的页面之一，因为 Dashboard 只告诉你“结果好不好”，Prompts 会告诉你“为什么好或为什么不好”。
+
+### 如何打开
+
+在左侧导航点击 Prompts、Prompt Monitoring 或 Queries。
+
+### 页面上会看到什么
+
+你通常会看到一个 Prompt 列表。每一行代表一个被监控的问题，可能包含：
+
+- Prompt 文本
+- 所属 Topic
+- 平台
+- Visibility 或 AIGVR
+- Mention Rate
+- Citation Rate
+- 竞品出现情况
+- 最近执行时间
+
+
+Prompt 列表适合先做筛选，不适合一条条从头读。可以先按 Topic、平台、Mention Rate 或 Citation Rate 排序，把“高价值但表现差”的问题挑出来，再进入详情页看 AI 原文。
+
+### 如何查看一个 Prompt
+
+1. 打开 Prompts。
+2. 在搜索框输入关键词，或按 Topic 筛选。
+3. 点击某一条 Prompt。
+4. 进入 Prompt Detail 页面。
+5. 查看不同平台的 AI 回答。
+6. 检查回答里是否提到你的品牌。
+7. 检查品牌出现位置是否靠前。
+8. 检查是否引用了品牌官网。
+9. 检查是否推荐了竞品。
+
+
+在 Prompt Detail 里，重点看三件事：品牌有没有出现、出现位置是否靠前、AI 回答引用了什么来源。如果不同平台回答差异很大，优先记录表现最差的平台，因为后续内容优化可能要针对这个平台的回答习惯来补证据。
+
+### 建议优先看什么
+
+查看 Prompt 时，不要试图一次读完所有问题。优先看三类：
+
+1. 高价值问题：最接近购买决策的问题。
+2. 低 Mention 问题：AI 没有提到品牌的问题。
+3. 高竞品问题：AI 推荐了竞品但没有推荐你的问题。
+
+### 如何新建 Prompt
+
+如果你的账号有写入权限，可以新建 Prompt。
+
+1. 点击 New Prompt、Create Prompt 或 Add Prompt。
+2. 输入用户可能会问 AI 的真实问题。
+3. 选择 Category 或 Topic。
+4. 选择国家和语言。
+5. 设置优先级。
+6. 添加标签，例如 “purchase-intent”、“comparison”、“brand”。
+7. 保存。
+
+### 好 Prompt 怎么写
+
+好的 Prompt 应该像真实用户会问的问题，而不是内部术语。
+
+不建议：
+
+- “Brand visibility test”
+- “SEO keyword”
+- “Product analysis”
+
+更建议：
+
+- “What is the best standing desk for a small apartment?”
+- “Compare Brand A and Brand B for sensitive skin”
+- “Best protein powder without artificial sweeteners”
+
+### 看到结果后怎么做
+
+如果 AI 没提到你的品牌：
+
+- 检查这个 Prompt 是否和你的业务真的相关。
+- 如果相关，说明这是内容或品牌认知机会。
+- 可以创建 FAQ、对比页、购买指南、品类教育内容。
+
+如果 AI 提到竞品但没有提到你：
+
+- 查看竞品被推荐的理由。
+- 查看 AI 引用了哪些来源。
+- 思考你的网站是否缺少同类信息。
+
+如果 AI 提到你但引用了第三方页面：
+
+- 去 Citations 查看引用来源。
+- 优化品牌自有页面，让 AI 更容易引用官网。
+
+## 5. Topics：把问题按主题分组来看
+
+### 这个页面解决什么问题
+
+一个品牌可能监控几百条 Prompt。Topics 的作用是把这些问题分组，例如：
+
+- Product Comparison
+- Buying Guide
+- Pain Point
+- Alternatives
+- Pricing
+- Shipping
+- Brand Reputation
+
+这样你不用一条条看 Prompt，而是看某一类主题整体表现。
+
+### 如何打开
+
+在左侧导航点击 Topics、Topic Analytics 或 Prompt Topics。
+
+### 如何操作
+
+1. 进入 Topics。
+2. 选择时间范围。
+3. 选择平台。
+4. 查看每个 Topic 的 Mention Rate、Citation Rate、AIGVR、Sentiment 和竞品情况。
+5. 点击表现差的 Topic，下钻到对应 Prompts。
+
+### 怎么判断结果
+
+如果某个 Topic 的 Mention Rate 很低：
+
+说明 AI 在这类问题里不常提到你的品牌。需要补内容或增强品牌信号。
+
+如果某个 Topic 的 Citation Rate 很低：
+
+说明你可能有相关内容，但 AI 没有引用你的页面。需要优化页面结构、信息完整度和引用可信度。
+
+如果某个 Topic 的负面情绪较高：
+
+说明 AI 在这个主题下可能提到品牌缺点、投诉或风险。需要看具体回答和来源。
+
+## 6. Citations：查看 AI 引用了哪些网站和页面
+
+### 这个页面解决什么问题
+
+Citations 告诉你 AI 回答的“信息来源”。
+
+AI 提到你的品牌是一件事，引用你的官网是另一件事。Citation 页面可以帮助你判断：
+
+- AI 有没有引用你的官网。
+- AI 是否更多引用第三方媒体、评测站、论坛或竞品页面。
+- 哪些品牌页面最常被 AI 引用。
+- 哪些重要页面从来没有被 AI 引用。
+
+### 如何打开
+
+在左侧导航点击 Citations、Sources、Domains 或 Pages。
+
+### 页面上会看到什么
+
+你可能会看到：
+
+- Citation Overview
+- Domain Distribution
+- Owned Domains
+- Third-party Sources
+- Pages
+- Prompts connected to each citation
+
+
+Citation 页面要先看来源结构：AI 是引用品牌自有域名、第三方媒体、社区论坛，还是竞品页面。只要发现第三方来源占比很高，就需要继续检查这些来源是在正面介绍品牌，还是在影响 AI 对品牌的判断。
+
+### 如何操作
+
+1. 打开 Citation Overview。
+2. 选择时间范围和平台。
+3. 查看引用最多的 Domain。
+4. 判断这些 Domain 是品牌自有域名、竞品域名还是第三方域名。
+5. 点击某个 Domain 进入 Domain Detail。
+6. 点击某个 URL 进入 Page Detail。
+
+### Domain Detail 怎么看
+
+Domain Detail 是看一个网站整体被 AI 引用的情况。
+
+例如你输入自己的官网域名，可以看到：
+
+- 这个域名被引用的趋势。
+- 哪些页面被引用。
+- 哪些 Prompt 会引用它。
+- 哪些平台更常引用它。
+
+### Page Detail 怎么看
+
+Page Detail 是看某一个 URL 被 AI 引用的情况。
+
+适合分析：
+
+- 某个产品页有没有被引用。
+- 某篇博客有没有被 AI 用作来源。
+- 某个帮助中心页面是否支撑了 AI 回答。
+
+
+Page Detail 适合用来做页面级优化。比如某个产品页经常被 AI 引用，就说明它已经具备一定可信度，可以继续加强参数、FAQ、使用场景和对比信息；如果重要页面从未被引用，就要回到 Content Opportunities 看它对应的 Prompt 缺口。
+
+### Content Opportunities 怎么用
+
+Content Opportunities 用来找内容缺口。
+
+操作方法：
+
+1. 选择品牌官网域名。
+2. 查看哪些 Prompt 没有引用你的域名。
+3. 按商业价值或 Topic 优先级排序。
+4. 为这些 Prompt 创建或优化页面。
+
+### 看到结果后怎么做
+
+如果 AI 常引用第三方而不是官网：
+
+- 检查官网是否缺少清晰答案。
+- 补充 FAQ、对比表、产品参数、价格、配送、退换货、适用人群。
+- 增加结构化、易引用的内容段落。
+
+如果竞品域名出现很多：
+
+- 查看竞品页面写了什么。
+- 对比自己页面是否缺少关键信息。
+- 优化同类内容，不要只堆关键词。
+
+## 7. Sentiment：查看 AI 对品牌的语气
+
+### 这个页面解决什么问题
+
+Sentiment 告诉你 AI 在提到品牌时，是正面、中性、负面，还是混合。
+
+这对品牌声誉非常重要。AI 如果持续用负面语气描述品牌，用户在购买前会被影响。
+
+### 如何打开
+
+在左侧导航点击 Sentiment 或 Sentiment Analysis。
+
+### 页面上会看到什么
+
+通常会看到：
+
+- 正面、中性、负面、混合、未知的比例。
+- 情绪趋势。
+- 不同平台的情绪对比。
+- 提到品牌的回答样本。
+
+
+Sentiment Overview 适合先判断风险级别：如果整体分数稳定，偶发负面样本可以逐条看；如果负面或混合情绪连续上升，就需要把它当作品牌声誉问题处理，继续追到具体 Prompt 和引用来源。
+
+### 如何操作
+
+1. 选择时间范围。
+2. 选择平台。
+3. 查看整体情绪分布。
+4. 如果负面比例上升，点击对应日期或样本。
+5. 阅读 AI 原始回答。
+6. 找到负面描述来自哪个 Prompt 和哪个引用来源。
+
+
+进入详情后，不要只看情绪标签。更重要的是看 AI 为什么这样描述品牌：是引用了旧资料、误解了产品定位，还是引用了投诉、评测或社区讨论。只有找到原因，后续才知道应该更新官网、补充说明，还是处理第三方内容。
+
+### 看到负面情绪怎么办
+
+先不要只看百分比，要看原文。
+
+你需要判断：
+
+- AI 是否引用了过时信息。
+- AI 是否误解了产品。
+- AI 是否引用了投诉、低质量评测或第三方负面页面。
+- 官网是否缺少正确信息。
+
+然后再制定行动：
+
+- 更新官网说明。
+- 增加 FAQ。
+- 补充产品适用范围和限制。
+- 发布更清晰的对比内容。
+- 处理第三方负面来源。
+
+## 8. Competitors：看竞品为什么被 AI 推荐
+
+### 这个页面解决什么问题
+
+Competitors 帮你回答：
+
+- 哪些竞品更常被 AI 推荐？
+- 竞品在哪些 Prompt 里比我强？
+- AI 如何同时描述我和竞品？
+- 哪个平台更偏向某个竞品？
+
+### 如何打开
+
+在左侧导航点击 Competitors、Competitive Analysis 或 Settings > Competitors。
+
+### 如何添加竞品
+
+如果你有配置权限：
+
+1. 打开 Competitors。
+2. 点击 Add Competitor。
+3. 输入竞品名称。
+4. 填写竞品官网域名。
+5. 添加常见别名。
+6. 保存。
+
+### 如何分析竞品
+
+1. 打开 Competitor Overview。
+2. 选择时间范围和平台。
+3. 查看你和竞品的 Share of Model 或相对可见性。
+4. 打开 Co-occurrence，查看你和竞品同时出现的回答。
+5. 回到 Prompt Detail，查看具体问题里 AI 推荐竞品的理由。
+
+### 怎么判断结果
+
+如果竞品在很多 Prompt 中出现，而你没有出现：
+
+- 这些 Prompt 是内容机会。
+- 竞品可能有更完整的页面或更强第三方引用。
+
+如果你和竞品都出现，但竞品排在前面：
+
+- 查看 AI 给出的推荐理由。
+- 对照你的产品页和内容，看是否缺少同类信息。
+
+## 9. Industry Intelligence：看行业、品类和公开竞争格局
+
+### 这个页面解决什么问题
+
+前面的 Dashboard、Prompts、Citations 更多是看“自己的品牌监控”。Industry Intelligence 看的是更大的行业和品类格局。
+
+它适合回答：
+
+- 这个品类里谁最常被 AI 提到？
+- 我的品牌在行业里排第几？
+- 哪些 Topic 是我可以追赶或领先的？
+- 哪些品牌最近增长很快？
+- 用户在 AI 里都问哪些问题？
+
+### 如何打开
+
+在左侧导航点击 Industry Intelligence、Public Intelligence、Category、Topic 或 Market。
+
+### 如何开始
+
+1. 在搜索框输入品牌、品类、Topic 或域名。
+2. 选择国家和语言。
+3. 打开 Category、Topic 或 Brand 页面。
+4. 查看排行榜、趋势、Prompt、引用来源和品牌感知。
+
+
+Industry Intelligence 的图表重点不是“看热闹”，而是找到品牌在行业里的相对位置。你可以把它当作公开竞争地图：看谁在 AI 回答里领先、自己落后在哪些 Topic、哪些问题已经被竞品占住。
+
+### 看品类排行榜：知道自己在行业里排在哪里
+
+品类排行榜适合品牌客户先回答一个最基础的问题：**当用户在 AI 里问这个品类时，AI 更容易想到哪些品牌？我的品牌有没有进入候选名单？**
+
+#### 从哪里打开
+
+1. 在左侧导航进入 **Industry Intelligence**。
+2. 在页面顶部搜索框输入品类名称，例如“running shoes”“office chair”“skincare”，也可以输入品牌名或域名先定位相关行业。
+3. 选择目标 **国家 / 地区** 和 **语言**。如果品牌主要做美国市场，就先选择美国和英文；如果做多市场，可以分别查看，不建议混在一起判断。
+4. 打开对应的 **Category** 页面。
+5. 在 Category 页面中找到 **Brand Leaderboard**、**Brand Mention Leaderboard** 或类似的品牌排行区域。
+
+#### 页面上主要看什么
+
+| 你看到的内容 | 对品牌客户的含义 | 应该怎么理解 |
+|---|---|---|
+| 品牌排名 | AI 在该品类回答中更常提到哪些品牌 | 排名靠前说明 AI 更容易把该品牌当作品类代表，但不等于转化一定更高 |
+| Mention / Visibility / Share 类指标 | 品牌在 AI 回答里的出现频率或可见度份额 | 适合判断“有没有被 AI 想到”和“与竞品差多少” |
+| 平台筛选 | 不同 AI 平台的品牌排序可能不同 | ChatGPT、Google AI、Perplexity 等平台要分开看，避免只用一个平台下结论 |
+| 国家和语言筛选 | 不同市场的品类认知不同 | 同一品牌在美国、英国、中文市场可能表现完全不同 |
+| 时间范围 | 排名和份额是否稳定变化 | 如果近期突然上升或下降，要继续追具体 Topic、Prompt 和引用来源 |
+
+#### 品牌客户应该怎么判断
+
+看排行榜时，不建议只问“我排第几”。更建议按下面四步判断：
+
+1. **先看自己是否进入榜单**：如果没有进入，说明 AI 在这个品类里还没有稳定把品牌纳入候选，需要优先补品牌基础信息、品类页面、产品说明和外部信源。
+2. **再看领先品牌是谁**：如果头部都是竞品，说明这些品牌已经在 AI 的品类认知里占位。下一步要看它们被提到的原因，是产品覆盖、内容覆盖、评测背书，还是零售渠道更强。
+3. **看差距有多大**：如果你和前几名差距很小，可以通过重点 Topic、引用来源和页面优化快速追赶；如果差距很大，要先建立长期内容和信源计划。
+4. **看平台差异**：如果某个平台表现好、另一个平台表现弱，不要平均处理。表现弱的平台可能需要单独检查引用来源、Prompt 覆盖和页面可读性。
+
+#### 看完以后怎么做
+
+如果品牌没有进入榜单：
+
+- 先确认品牌名称、官网域名、产品线和品类信息是否在 GEOly 里配置完整。
+- 回到 **Prompts**，为该品类补充更贴近购买场景的问题。
+- 回到 **Citations**，查看 AI 是否引用过官网、商品页、评测页或第三方页面。
+- 优先补充品类介绍页、产品对比页、FAQ、参数说明、适用人群和权威背书。
+
+如果品牌已进入榜单但排名靠后：
+
+- 打开领先竞品，查看它们在哪些 Topic 或 Prompt 里更强。
+- 对比竞品页面是否有更清楚的卖点、价格、评价、使用场景、对比信息。
+- 找出你和竞品都出现的 Prompt，阅读 AI 原始回答，看 AI 为什么更推荐竞品。
+- 把差距拆成内容任务、商品页任务、PR / 评测任务或广告补位任务。
+
+如果品牌排名靠前：
+
+- 不要只停留在“排名不错”。继续看哪些 Topic 是优势来源，哪些 Topic 仍然薄弱。
+- 对优势 Topic 做 **Defend**，持续维护页面、引用和第三方信源。
+- 对薄弱 Topic 做 **Prioritize / Gap**，防止竞品从细分场景追上来。
+
+### 找可投入 Topic：把行业机会变成内容和增长任务
+
+可投入 Topic 的作用，是帮助品牌客户回答：**这个品类里哪些主题值得我优先投入？哪些主题我已经有优势，哪些主题我明显缺席？**
+
+#### 从哪里打开
+
+1. 进入 **Industry Intelligence**。
+2. 搜索并打开目标 **Category**。
+3. 在 Category 页面中找到 **Category Whitespace**、**Opportunity Map**、**Topic Coverage Matrix** 或类似的机会地图区域。
+4. 选择自己的品牌。如果页面支持竞品对比，也可以同时选择 1-3 个主要竞品。
+5. 选择国家、语言、平台和时间范围，确保和你前面看的品类排行榜一致。
+
+#### 页面上的分组怎么理解
+
+| 分组 | 对品牌客户的意思 | 应该采取的动作 |
+|---|---|---|
+| Prioritize | 主题商业价值较高，且品牌有机会提升 | 优先投入内容、商品页、引用来源和 Prompt 监控 |
+| Gap | 竞品或行业已有覆盖，但你的品牌明显缺席 | 尽快补内容和信源，是最容易解释给团队的短板 |
+| Watch | 主题有潜力，但当前优先级或确定性没那么高 | 定期观察，不一定马上投入大量资源 |
+| Defend | 你已经有一定优势或占位 | 持续维护，防止竞品追赶，不要轻易停更 |
+
+#### 品牌客户应该怎么判断优先级
+
+不要看到所有 Topic 都想做。建议用这四个问题筛选：
+
+1. **这个 Topic 是否接近购买决策？** 例如“best...”“A vs B”“for sensitive skin”“under $100”通常比泛科普更接近转化。
+2. **我的品牌是否有真实优势？** 如果产品、价格、服务或场景本身不支持，不要只靠内容硬做。
+3. **竞品是否已经占位？** 如果竞品在该 Topic 中稳定出现，而你缺席，这通常是 Gap，需要优先处理。
+4. **AI 是否有可引用证据？** 如果官网、商品页、FAQ、评测、媒体、零售渠道都缺少清楚内容，AI 很难稳定推荐你。
+
+#### 看到 Prioritize 时怎么做
+
+Prioritize 通常代表“值得主动投入”的主题。建议这样处理：
+
+1. 回到 **Prompts**，为这个 Topic 新建或补充 5-10 条真实用户会问的问题。
+2. 回到 **Citations**，查看这些问题下 AI 现在引用哪些网站和页面。
+3. 检查自己的官网是否有能回答这些问题的页面。没有的话，新建专题页、对比页、FAQ 或产品集合页。
+4. 如果是电商品类，同时检查商品页、价格、评价、库存、图片、规格和配送信息是否完整。
+5. 处理后持续观察 2-4 周，看提及率、引用率和排名是否变化。
+
+#### 看到 Gap 时怎么做
+
+Gap 代表“别人已经有，你还没有”。它适合变成明确的补短板任务。
+
+你可以按这个顺序处理：
+
+1. 打开 Gap 里的 Topic，查看领先品牌是谁。
+2. 进入对应 Prompt 或 Query 详情，阅读 AI 原始回答。
+3. 记录 AI 推荐竞品的理由，例如价格、专业性、评价、功能、适用人群、渠道。
+4. 对照自己的页面，找出缺失信息。
+5. 优先补齐官网和商品页中的关键答案，再考虑第三方评测、PR、社区内容和广告补位。
+
+#### 看到 Watch 和 Defend 时怎么做
+
+Watch 不代表不重要，而是暂时不必占用最多资源。可以把它放进月度复盘，观察行业和竞品是否变化。
+
+Defend 代表已有优势。品牌客户常见误区是：看到优势就不管了。但在 AI 搜索里，竞品内容、媒体报道、商品信息都会变化。Defend 类 Topic 应该保持页面更新、评价积累、引用来源稳定，并定期检查是否有竞品逼近。
+
+#### 一个简单例子
+
+假设你的品牌是护肤品，Category 是“skincare”。在 Brand Leaderboard 里你发现竞品 A 排在前面；在 Opportunity Map 里，“sensitive skin moisturizer”被归到 Gap。
+
+这时不要只写“优化 sensitive skin 内容”。更具体的动作应该是：
+
+- 在 Prompts 中新增“适合敏感肌的保湿霜推荐”“品牌 A 和我的品牌哪个更适合敏感肌”等问题。
+- 在 Citation 中查看 AI 当前引用了哪些评测、成分页、商品页。
+- 在自己的商品页补充成分说明、适用肤质、临床/测试信息、FAQ 和用户评价。
+- 如有必要，补充第三方评测或媒体内容，让 AI 有更多可信来源可引用。
+- 之后回到 Category 和 Prompt 页面，观察品牌是否开始进入相关回答。
+
+### 看用户在 AI 里问什么
+
+1. 打开 Search Queries。
+2. 选择产品空间或品类。
+3. 查看高频问题、主题和品牌覆盖。
+4. 点击某个 Query 进入详情。
+5. 查看哪些品牌赢得这些问题，AI 引用了哪些来源。
+
+## 10. Public Topics：深入看某个公开主题
+
+### 这个页面解决什么问题
+
+Public Topics 用来分析某个公开主题下，AI 如何回答、哪些品牌领先、哪些来源被引用。
+
+### 如何打开
+
+在 Industry Intelligence 中点击 Topic，或从左侧进入 Public Topics / AI Engine Topic。
+
+### 如何操作
+
+1. 搜索或选择一个 Topic。
+2. 打开 Topic Overview。
+3. 查看 Brand Leaderboard。
+4. 查看 Share of Mention 趋势。
+5. 打开 Prompt Matrix，查看不同 Prompt 下哪些品牌出现。
+6. 点击 Prompt Detail，阅读具体回答。
+7. 点击 Record Detail，查看某一次 AI 回答和引用来源。
+
+### 怎么判断结果
+
+如果你想知道“这个主题值不值得做”，看两个东西：
+
+1. Topic Difficulty：难度越高，说明头部品牌越集中。
+2. Brand Leaderboard：看领先品牌是谁，以及你和它们差距多大。
+
+## 11. Brand Perception：AI 如何描述一个品牌
+
+### 这个页面解决什么问题
+
+Brand Perception 帮你看 AI 对品牌的常见印象。
+
+它不只是告诉你“有没有出现”，还会告诉你 AI 通常用哪些词和维度描述品牌，例如：
+
+- 价格
+- 质量
+- 功能
+- 适用人群
+- 服务
+- 可信度
+- 缺点
+
+### 如何打开
+
+在 Industry Intelligence 中搜索品牌，进入 Brand 页面，然后打开 Perception 或 Aspects。
+
+### 如何操作
+
+1. 搜索品牌名称或域名。
+2. 打开 Brand Detail。
+3. 切换到 Perception。
+4. 查看主要 Aspect。
+5. 点击某个 Aspect，查看 AI 回答样本。
+
+### 看到结果后怎么做
+
+如果 AI 对品牌的描述准确：
+
+- 可以把这些正面认知用于内容、广告和销售话术。
+
+如果 AI 对品牌的描述不准确：
+
+- 找到误解来源。
+- 更新官网和第三方信息。
+- 用更清晰的页面回答这些问题。
+
+## 12. Shopping：查看 AI 购物场景里的商品表现
+
+### 这个页面解决什么问题
+
+Shopping 适合电商、DTC 和零售品牌。
+
+它帮助你看：
+
+- AI 是否展示了商品卡片。
+- 哪些产品更常出现。
+- 价格区间和渠道分布。
+- 哪些品牌在购物场景中更强。
+
+### 如何打开
+
+在左侧导航点击 Shopping、AI Engine Shopping 或 Public Shopping。
+
+### 如何操作
+
+1. 选择 Product Space。
+2. 选择国家、语言和时间范围。
+3. 查看商品列表、渠道、价格带和品牌分布。
+4. 搜索你的品牌或商品。
+5. 点击商品卡片，查看关联 Topic、Prompt 和证据。
+
+### 怎么判断结果
+
+如果你的商品没有出现：
+
+- 检查产品页面是否清晰。
+- 检查价格、规格、图片、评价、渠道信息是否完整。
+- 查看竞品商品卡片的来源和描述。
+
+如果商品出现但信息不准确：
+
+- 修正官网和零售渠道信息。
+- 增加结构化产品信息。
+- 保持价格和库存信息一致。
+
+## 13. Agent：让监测信号变成可执行动作
+
+### 这个页面解决什么问题
+
+Agent 适合在你看完数据以后，让系统帮你总结问题和下一步。
+
+它可以把 Dashboard、Prompts、Citations、竞品、Audit 等信息组合起来，生成更容易执行的报告。
+
+在 GEOly 的 Product / AI Agent 页面里，Agent 的定位不只是“生成报告”，而是把监测中的异常、机会或风险继续推进到真实工作里。通过 MCP 和 Skills，Agent 可以在需要时连接 Notion、GitHub、Exa、Tavily、Shopify、GA4、Cloudflare、Feishu 等外部工具和数据，让分析、证据和后续任务尽量留在同一个上下文里完成。
+
+### 如何打开
+
+在左侧导航点击 Agent、GEOly Agent、Diagnostic Report 或 Reports。
+
+### 常见报告
+
+- GEOly Diagnostic Report：品牌 AI 可见性诊断。
+- Competitive Recommendation Comparison：AI 如何推荐你和竞品。
+- AI Platform Performance Comparison：不同 AI 平台表现对比。
+- AI Optimization Action Plan：优化行动计划。
+- Brand AI Visibility Assessment：品牌 AI 可见性评估。
+- AI Citation Source Analysis：引用来源分析。
+- AI Website Exploration：网站探索和诊断。
+
+
+Agent 页面适合在你已经发现问题以后使用。比如 Dashboard 下滑、某个 Prompt 被竞品超过、Citation 结构异常、Sentiment 变差时，可以让 Agent 先把相关证据汇总成报告，再把建议拆成内容、技术、品牌或数据任务。
+
+### 如何操作
+
+1. 打开 Agent。
+2. 选择报告类型。
+3. 选择品牌、时间范围、平台、竞品或 Topic。
+4. 点击 Generate、Run 或 Start。
+5. 等待报告完成。
+6. 阅读 Summary、Evidence 和 Recommendations。
+7. 把建议拆成具体任务。
+
+### 如何把 Agent 建议变成行动
+
+建议按四类拆：
+
+- 内容任务：新建页面、更新 FAQ、写对比文章。
+- 技术任务：修复抓取、结构化数据、页面性能。
+- 品牌任务：强化第三方介绍、媒体、评测和案例。
+- 数据任务：补充 Prompt、Topic、竞品和 GA4 配置。
+
+## 14. Audit / AI Readiness：检查网站是否适合被 AI 理解
+
+### 这个页面解决什么问题
+
+Audit 不是看 AI 已经怎么回答，而是看你的网站有没有准备好让 AI 理解。
+
+如果网站信息不清楚，AI 可能不会引用你，或者引用时说错。
+
+### 如何打开
+
+在左侧导航点击 Audit、Site Audit、AI Readiness 或 Agent Ready。
+
+### 如何操作
+
+1. 打开 Audit 列表。
+2. 选择最近一次扫描。
+3. 查看总体评分。
+4. 查看每个分类的 Critical、Warning 和 Passed。
+5. 先处理 Critical，再处理 Warning。
+
+### 常见问题类型
+
+- 页面信息太少。
+- 产品参数不完整。
+- FAQ 缺失。
+- 品牌介绍不清楚。
+- 抓取受阻。
+- 页面结构混乱。
+- 重要信息只在图片里，文本不可读。
+
+## 15. GA4：把 AI 可见性和网站流量连起来
+
+### 这个页面解决什么问题
+
+GA4 帮你看 AI 可见性变化是否影响网站流量。
+
+例如某个页面被 AI 引用增加后，你可以观察这个页面的访问量是否也上升。
+
+### 如何打开
+
+在左侧导航点击 GA4、Analytics、Traffic 或 Settings > Integrations > Google Analytics。
+
+### 如何连接
+
+1. 点击 Connect Google Analytics。
+2. 登录 Google 账号。
+3. 授权 GEOly 读取 GA4 数据。
+4. 选择正确的 GA4 Property。
+5. 保存。
+
+### 如何使用
+
+1. 打开 GA4 Traffic。
+2. 选择时间范围。
+3. 查看 Sessions、Page Views、Traffic Sources。
+4. 打开 GA4 Page Data。
+5. 输入或选择某个页面路径。
+6. 对比这个页面的 Citation 和流量变化。
+
+### 怎么判断结果
+
+如果某个页面 Citation 增加但流量没变：
+
+- AI 可能引用了页面，但用户没有点击。
+- 也可能平台没有传递可见 referral。
+- 仍然可以把它视为品牌曝光和信任信号。
+
+如果某个页面流量上升但 Citation 没变：
+
+- 流量可能来自 SEO、广告、社媒或其他渠道。
+- 需要结合 GA4 来源和 GEOly Citation 一起判断。
+
+## 16. Basic Management：基础配置在哪里改
+
+### 这个页面解决什么问题
+
+Basic Management 和 Settings 用来维护品牌、竞品、Topic、Prompt、成员和集成。
+
+### 如何打开
+
+在左侧导航点击 Settings、Management、Team、Brand Settings 或 Basic Management。
+
+### 常见配置
+
+#### 品牌信息
+
+检查品牌名称、官网域名、别名、国家、语言是否正确。
+
+#### 竞品
+
+添加竞品名称、域名和别名。竞品配置会影响 Competitor 分析和 Share of Model。
+
+#### Topic
+
+创建主题，用来组织 Prompt。
+
+#### Prompt
+
+添加、编辑或停用监控问题。
+
+#### 团队权限
+
+邀请成员，设置角色，控制谁可以查看或编辑。
+
+### 配置建议
+
+如果数据看起来不对，先检查基础配置：
+
+- 品牌域名是否正确。
+- 品牌别名是否完整。
+- 竞品域名是否填错。
+- Prompt 是否和业务相关。
+- Topic 分组是否混乱。
+
+## 17. MCP / For Agents：让 Agent 连接外部工具和数据
+
+### 这个功能解决什么问题
+
+MCP 可以理解成 Agent 连接外部工具和数据源的一种方式。
+
+在 GEOly 的 For Agents 场景里，MCP 的重点不是让普通用户学习底层接口，而是让 Agent 在需要时接入团队已经在使用的工具，例如 Notion、GitHub、Exa、Tavily、Shopify、GA4、Cloudflare、Feishu 等。这样，当 GEOly 监测到某个 Prompt、Citation、竞品或流量异常时，Agent 可以在同一个上下文里读取证据、生成判断，并把后续事项推进到实际工作流中。
+
+### 什么时候会用到
+
+你通常不需要单独打开 MCP 页面。更常见的使用方式是在 Agent、诊断报告或自动化工作流中，让 Agent 根据任务需要调用相关工具。
+
+适合使用 MCP / Agent 的场景包括：
+
+- Dashboard 指标突然波动，需要追踪原因。
+- 某个 Prompt 出现竞品领先，需要查看回答、引用来源和可优化页面。
+- Citation 来源发生变化，需要检查品牌页面、第三方来源或技术问题。
+- 需要把分析结果同步到 Notion、Feishu、GitHub Issue 或其他团队协作工具。
+- 需要结合 GA4、Shopify、Cloudflare 等外部数据判断影响范围。
+
+### 可以怎么问
+
+如果你的团队已经启用了相关 Agent 或 MCP 能力，可以这样问：
+
+- “帮我看过去 30 天品牌 AIGVR、Mention Rate、Citation Rate。”
+- “找出最近 30 天没有提到我们的 Prompt。”
+- “分析哪些域名最常被 AI 引用。”
+- “比较我们和三个竞品在某个品类里的表现。”
+- “找出最值得投入的 Topic，并整理成内容任务。”
+- “查看某个 URL 在 AI 回答中被引用的情况，并判断是否需要更新页面。”
+
+### 注意事项
+
+- MCP 和 Agent 的可用能力取决于账号权限、套餐、已连接工具和团队配置。
+- 如果涉及创建任务、写入协作文档、触发 Prompt 运行或修改外部系统，通常需要额外权限或确认。
+- 如果公共行业工具不可用，通常是套餐、组织模式或账号上下文限制。
+- 普通用户只需要理解它的作用：把 GEOly 的监测信号和外部工具连接起来，让分析更容易落到执行。
+
+### 常见能力方向
+
+| 你想做什么 | Agent / MCP 可以帮助的方向 |
+|---|---|
+| 查清异常原因 | 读取 Prompt、Citation、Topic、Sentiment、GA4 等相关数据 |
+| 形成执行建议 | 把发现的问题整理成内容、技术、品牌或数据任务 |
+| 连接团队工具 | 将结果同步到 Notion、Feishu、GitHub 等协作系统 |
+| 结合外部数据 | 结合 Shopify、GA4、Cloudflare 等数据判断影响 |
+| 固化重复流程 | 把常用分析流程沉淀成可复用 Skills |
+
+## 18. 推荐工作流
+
+### 第一步：先建立基本认知
+
+1. 登录并选择品牌。
+2. 打开 Dashboard。
+3. 记录 AIGVR、Mention Rate、Citation Rate。
+4. 打开 Prompts。
+5. 阅读 5 到 10 条最重要 Prompt 的 AI 回答。
+6. 打开 Citations。
+7. 看 AI 最常引用哪些域名。
+
+目标：知道品牌在 AI 里大概处于什么状态。
+
+### 第二步：找出主要问题
+
+1. 找出低 Mention 的 Prompt。
+2. 找出低 Citation 的 Topic。
+3. 找出负面 Sentiment 的回答。
+4. 找出竞品明显领先的问题。
+5. 运行一次 Audit 或 Agent Diagnostic Report。
+
+目标：整理出 5 到 10 个最重要的优化机会。
+
+### 第三步：开始优化并复盘
+
+1. 新建或优化关键页面。
+2. 补充 FAQ、对比页、购买指南和产品信息。
+3. 更新 Prompt 和 Topic。
+4. 跟踪 Dashboard 指标变化。
+5. 对比 GA4 页面流量。
+6. 用 Industry Intelligence 找下一批机会。
+
+目标：让 AI 更常提到品牌，更常引用品牌页面，并减少错误或负面描述。
+
+## 19. 常见误解和解释
+
+### “AI 提到了我们，为什么 Citation Rate 还是低？”
+
+因为 Mention 和 Citation 不是一回事。
+
+Mention 只是 AI 说到了你的品牌。Citation 是 AI 引用了你的官网或品牌自有页面。AI 可能知道你的品牌，但仍然引用第三方网站。
+
+### “Dashboard 的 Citation Rate 和我自己算的平均值不一样？”
+
+不要用每日趋势简单平均来当总体 KPI。每日数据量不同，简单平均会偏。看整体 KPI 时，以 Dashboard / Brand Overview 为准。
+
+### “为什么有些天趋势图没有数据？”
+
+这通常表示那天没有监控运行，或者没有完成记录，不一定是指标为 0。
+
+### “为什么我的 Public Industry 数据和品牌 Dashboard 不一样？”
+
+Public Industry 和品牌自有监控是不同数据管线，采集范围、Topic、平台和时间窗口可能不同。它们都能帮助决策，但不应该强行对齐。
+
+### “为什么我看不到某个菜单？”
+
+常见原因：
+
+- 套餐不包含该功能。
+- 当前用户没有权限。
+- 当前组织或品牌没有启用。
+- 数据还没采集完成。
+- 该功能只在特定账号模式下可用。
+
+## 20. 指标口径速查
+
+| 指标 | 用人话解释 | 建议怎么看 |
+|---|---|---|
+| AIGVR | 品牌在 AI 回答里的综合可见性 | 总分，先看趋势 |
+| Mention Rate | AI 回答提到品牌的比例 | 低说明 AI 不常想到你 |
+| Citation Rate | AI 回答引用品牌自有 URL 的比例 | 低说明官网不常被引用 |
+| Share of Model | 和竞品相比的可见性份额 | 用来看相对竞争位置 |
+| Share of Mention | Public 场景下品牌被提到的份额 | 用来看行业/品类排名 |
+
+## 21. 最后：每个角色应该重点看什么
+
+### 品牌负责人
+
+重点看 Dashboard、Industry Intelligence、Competitors、Agent。
+
+你要回答：品牌在 AI 里有没有被看见，和竞品差在哪里，下个月优先做什么。
+
+### SEO / GEO 负责人
+
+重点看 Prompts、Citations、Topics、Audit、Content Opportunities。
+
+你要回答：哪些问题没有覆盖，哪些页面没有被引用，哪些内容需要优化。
+
+### 内容团队
+
+重点看 Prompts、Content Opportunities、Sentiment、Brand Perception。
+
+你要回答：用户在 AI 里问什么，AI 怎么描述品牌，应该写哪些页面。
+
+### 电商团队
+
+重点看 Shopping、GA4、Citations、Product-related Prompts。
+
+你要回答：商品有没有被 AI 推荐，页面流量有没有变化，商品信息是否准确。
+
+### 客服 / PR 团队
+
+重点看 Sentiment、Mention Samples、Prompt Record Detail。
+
+你要回答：AI 是否在传播负面或错误信息，需要怎样修正。

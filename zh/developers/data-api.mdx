@@ -1,0 +1,175 @@
+---
+title: "GEOly Data API"
+description: "通过品牌绑定 API key 访问版本化 REST 资源，读取监控数据、增量同步已完成回答，以及创建和触发提示词。"
+---
+
+Data API 通过 HTTP 提供监控资源与固定结构的报表，复用产品中的鉴权、指标口径和计费，不经过托管 Agent 推理。
+
+**迁移说明：**原 `/api/v1/tools` 和 `/api/v1/tools/{tool}` HTTP 包装接口的所有方法返回 **410 TOOL_SURFACE_RETIRED**。已知工具在 `error.details.replacement` 中给出替代资源接口：只有一个替代时是一个对象，有多个 view 或多个替代的工具是数组。每个对象都有 `method` 与 `path`，可带 `when`（替代旧工具的哪种参数）与 `note`（标明不能直接替换）。请使用下面的资源接口；全部旧工具的对照表在本页最后一节。MCP、CLI 和 Agent API 仍是独立支持的入口；同一次发布里从它们移除的只有 `query_analytics`，它没有可以直接替换的接口（见最后一节）。
+
+## 鉴权与规格
+
+在 **设置 → 开发者 → API 密钥** 创建绑定品牌的 key，通过 Bearer 头发送。品牌由密钥决定，不通过请求参数切换；缺少相应读写权限时会拒绝请求。
+
+```bash
+curl --fail-with-body https://app.geoly.ai/api/v1/brand \
+  -H "Authorization: Bearer $GEOLY_API_KEY"
+```
+
+[公开 OpenAPI 3.1 规格](https://app.geoly.ai/openapi/data-api-v1.json) 是请求、响应字段的准确定义；旧 `/api/v1/openapi.json` 地址重定向到它。v1 稳定字段保持含义和单位，客户端需要容忍新增字段及响应枚举值。
+
+## 资源与报表
+
+| 方法和路径 | 用途 |
+| --- | --- |
+| GET /api/v1/quota | 积分与计费周期 |
+| GET /api/v1/brand | 密钥绑定的品牌和组织 |
+| GET /api/v1/topics | 监控主题 |
+| GET /api/v1/prompts | 提示词目录，keyset 分页 |
+| `GET /api/v1/prompts/{prompt_id}` | 一道监控中或已归档的提示词 |
+| `GET /api/v1/prompts/{prompt_id}/records` | 执行记录，包含未完成任务 |
+| `GET /api/v1/prompts/{prompt_id}/records/latest` | 各平台最新记录 |
+| `GET /api/v1/records/{record_id}` | 回答元数据和可选全文 |
+| GET /api/v1/records | 已完成记录的增量 feed |
+| POST /api/v1/prompts | 创建提示词 |
+| `POST /api/v1/prompts/{prompt_id}/runs` | 触发监控 |
+| POST /api/v1/reports/overview | 品牌可见度概览 |
+| POST /api/v1/reports/analytics | 逐日指标 |
+| POST /api/v1/reports/brand-board | 品牌榜 |
+| POST /api/v1/reports/citations | 引用来源榜 |
+| POST /api/v1/reports/prompts | 提示词表现表 |
+| POST /api/v1/reports/prompt-overview | 单道提示词的窗口概览 |
+
+报表接受 JSON body，只读取数据，不创建资源。未列在这里的其他 GEOly 能力仍可通过 [MCP](/developers/mcp) 或 [Agent API](https://www.geoly.ai/docs/agent-api) 调用。
+
+## 响应契约
+
+成功响应为 `{data, page?, meta}`，错误响应为 `{error:{code,message,details?},meta}`。程序按 HTTP 状态和 error.code 分支，不依赖 message 文案。
+
+- Request-Id 响应头等于 meta.request_id。
+- meta.quota 是本次实际计费回执；404 不一定免费。
+- schema_conformant=false 表示输出结构漂移，此时不要推进同步游标。
+- _pct 是 0–100，_ratio 是 0–1，情感极性是 -1 到 1。
+- business_date 是 UTC+8 业务日；record_date_at 是存储时间戳，不能直接冒充业务日。
+- is_branded 跟随产品共享的提示词分类结果，客户端应使用返回值，不要自行实现文本匹配规则。
+
+## 目录和记录分页
+
+提示词目录支持 limit（最多 200）、cursor、status=active|archived、topic_id，按创建时间和 id 做 keyset 分页。它不是快照，每一页都会重新应用过滤条件。
+
+单题记录支持 limit（最多 200）、cursor、platform、sort_order=asc|desc、time_range=7d|30d|90d，或成对的 start_date/end_date。显式日期窗最多 366 天，超过 90 天沿用现有长窗倍率。
+
+记录游标内部仍是有界 offset，每个查询最多访问 10,000 个位置，并按整页向下取整。page.capped=true 表示需要缩小窗口。补录、删除、并发插入可能改变分页位置，即使升序也一样；按 id 去重，必要时重新核对窗口。
+
+每次续页都携带相同筛选条件和 limit。其他品牌、提示词或查询的游标会被拒绝。提示词存在但窗口无数据时返回空数组；确认不存在或属于其他品牌时返回 404。若额外的存在性确认失败，仅凭空数组不能判断提示词存在。
+
+## 回答全文
+
+```bash
+curl --fail-with-body \
+  "https://app.geoly.ai/api/v1/records/$RECORD_ID?include=answer_text" \
+  -H "Authorization: Bearer $GEOLY_API_KEY"
+```
+
+不带 include=answer_text 时，answer_text 为 null，状态为 not_requested。显式请求后返回完整正文或不可用状态，不把预览当作全文。结果过大时在结算前返回 422；可以去掉扩展读取元数据。
+
+详情中的引用、检索来源和商品列表有上限，并带总数及截断标志。source_chip 只表示网站，URL 为 null。情感和名次展示请使用 displayed，避免自行解释原始分析字段。
+
+## 增量同步
+
+GET /api/v1/records 按变更时间和 id 扫描已完成记录；回答晚完成时，不会仅因业务日较早而被跳过。主记录再次更新（例如情感分析回写）时，同一个 id 会再次出现。feed 只是 REST 资源，MCP 上没有对应的工具或 view。
+
+参数：
+
+- limit：1–100，默认 25。
+- updated_since：首页起点，UTC 时间，带毫秒，默认 1970-01-01T00:00:00.000Z。带 cursor 时不生效，续页可以省略。
+- business_date_from：可选业务日下界。它只在每批候选里过滤，不缩短扫描。
+- include：answer_text、citations 或 answer_text,citations。
+- cursor：返回的续页游标或已保存的同步游标。使用游标时 limit、business_date_from、include 保持不变。
+
+水位至少比数据库时间落后五分钟；数据库里若有已经写过数据、仍在运行的长事务，水位停在它开始时刻再往前五分钟，直到它结束，这期间轮询只会拿到空页，照常计费。每次只扫描有界候选批次，因此**空数组仍可能带 next_cursor**。
+
+1. 按 id 和 changed_at 更新或插入数据。
+2. 将处理后的数据与 page.sync_cursor 一起持久化。
+3. 沿 page.next_cursor 翻到 null，再在下一轮用已保存的 sync_cursor 和相同筛选条件轮询。每 5–15 分钟轮询一次即可，更频繁只会为空页付费。
+4. schema_conformant=false 时停止推进游标。
+
+初次同步请用 updated_since 限定起点（例如最近 30 天），不要只靠 business_date_from：后者仍从 updated_since 开始扫，空页照样计费。
+
+**mention_rank 是读取时刻的值。** 排名回写不推进记录的变更时间，所以排名可能在 changed_at 不变时改变，feed 不会因此再次带出这条记录。生产上排名通常在记录最后一次更新后约 1 小时补写；别名变更、实体晋升等历史重扫可能回溯数天到数周。feed 同样不发出：删除、离开 completed 的记录（例如当日重跑后失败）、只改引用或正文子表的变化、手工回填旧时间。对账方式：**不带 cursor**、从回拨的 updated_since 另起一轮，重拉一段至少 24 小时的重叠窗口（遇到历史重扫时加大），或按日期重读记录。带着保存的 cursor 去回拨不起作用：带 cursor 时 updated_since 被忽略，也不报错。
+
+每条记录最多返回 30 条引用，按 position（空值最后）再按 id 排序，与 `GET /api/v1/records/{record_id}` 同序同截取，并带 citations_truncated。扩展数据过大时返回 422，应降低 limit 或省略扩展。503 FEED_NOT_READY 表示专用索引等部署前置条件未就绪，服务不会回退到全表扫描。
+
+## 写操作与幂等
+
+```bash
+curl --fail-with-body -X POST https://app.geoly.ai/api/v1/prompts \
+  -H "Authorization: Bearer $GEOLY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $REQUEST_ID" \
+  -d '{"text":"Which products are recommended for this use case?","country":"US","tags":["api"]}'
+```
+
+创建成功返回 201 和 Location。tags_state 为 saved 表示请求的每个标签都读回来了；partial 表示提示词已创建、但至少一个请求的标签没有保存；unavailable 表示无法确认已保存的标签。后两种由 tags_warning 说明。三种情况提示词都已创建，不要因此重复创建。重复的标签名按一个处理。
+
+`POST /api/v1/prompts/{prompt_id}/runs` 接受空对象：有派发时返回 202，否则返回 200；Location 指向实际业务日的记录列表。执行前就被拒的情况返回对应 4xx，details.reason 给出原因、details.write_outcome 为 not_started，可以用同一个键重试：超出套餐提示词名额是 402 PLAN_LIMIT_REACHED；提示词已归档、没有允许或可用的平台是 400 FAILED_PRECONDITION。
+
+可选 Idempotency-Key 为 8–128 位字母、数字或 `_ - : .`。成功结果在 24 小时内可重放，重放前仍检查当前权限，并返回 Idempotent-Replayed: true。键按组织、品牌、操作隔离；未过期时，同键不同规范化参数返回 409。
+
+- REQUEST_IN_PROGRESS：等待后用相同键重试。
+- IDEMPOTENCY_KEY_REUSED：键已用于另一份请求。
+- IDEMPOTENCY_OUTCOME_UNKNOWN：这次或同键的上一次可能已写入。不带键时，写入结局判不出也会返回这个码，error.message 说明原因，meta.quota 带本次回执。应先检查资源，不要直接换新键重试。
+- IDEMPOTENCY_UNAVAILABLE：持久化占位不可用，本次没有执行写操作。用同一个键重试不会重复执行；少数情况下残留的占位会让重试先返回 REQUEST_IN_PROGRESS（最长 5 分钟），再返回 IDEMPOTENCY_OUTCOME_UNKNOWN。
+
+写端点的每个错误都带 details.write_outcome：not_started 表示什么都没写，可用同一个键重试；unknown 表示必须先检查资源。500 只返回固定文案，反馈问题时附上 Request-Id。
+
+未知结果和过期未完成占位不会自动重新执行，即使已超过 24 小时。成功后无法保存回执也按未知结果处理。过了 24 小时重放窗口，同一个键会被当作新请求重新执行（参数不同也会执行），所以同一个键不要跨天复用。未知或处理中的占位保存 90 天，这期间同键始终返回 IDEMPOTENCY_OUTCOME_UNKNOWN，删除之后才能重新使用。成功结果另外保存 30 天供排查，不延长重放窗口。不传键时，API 无法提供这层保护。
+
+## 计费
+
+OpenAPI 的 `x-geoly-cost` 声明每个操作的名义价格（MCP credits，与对应的 GEOly MCP 工具同价；`tier` 为 "free"、`base` 为 0 表示不扣 MCP credits，两个写端点也是如此）。`meta.quota` 是本次实际回执，`charge` 取值为 `charged`、`min_fee`、`free`、`refunded`、`refund_pending` 或 `unbilled`。查无数据、或请求了品牌未购买的 AI 平台时，收该操作的底价（`min_fee`）。记录读取和 feed 按调用收 light 价，当前 1 credit（空 feed 轮询也收）。触发监控沿用原监控积分流程。部分错误响应仍会计费：记录详情和提示词概览的查无按一次调用计费，报表读过数据之后才拒绝参数的按实际结算，所以请始终以 `meta.quota` 为准。其他被拒绝的请求，包括所有 429、500、503，不扣费。
+
+429/503 请遵循 Retry-After。读请求重试可能再次计费；写请求应检查 details.write_outcome 并使用原幂等键，仅凭 HTTP 状态不能断定没有副作用。
+
+## 限流、预算与超时
+
+- **每把 key：**每分钟请求数有上限（当前 120 次，enterprise 组织 300 次；以 `X-RateLimit-Limit` 响应头为准），与同一把 key 的 MCP 调用共用。超过返回 `429 RATE_LIMITED`。
+- **并发：**每把 key、每个组织同时在跑的调用有上限。超过返回 `429 BUSY`。
+- **端点护栏：**`x-geoly-cost.guard_rpm` 是按组织计的每分钟上限，与同组织在 MCP、Agent API 上调用同一个工具的次数合计。超过返回 `429 GUARDED_RATE_LIMITED`。
+- **数据库预算：**每个组织滚动 60 分钟 3,600 数据库秒，组织下全部 key 与 MCP 合计。超过返回 `429 BUDGET_EXCEEDED`。
+
+鉴权通过后的每个响应都带 `X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`（距窗口重置的秒数）；执行过的调用另带 `X-DB-Budget-Limit`、`X-DB-Budget-Used`、`X-DB-Budget-Reset`，`Used` 接近 `Limit` 时请主动放慢，不要等到 429。429 一律不扣费，并带 Retry-After。
+
+单次调用在服务端最长约 45 秒，HTTP 客户端超时请设为至少 60 秒。超时返回 `503 TOOL_TIMEOUT`（不扣费），请先缩小窗口或过滤条件再重试。JSON 请求体上限 64 KB，API 响应体硬上限 4 MB。资源路由不支持的方法，包括 HEAD/OPTIONS，返回 405，不执行收费读取。
+
+## 从旧工具接口迁移
+
+`/api/v1/tools` 和 `/api/v1/tools/{tool}` 的所有方法返回 `410 TOOL_SURFACE_RETIRED`，不鉴权、不执行、不计费；`error.details.replacement` 与下表一致。表里没有的工具在 REST 上没有等价接口，请用同一把 key 通过 [MCP](/developers/mcp) 调用。旧工具 POST 不会自动跳转到新操作：参数、响应和含义已经变化，请按照规格显式迁移。旧 `/api/v1/openapi.json` 现在重定向到资源接口规格，从它重新生成的客户端会得到完全不同的操作，原来按工具名生成的方法全部消失。
+
+| 旧工具（旧调用的参数） | 新资源 | 说明 |
+| --- | --- | --- |
+| get_quota | GET /api/v1/quota | 无参数 |
+| get_brand_context | GET /api/v1/brand | 字段改为带单位的 snake_case |
+| get_topic_list | GET /api/v1/topics | 计数字段改名 |
+| get_prompt_list，view=table（缺省） | POST /api/v1/reports/prompts | page / page_size 改为 cursor / limit |
+| get_prompt_list，view=catalog | GET /api/v1/prompts | 免费，不算指标 |
+| get_prompt_detail | POST /api/v1/reports/prompt-overview | 来源只给第一页和总数 |
+| list_prompt_records（缺省） | `GET /api/v1/prompts/{prompt_id}/records` | offset 改为游标 |
+| list_prompt_records，latest_per_platform=true | `GET /api/v1/prompts/{prompt_id}/records/latest` | 根数组 |
+| get_prompt_record_detail | `GET /api/v1/records/{record_id}` | include_answer_text=true 改为 include=answer_text |
+| list_brand_answers | GET /api/v1/records | 不能直接替换：品牌全部已完成回答的增量导出，没有表格的筛选和提及样本，请在客户端过滤 |
+| list_brand_answers | `GET /api/v1/prompts/{prompt_id}/records` | 不能直接替换：一道提示词在一个日期窗内的回答 |
+| create_prompt | POST /api/v1/prompts | 可选 Idempotency-Key |
+| trigger_prompt | `POST /api/v1/prompts/{prompt_id}/runs` | 提示词 id 放在路径里，body 为 `{}` |
+| get_brand_overview | POST /api/v1/reports/overview | 参数同名 |
+| get_daily_trend | POST /api/v1/reports/analytics | start_date / end_date 改为 start_utc_date / end_utc_date |
+| query_analytics | POST /api/v1/reports/analytics | 不能直接替换，见下文 |
+| get_brand_board | POST /api/v1/reports/brand-board | platform 不收 "all"，全平台请省略 |
+| get_citation_overview，section=board | POST /api/v1/reports/citations | 其他 section 在 REST 上没有等价接口 |
+
+**`query_analytics` 已删除。** MCP 上它到 2026-11-30 只返回一条免费的 `TOOL_REMOVED` 提示（指向 `get_daily_trend`），Agent API 也不再提供。`POST /api/v1/reports/analytics` 返回日派生层的固定逐日列（`get_daily_trend` 口径）：`breakdown` 为 `platform`、`total` 或 `topic`，窗口值在 `totals` 里；没有 `dataset`、自选的 `dimensions` 与 `metrics`、`domain`、`limit` 和 `citationCount`（引用计数请用 `POST /api/v1/reports/citations`）。
+
+文本子集 `prompt_text_include` / `prompt_text_exclude` 没有等价写法：
+
+- 长期的品牌词 / 非品牌词拆分：在 app 里把这批提示词移进一个话题，下一次日刷新之后按 `breakdown=topic`（或 `topic_ids`）读取。这是按话题归属统计，不再按文本匹配。
+- 一次性的窗口值：调用 `POST /api/v1/reports/prompts` 并带 `search`，读取 `data.summary`。`search` 只能「包含」、不区分大小写，匹配提示词文本或标签名（比纯文本匹配宽），给出整个窗口的汇总，没有逐日行。

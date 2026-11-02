@@ -1,0 +1,175 @@
+---
+title: "GEOly Data API"
+description: "Read monitoring data, synchronize completed answers, and create or run prompts through versioned REST resources with brand-bound API keys."
+---
+
+The Data API exposes monitoring resources and typed reports over HTTP. It shares GEOly's authorization, metric definitions and billing with the product. No hosted agent runs between your request and the data.
+
+**Migration:** the former `/api/v1/tools` and `/api/v1/tools/{tool}` HTTP wrappers return **410 TOOL_SURFACE_RETIRED** for every method. For a known tool, `error.details.replacement` names the resource endpoint: one replacement object, or an array of them for a tool with several views or replacements. Each object has `method` and `path` and may carry `when` (the old arguments it replaces) and `note` (marks a replacement that is not drop-in). Use the resources below; the full mapping from every former tool is in the last section of this page. MCP, the CLI and the Agent API remain separate supported interfaces. The only tool removed from them in the same release is `query_analytics`, which has no drop-in replacement (see the last section).
+
+## Authentication and specification
+
+Create a brand-bound key under **Settings → Developers → API keys**. Send it as a Bearer token. The brand comes from the key, not a request parameter. A key without the required read/write permission is rejected.
+
+```bash
+curl --fail-with-body https://app.geoly.ai/api/v1/brand \
+  -H "Authorization: Bearer $GEOLY_API_KEY"
+```
+
+The public [OpenAPI 3.1 specification](https://app.geoly.ai/openapi/data-api-v1.json) defines the exact request and response fields. The old `/api/v1/openapi.json` URL redirects to it. Stable v1 fields retain their meaning and units; clients must tolerate additional fields and new response enum values.
+
+## Resources and reports
+
+| Method and path | Purpose |
+| --- | --- |
+| GET /api/v1/quota | Credits and billing period |
+| GET /api/v1/brand | Brand and organization behind the key |
+| GET /api/v1/topics | Monitoring topics |
+| GET /api/v1/prompts | Prompt catalog, with keyset pagination |
+| `GET /api/v1/prompts/{prompt_id}` | One active or archived prompt |
+| `GET /api/v1/prompts/{prompt_id}/records` | Execution records, including unfinished runs |
+| `GET /api/v1/prompts/{prompt_id}/records/latest` | Latest record per platform |
+| `GET /api/v1/records/{record_id}` | Answer metadata and optional full text |
+| GET /api/v1/records | Incremental completed-record feed |
+| POST /api/v1/prompts | Create a prompt |
+| `POST /api/v1/prompts/{prompt_id}/runs` | Trigger monitoring |
+| POST /api/v1/reports/overview | Brand visibility overview |
+| POST /api/v1/reports/analytics | Daily metrics |
+| POST /api/v1/reports/brand-board | Brand leaderboard |
+| POST /api/v1/reports/citations | Citation source board |
+| POST /api/v1/reports/prompts | Prompt performance table |
+| POST /api/v1/reports/prompt-overview | One prompt's window overview |
+
+Reports accept JSON bodies and do not create resources. Other GEOly tools, including capabilities without a resource listed here, remain available through [MCP](/developers/mcp) or the [Agent API](https://www.geoly.ai/docs/agent-api).
+
+## Response contract
+
+Successful responses use `{data, page?, meta}`. Errors use `{error:{code,message,details?},meta}`. Branch on status and `error.code`, not message text.
+
+- `Request-Id` matches `meta.request_id`.
+- `meta.quota` is the actual billing outcome. A 404 is not necessarily free.
+- `meta.schema_conformant=false` means output drift was detected. Do not advance a synchronization checkpoint on such a response.
+- Names ending in `_pct` use 0–100, `_ratio` uses 0–1, and sentiment polarity uses -1 to 1.
+- `business_date` is the UTC+8 business day. `record_date_at` is its stored timestamp; do not relabel it as the business date.
+- `is_branded` follows the product's shared prompt classification; clients should consume the returned value rather than implement their own text matcher.
+
+## Prompt and record pagination
+
+The prompt catalog accepts `limit` up to 200, `cursor`, `status=active|archived`, and `topic_id`. Its keyset order is creation time plus id. It is not a snapshot: filters are reapplied on every page.
+
+Prompt records accept `limit` up to 200, `cursor`, `platform`, `sort_order=asc|desc`, `time_range=7d|30d|90d`, or a pair of `start_date` and `end_date`. Exact windows cover at most 366 days. A window over 90 days uses the existing long-window multiplier.
+
+Record-list cursors wrap bounded offset pagination. At most 10,000 positions are reachable per query, rounded down to complete pages. `page.capped=true` means you must narrow the date window. Concurrent inserts, backfills and deletes can move positions even in ascending order: deduplicate by id and reconcile when necessary.
+
+Send the same filters and limit with every cursor. A cursor from another brand, prompt or query is rejected. A valid prompt with no records returns an empty array; a confirmed missing or foreign prompt returns 404. If the extra existence check fails, an empty array alone cannot prove the prompt exists.
+
+## Full answer text
+
+```bash
+curl --fail-with-body \
+  "https://app.geoly.ai/api/v1/records/$RECORD_ID?include=answer_text" \
+  -H "Authorization: Bearer $GEOLY_API_KEY"
+```
+
+Without `include=answer_text`, `answer_text` is null and its state is `not_requested`. A requested answer is either complete or unavailable; the API does not pass off a text preview as the full answer. Oversized results return 422 before settlement. Omit the expansion to fetch metadata.
+
+Detail citations, search sources and shopping are bounded and include total counts and truncation flags. A source-chip citation identifies a website, not a page, so its URL is null. Use `displayed` for the sentiment and rank shown by the product, rather than interpreting raw analysis fields independently.
+
+## Incremental synchronization
+
+`GET /api/v1/records` scans completed records by change time plus id, so an answer that completes late is not skipped merely because its business date is old. A record whose main row is updated again (for example a sentiment analysis write-back) appears again with the same id. The feed is a REST resource only; there is no equivalent MCP tool or view.
+
+Parameters:
+
+- `limit`: 1–100, default 25.
+- `updated_since`: start of the first page, a UTC timestamp with milliseconds, default `1970-01-01T00:00:00.000Z`. Ignored when `cursor` is present, so you can omit it on later pages.
+- `business_date_from`: optional business-date filter. It filters inside each scanned batch and does not shorten the scan.
+- `include`: `answer_text`, `citations`, or `answer_text,citations`.
+- `cursor`: the returned continuation or saved synchronization cursor. Keep `limit`, `business_date_from` and `include` unchanged while using it.
+
+The feed uses a watermark at least five minutes behind database time; a long-running database transaction that has already written holds it at five minutes before its start until it ends, and polls in that time return nothing newer but are still billed. Every request scans a bounded candidate batch. **An empty data array can still have a next cursor.**
+
+1. Upsert returned rows by id and change time.
+2. Persist the processed data and `page.sync_cursor` together.
+3. Follow `page.next_cursor` until null, then poll later using the saved sync cursor and unchanged filters. Polling every 5 to 15 minutes is enough; more frequent polls only pay for empty pages.
+4. Stop checkpoint advancement if `schema_conformant` is false.
+
+Start the first sync with `updated_since` (for example the last 30 days) rather than relying on `business_date_from`, which still scans from `updated_since` and bills every empty page.
+
+**`mention_rank` is a read-time value.** Rank write-backs do not advance the record's change time, so a rank can change while `changed_at` stays the same, and the feed will not emit the record again for it. In production, ranks are usually filled in about an hour after a record's last update; historical rescans (alias changes, entity promotions) can reach back days or weeks. The feed also does not emit deletions, records that leave the completed state (for example a same-day rerun that then fails), child-only citation or text edits, or backdated corrections. Reconcile by starting a separate pass **without a cursor** from an `updated_since` rewound by an overlap of at least 24 hours (longer after a rescan), or by re-reading records by date. A rewound `updated_since` sent together with a saved cursor is ignored and reconciles nothing.
+
+Citations are capped at 30 per record, ordered by position (nulls last) and then id, the same order and cut as `GET /api/v1/records/{record_id}`, with `citations_truncated`. Oversized expansions return 422; reduce limit or omit expansions. It requires its dedicated index; `503 FEED_NOT_READY` means deployment prerequisites are not ready, not that a slow full scan is running.
+
+## Writes and idempotency
+
+```bash
+curl --fail-with-body -X POST https://app.geoly.ai/api/v1/prompts \
+  -H "Authorization: Bearer $GEOLY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $REQUEST_ID" \
+  -d '{"text":"Which products are recommended for this use case?","country":"US","tags":["api"]}'
+```
+
+Creation returns 201 with a Location header. `tags_state` is `saved` when every requested tag was read back, `partial` when the prompt was created but at least one requested tag was not saved, and `unavailable` when the saved tags could not be confirmed; `tags_warning` explains anything but `saved`. The prompt exists in all three cases, so never create it again because of this field. Duplicate tag names count once.
+
+Triggering `POST /api/v1/prompts/{prompt_id}/runs` with `{}` returns 202 if work was dispatched, otherwise 200; Location points to that business day's records. Refusals decided before anything is written return the matching 4xx with `details.reason` set to the cause and `details.write_outcome = not_started`, and the same key can be retried: 402 `PLAN_LIMIT_REACHED` when the prompt is beyond the plan's prompt limit, 400 `FAILED_PRECONDITION` for an archived prompt or when no platform is allowed or available.
+
+An optional Idempotency-Key must be 8–128 characters of letters, digits and `_ - : .`. Completed responses replay for 24 hours with `Idempotent-Replayed: true`, after current authorization is checked. The key is scoped to organization, brand and operation; a different normalized body with the same unexpired key returns 409.
+
+- `REQUEST_IN_PROGRESS`: wait and retry the same key.
+- `IDEMPOTENCY_KEY_REUSED`: the key belongs to a different request.
+- `IDEMPOTENCY_OUTCOME_UNKNOWN`: this attempt, or the earlier one with the same key, may have written data. It is also returned without a key when the outcome cannot be determined; `error.message` says why and `meta.quota` carries the receipt. Inspect the resource; do not blindly retry with a new key.
+- `IDEMPOTENCY_UNAVAILABLE`: no write was executed because durable claim storage was unavailable. Retrying with the same key never executes twice; in rare cases a leftover claim answers `REQUEST_IN_PROGRESS` for up to 5 minutes and then `IDEMPOTENCY_OUTCOME_UNKNOWN`.
+
+Every error from a write endpoint carries `details.write_outcome`: `not_started` means nothing was written and the same key can be retried; `unknown` means inspect first. A 500 returns a fixed message only; quote the Request-Id when reporting it.
+
+Unknown or abandoned in-flight claims are not automatically reexecuted, even after 24 hours. A failure to persist a successful response is treated as unknown. After the 24-hour replay window the same key is treated as a new request and runs again, even with a different body, so do not reuse a key across days. Unknown or in-flight claims are kept for 90 days and keep answering `IDEMPOTENCY_OUTCOME_UNKNOWN` until they are deleted; only then can that key be used again. Completed results are also kept for 30 days for troubleshooting; that does not extend the replay window. Without a key, the API cannot provide this protection.
+
+## Billing
+
+OpenAPI `x-geoly-cost` declares the nominal price of each operation in MCP credits, the same as the matching GEOly MCP tool (`tier` "free" with `base` 0 means no MCP credits are charged, which includes the two write endpoints). The receipt in `meta.quota` is authoritative; its `charge` is `charged`, `min_fee`, `free`, `refunded`, `refund_pending` or `unbilled`. A call that finds no data, or asks for an AI platform the brand has not purchased, pays the operation's minimum fee (`min_fee`). Record reads and the feed use light per-call pricing (currently 1 credit, including empty feed polls). Monitoring triggers consume monitoring credits through the existing workflow. Some error responses are still billed: a not-found from the record detail or the prompt overview counts as one call, and a report that rejects its parameters after reading data is billed as settled, so always read `meta.quota`. Other rejected requests, including every 429, 500 and 503, are not charged.
+
+Honor Retry-After on 429/503. Read retries may be billed again. For writes, inspect `details.write_outcome` and use the same idempotency key; HTTP status alone does not prove that no side effect occurred.
+
+## Rate limits, budgets and timeouts
+
+- **Per key:** a per-minute request limit (currently 120, or 300 for Enterprise organizations; the `X-RateLimit-Limit` header is authoritative), shared with the same key's MCP calls. Over it: `429 RATE_LIMITED`.
+- **In flight:** a limit on concurrent calls per key and per organization. Over it: `429 BUSY`.
+- **Endpoint guards:** `x-geoly-cost.guard_rpm` is a per-organization limit per minute, counted together with the organization's MCP and Agent API calls of the same tool. Over it: `429 GUARDED_RATE_LIMITED`.
+- **Database budget:** 3,600 database seconds per rolling 60 minutes per organization, across all its keys and MCP. Over it: `429 BUDGET_EXCEEDED`.
+
+Every authenticated response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until the window resets). Every executed call also carries `X-DB-Budget-Limit`, `X-DB-Budget-Used` and `X-DB-Budget-Reset`; slow down as `Used` approaches `Limit` instead of waiting for a 429. A 429 is never charged and always carries Retry-After.
+
+One call runs for at most about 45 seconds on the server, so set your HTTP client timeout to at least 60 seconds. A timeout returns `503 TOOL_TIMEOUT` (not charged); narrow the window or filters before retrying. JSON request bodies are limited to 64 KB. API result bodies have a 4 MB hard ceiling. Unsupported methods, including HEAD and OPTIONS on resource routes, return 405 without invoking a billable read.
+
+## Migrating from the tool wrappers
+
+Every method on `/api/v1/tools` and `/api/v1/tools/{tool}` returns `410 TOOL_SURFACE_RETIRED` without authenticating, running or billing anything; `error.details.replacement` follows the table below. A tool that is not listed has no REST equivalent: call it through [MCP](/developers/mcp) with the same key. There is no automatic redirect from an old tool POST to a new operation: parameters, response fields and semantics differ, so migrate explicitly against the specification. The old `/api/v1/openapi.json` URL now redirects to the resource specification, so a client regenerated from it gets entirely different operations and its per-tool methods disappear.
+
+| Former tool (arguments of the old call) | Resource | Notes |
+| --- | --- | --- |
+| get_quota | GET /api/v1/quota | No arguments |
+| get_brand_context | GET /api/v1/brand | Fields renamed to snake_case with units |
+| get_topic_list | GET /api/v1/topics | Counts renamed |
+| get_prompt_list, view=table (the default) | POST /api/v1/reports/prompts | page / page_size become cursor / limit |
+| get_prompt_list, view=catalog | GET /api/v1/prompts | Free, no metrics |
+| get_prompt_detail | POST /api/v1/reports/prompt-overview | Sources: first page and total only |
+| list_prompt_records (the default) | `GET /api/v1/prompts/{prompt_id}/records` | Offset becomes cursor |
+| list_prompt_records, latest_per_platform=true | `GET /api/v1/prompts/{prompt_id}/records/latest` | Root array |
+| get_prompt_record_detail | `GET /api/v1/records/{record_id}` | include_answer_text=true becomes include=answer_text |
+| list_brand_answers | GET /api/v1/records | Not drop-in: an incremental export of every completed answer of the brand, without the table filters or mention samples; filter client-side |
+| list_brand_answers | `GET /api/v1/prompts/{prompt_id}/records` | Not drop-in: the answers of one prompt in a date window |
+| create_prompt | POST /api/v1/prompts | Optional Idempotency-Key |
+| trigger_prompt | `POST /api/v1/prompts/{prompt_id}/runs` | Prompt id in the path, body `{}` |
+| get_brand_overview | POST /api/v1/reports/overview | Same argument names |
+| get_daily_trend | POST /api/v1/reports/analytics | start_date / end_date become start_utc_date / end_utc_date |
+| query_analytics | POST /api/v1/reports/analytics | Not drop-in; see below |
+| get_brand_board | POST /api/v1/reports/brand-board | platform does not accept "all"; omit it for every platform |
+| get_citation_overview, section=board | POST /api/v1/reports/citations | Other sections have no REST equivalent |
+
+**`query_analytics` has been removed.** On MCP it returns a free `TOOL_REMOVED` notice pointing to `get_daily_trend` until 2026-11-30, and the Agent API no longer offers it. `POST /api/v1/reports/analytics` returns fixed daily columns from the derived daily layer (the `get_daily_trend` definitions): `breakdown` is `platform`, `total` or `topic`, and window values are in `totals`. It has no `dataset`, free-form `dimensions` or `metrics`, `domain`, `limit` or `citationCount` (use `POST /api/v1/reports/citations` for citation counts).
+
+The text subsets `prompt_text_include` / `prompt_text_exclude` have no equivalent:
+
+- For a lasting branded / non-branded split, move those prompts into a topic in the app and read `breakdown=topic` (or `topic_ids`) after the next daily refresh. This counts by topic membership, not by text matching.
+- For a single window value, call `POST /api/v1/reports/prompts` with `search` and read `data.summary`. `search` is include-only and case-insensitive, matches the prompt text or a tag name (broader than a text match), and returns totals for the window without daily rows.

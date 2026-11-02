@@ -1,55 +1,38 @@
-# Mintlify Starter Kit
+# GEOly Docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+GEOly 产品文档站（Mintlify）。内容按顶部 Tab 分为：Get Started / Analytics / Shopify App / Platform / Integrations / Developers，支持 en（根路径）与 zh（`/zh`）。
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## 目录
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- `docs.json`：站点配置与导航（`navigation.languages[].tabs`）
+- `index.mdx`、`zh/index.mdx`：首页卡片导航
+- `<tab>/<slug>.mdx`、`zh/<tab>/<slug>.mdx`：文档页面
+- `images/<slug>/`：文档图片
+- `scripts/export-payload.mjs`：从官网 Payload CMS 导出文档的迁移脚本
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## 从 Payload 重新导出
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+切换前文档仍以官网 Payload 为准，可随时重新导出覆盖：
 
 ```bash
-npx skills add https://mintlify.com/docs
+node scripts/export-payload.mjs
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+脚本会同时生成：
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+- `scripts/navigation.generated.json`：导航结构，需同步到 `docs.json` 的 `navigation.languages`
+- `scripts/redirects-map.json`：官网旧 `/docs/<slug>`、`/zh/docs/<slug>` → 新路径，供官网 `proxy.ts` 做 301
 
-## Development
+新增文档时在脚本的 `SECTIONS` 里登记 slug 所属 Tab / 分组。
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+## 本地预览与检查
 
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
+```bash
+npx mint@latest dev
+npx mint@latest validate
+npx mint@latest broken-links
 ```
 
-View your local preview at `http://localhost:3000`.
+## 发布
 
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+推送到 `main` 后由 Mintlify GitHub App 自动部署。
