@@ -23,6 +23,7 @@
         "tabs": [
           {
             "tab": "Home",
+            "icon": "house",
             "groups": [
               {
                 "group": "Home",
@@ -34,9 +35,11 @@
           },
           {
             "tab": "Get Started",
+            "icon": "rocket",
             "groups": [
               {
                 "group": "Get started",
+                "icon": "flag",
                 "pages": [
                   "get-started/register-account",
                   "get-started/geoly-platform"
@@ -44,6 +47,7 @@
               },
               {
                 "group": "Concepts",
+                "icon": "book-open",
                 "pages": [
                   "get-started/what-is-ai-llms-txt"
                 ]
@@ -52,9 +56,11 @@
           },
           {
             "tab": "Analytics",
+            "icon": "chart-line",
             "groups": [
               {
                 "group": "Monitoring",
+                "icon": "activity",
                 "pages": [
                   "analytics/geoly-prompts",
                   "analytics/ai-engine-topic"
@@ -62,6 +68,7 @@
               },
               {
                 "group": "Insights",
+                "icon": "lightbulb",
                 "pages": [
                   "analytics/ai-engine-insight",
                   "analytics/ai-engine-explore",
@@ -72,9 +79,11 @@
           },
           {
             "tab": "Shopify App",
+            "icon": "shopping-bag",
             "groups": [
               {
                 "group": "Shopify app",
+                "icon": "store",
                 "pages": [
                   "shopify/ai-llms-txt",
                   "shopify/catalog-optimization",
@@ -85,9 +94,11 @@
           },
           {
             "tab": "Platform",
+            "icon": "sliders-horizontal",
             "groups": [
               {
                 "group": "Account & organization",
+                "icon": "users",
                 "pages": [
                   "platform/basic-management"
                 ]
@@ -96,9 +107,11 @@
           },
           {
             "tab": "Integrations",
+            "icon": "plug",
             "groups": [
               {
                 "group": "Integrations",
+                "icon": "cable",
                 "pages": [
                   "integrations/google-analytics-help-docs",
                   "integrations/cloudflare-integration"
@@ -108,9 +121,11 @@
           },
           {
             "tab": "Developers",
+            "icon": "square-terminal",
             "groups": [
               {
                 "group": "Developers",
+                "icon": "code",
                 "pages": [
                   "developers/mcp",
                   "developers/cli",
@@ -126,6 +141,7 @@
         "tabs": [
           {
             "tab": "首页",
+            "icon": "house",
             "groups": [
               {
                 "group": "首页",
@@ -137,9 +153,11 @@
           },
           {
             "tab": "快速开始",
+            "icon": "rocket",
             "groups": [
               {
                 "group": "入门",
+                "icon": "flag",
                 "pages": [
                   "zh/get-started/geoly-platform",
                   "zh/get-started/geoly-operation-manual"
@@ -147,6 +165,7 @@
               },
               {
                 "group": "概念",
+                "icon": "book-open",
                 "pages": [
                   "zh/get-started/what-is-ai-llms-txt"
                 ]
@@ -155,9 +174,11 @@
           },
           {
             "tab": "分析",
+            "icon": "chart-line",
             "groups": [
               {
                 "group": "监测",
+                "icon": "activity",
                 "pages": [
                   "zh/analytics/performance",
                   "zh/analytics/geoly-prompts",
@@ -166,6 +187,7 @@
               },
               {
                 "group": "洞察",
+                "icon": "lightbulb",
                 "pages": [
                   "zh/analytics/ai-engine-insight",
                   "zh/analytics/ai-engine-explore",
@@ -179,9 +201,11 @@
           },
           {
             "tab": "Shopify 应用",
+            "icon": "shopping-bag",
             "groups": [
               {
                 "group": "Shopify 应用",
+                "icon": "store",
                 "pages": [
                   "zh/shopify/ai-llms-txt",
                   "zh/shopify/catalog-optimization",
@@ -192,15 +216,18 @@
           },
           {
             "tab": "平台配置",
+            "icon": "sliders-horizontal",
             "groups": [
               {
                 "group": "账号与组织",
+                "icon": "users",
                 "pages": [
                   "zh/platform/basic-management"
                 ]
               },
               {
                 "group": "代理商",
+                "icon": "handshake",
                 "pages": [
                   "zh/platform/geo-agency"
                 ]
@@ -209,9 +236,11 @@
           },
           {
             "tab": "集成",
+            "icon": "plug",
             "groups": [
               {
                 "group": "集成",
+                "icon": "cable",
                 "pages": [
                   "zh/integrations/google-analytics-help-docs",
                   "zh/integrations/cloudflare-integration"
@@ -221,9 +250,11 @@
           },
           {
             "tab": "开发者",
+            "icon": "square-terminal",
             "groups": [
               {
                 "group": "开发者",
+                "icon": "code",
                 "pages": [
                   "zh/developers/mcp",
                   "zh/developers/cli",
@@ -268,6 +299,11 @@
   "footer": {
     "socials": {
       "website": "https://www.geoly.ai"
+    }
+  },
+  "seo": {
+    "metatags": {
+      "robots": "noindex"
     }
   }
 }

@@ -27,13 +27,16 @@ export const SECTIONS = [
   {
     dir: 'get-started',
     tab: { en: 'Get Started', zh: '快速开始' },
+    icon: 'rocket',
     groups: [
       {
         name: { en: 'Get started', zh: '入门' },
+        icon: 'flag',
         slugs: ['register-account', 'geoly-platform', 'geoly-operation-manual'],
       },
       {
         name: { en: 'Concepts', zh: '概念' },
+        icon: 'book-open',
         slugs: ['what-is-ai-llms-txt'],
       },
     ],
@@ -41,13 +44,16 @@ export const SECTIONS = [
   {
     dir: 'analytics',
     tab: { en: 'Analytics', zh: '分析' },
+    icon: 'chart-line',
     groups: [
       {
         name: { en: 'Monitoring', zh: '监测' },
+        icon: 'activity',
         slugs: ['performance', 'geoly-prompts', 'ai-engine-topic'],
       },
       {
         name: { en: 'Insights', zh: '洞察' },
+        icon: 'lightbulb',
         slugs: [
           'ai-engine-insight',
           'ai-engine-explore',
@@ -62,9 +68,11 @@ export const SECTIONS = [
   {
     dir: 'shopify',
     tab: { en: 'Shopify App', zh: 'Shopify 应用' },
+    icon: 'shopping-bag',
     groups: [
       {
         name: { en: 'Shopify app', zh: 'Shopify 应用' },
+        icon: 'store',
         slugs: [
           'ai-llms-txt',
           'catalog-optimization',
@@ -76,20 +84,24 @@ export const SECTIONS = [
   {
     dir: 'platform',
     tab: { en: 'Platform', zh: '平台配置' },
+    icon: 'sliders-horizontal',
     groups: [
       {
         name: { en: 'Account & organization', zh: '账号与组织' },
+        icon: 'users',
         slugs: ['basic-management'],
       },
-      { name: { en: 'Agency', zh: '代理商' }, slugs: ['geo-agency'] },
+      { name: { en: 'Agency', zh: '代理商' }, icon: 'handshake', slugs: ['geo-agency'] },
     ],
   },
   {
     dir: 'integrations',
     tab: { en: 'Integrations', zh: '集成' },
+    icon: 'plug',
     groups: [
       {
         name: { en: 'Integrations', zh: '集成' },
+        icon: 'cable',
         slugs: ['google-analytics-help-docs', 'cloudflare-integration'],
       },
     ],
@@ -97,9 +109,11 @@ export const SECTIONS = [
   {
     dir: 'developers',
     tab: { en: 'Developers', zh: '开发者' },
+    icon: 'square-terminal',
     groups: [
       {
         name: { en: 'Developers', zh: '开发者' },
+        icon: 'code',
         slugs: ['mcp', 'cli', 'data-api'],
       },
     ],
@@ -174,6 +188,7 @@ function buildNavigation(published) {
     const tabs = [
       {
         tab: locale === 'zh' ? '首页' : 'Home',
+        icon: 'house',
         groups: [{ group: locale === 'zh' ? '首页' : 'Home', pages: [`${prefix}index`] }],
       },
     ];
@@ -181,12 +196,13 @@ function buildNavigation(published) {
       const groups = section.groups
         .map((g) => ({
           group: g.name[locale],
+          icon: g.icon,
           pages: g.slugs
             .filter((slug) => published.has(`${locale}:${slug}`))
             .map((slug) => pagePath(locale, slug)),
         }))
         .filter((g) => g.pages.length);
-      if (groups.length) tabs.push({ tab: section.tab[locale], groups });
+      if (groups.length) tabs.push({ tab: section.tab[locale], icon: section.icon, groups });
     }
     return { language: locale, tabs };
   });
@@ -256,7 +272,9 @@ function rewriteLinks(md, locale, published) {
       if (path.startsWith('/images/')) return match;
       const m = path.match(/^(?:\/(zh))?\/docs\/([^/#?]+)(.*)$/);
       if (m) {
-        const target = m[1] || 'en';
+        // 中文文档里写的 /docs/<slug> 优先指向中文版本
+        const target =
+          m[1] || (locale !== 'en' && published.has(`${locale}:${m[2]}`) ? locale : 'en');
         if (SLUG_DIR[m[2]] && published.has(`${target}:${m[2]}`)) {
           return `](/${pagePath(target, m[2])}${m[3]}`;
         }
