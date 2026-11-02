@@ -242,10 +242,5 @@
     "socials": {
       "website": "https://www.geoly.ai"
     }
-  },
-  "seo": {
-    "metatags": {
-      "robots": "noindex"
-    }
   }
 }
