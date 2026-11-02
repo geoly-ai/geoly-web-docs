@@ -109,10 +109,51 @@
             "icon": "square-terminal",
             "groups": [
               {
-                "group": "Data API",
-                "icon": "code",
+                "group": "Get started",
+                "icon": "book-open",
                 "pages": [
                   "developers/data-api"
+                ]
+              },
+              {
+                "group": "Account",
+                "icon": "user",
+                "pages": [
+                  "api-reference/account/get-brand",
+                  "api-reference/account/get-quota"
+                ]
+              },
+              {
+                "group": "Catalog",
+                "icon": "list",
+                "pages": [
+                  "api-reference/catalog/list-topics",
+                  "api-reference/catalog/list-prompts",
+                  "api-reference/catalog/get-prompt",
+                  "api-reference/catalog/create-prompt"
+                ]
+              },
+              {
+                "group": "Records",
+                "icon": "database",
+                "pages": [
+                  "api-reference/records/list-prompt-records",
+                  "api-reference/records/get-latest-records",
+                  "api-reference/records/get-record",
+                  "api-reference/records/sync-records",
+                  "api-reference/records/trigger-run"
+                ]
+              },
+              {
+                "group": "Reports",
+                "icon": "chart-column",
+                "pages": [
+                  "api-reference/reports/overview",
+                  "api-reference/reports/analytics",
+                  "api-reference/reports/brand-board",
+                  "api-reference/reports/citations",
+                  "api-reference/reports/prompts",
+                  "api-reference/reports/prompt-overview"
                 ]
               }
             ]
@@ -221,10 +262,51 @@
             "icon": "square-terminal",
             "groups": [
               {
-                "group": "Data API",
-                "icon": "code",
+                "group": "开始使用",
+                "icon": "book-open",
                 "pages": [
                   "zh/developers/data-api"
+                ]
+              },
+              {
+                "group": "账号",
+                "icon": "user",
+                "pages": [
+                  "zh/api-reference/account/get-brand",
+                  "zh/api-reference/account/get-quota"
+                ]
+              },
+              {
+                "group": "目录",
+                "icon": "list",
+                "pages": [
+                  "zh/api-reference/catalog/list-topics",
+                  "zh/api-reference/catalog/list-prompts",
+                  "zh/api-reference/catalog/get-prompt",
+                  "zh/api-reference/catalog/create-prompt"
+                ]
+              },
+              {
+                "group": "监测记录",
+                "icon": "database",
+                "pages": [
+                  "zh/api-reference/records/list-prompt-records",
+                  "zh/api-reference/records/get-latest-records",
+                  "zh/api-reference/records/get-record",
+                  "zh/api-reference/records/sync-records",
+                  "zh/api-reference/records/trigger-run"
+                ]
+              },
+              {
+                "group": "报表",
+                "icon": "chart-column",
+                "pages": [
+                  "zh/api-reference/reports/overview",
+                  "zh/api-reference/reports/analytics",
+                  "zh/api-reference/reports/brand-board",
+                  "zh/api-reference/reports/citations",
+                  "zh/api-reference/reports/prompts",
+                  "zh/api-reference/reports/prompt-overview"
                 ]
               }
             ]
@@ -265,6 +347,19 @@
   "footer": {
     "socials": {
       "website": "https://www.geoly.ai"
+    }
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": [
+        "curl",
+        "python",
+        "javascript"
+      ],
+      "defaults": "required"
     }
   }
 }
