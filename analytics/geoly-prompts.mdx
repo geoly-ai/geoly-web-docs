@@ -1,5 +1,6 @@
 ---
 title: "Prompts"
+description: "Create and review monitoring questions, AI answers, mention and citation rates, competitors, and evidence for your brand."
 ---
 
 ## Entry and purpose
@@ -146,20 +147,20 @@ Before importing, use the preview to check empty text, country codes, Topic matc
 
 The figures below are the default limits shown on the [current pricing page](https://www.geoly.ai/pricing). Prices, available platforms, organization overrides, and add-on benefits can change; use the **current pricing page and account page** as the source of truth.
 
-| Plan | Prompt total | AI platforms | Responses/month | AI Credits/month | Data retention |
-| --- | ---: | --- | ---: | ---: | --- |
-| Basic | 30 | 1 (ChatGPT) | 900 | 3,000 | Up to 30 days |
-| Grow | 50 | 2 (ChatGPT, Google AI Mode) | 3,000 | 10,000 | Up to 30 days |
-| Advanced | 100 | 4 (ChatGPT, Gemini, Perplexity, Google AI Mode) | 12,000 | 30,000 | Up to 90 days |
-| Plus | 500 | All 6 | 90,000 | 100,000 | 365 days |
-| Enterprise | Custom | Custom | Custom | Custom | Custom |
+| Plan | Prompt total | AI platforms | Responses/month | AI Credits/month | MCP Credits/month | Data retention |
+| --- | --: | --- | --: | --: | --: | --- |
+| Basic | 30 | 1 (ChatGPT) | 900 | 3,000 | 3,000 | Up to 30 days |
+| Grow | 50 | 2 (ChatGPT, Google AI Mode) | 3,000 | 10,000 | 25,000 | Up to 30 days |
+| Advanced | 100 | 4 (ChatGPT, Gemini, Perplexity, Google AI Mode) | 12,000 | 30,000 | 75,000 | Up to 90 days |
+| Plus | 500 | All 6 | 90,000 | 100,000 | 200,000 | 365 days |
+| Enterprise | Custom | Custom | Custom | Custom | Custom | Custom |
 
 Interpret these limits carefully:
 
 - **Prompt total is an organization-level monitoring quota**, not a separate allowance per brand or platform. Check the organization's remaining quota before importing.
 - **Responses/month is monitoring response capacity, not a guarantee of completed Records**. Provider availability, failed or in-progress tasks, and narrow filters can make actual Records lower than the quota.
-- **AI Credits are for in-product AI analysis or generation**, separate from Responses and Prompt execution count; **MCP Credits are a separate organization-shared pool for paid public industry intelligence through MCP, the CLI, and eligible future APIs**. Reading your own monitored data normally does not consume MCP Credits; paid public-industry analysis does. Neither pool converts directly into an executable Prompt count; use the account page and usage receipt for consumption and reset details.
-- Current AI Credit validity is 30 days for Basic, Grow, and Advanced, and 90 days for Plus; Enterprise is custom. This is separate from monitoring-data retention. Current MCP Credits are 0 (Basic), 25,000 (Grow), 75,000 (Advanced), 200,000 (Plus), and custom by plan (Enterprise); the organization shares the pool and unused credits do not roll over.
+- **AI Credits are for in-product AI analysis or generation**, separate from Responses and Prompt execution count. **MCP Credits are a separate organization-shared pool used by MCP, the CLI, and eligible future APIs.** Under the current metering configuration, many brand-monitoring data calls are billed per call, while navigation, writes, audits, GA4, Agent Readiness, and the free public-source tools can remain unbilled. Check `get_quota` and each tool's quota receipt instead of assuming a data read is free.
+- Current AI Credit validity is 30 days for Basic, Grow, and Advanced, and 90 days for Plus; Enterprise is custom. This is separate from monitoring-data retention. Current default MCP Credits are 3,000 (Basic), 25,000 (Grow), 75,000 (Advanced), 200,000 (Plus), and custom by plan (Enterprise); the organization shares the pool and unused credits do not roll over.
 - Add-on capabilities such as sentiment analysis, Shopping product-card analysis, Agent, and reports have their own plan gates or quotas. Do not infer their availability from Prompt total or Responses/month; verify the plan comparison and current account state.
 - The detail drawer's **Last 30 Days** and custom ranges cannot exceed the plan's retention window. **AI real search queries** may show up to 90 days when available, but are still limited by the history actually retained for the account.
 - **All platforms** means all platforms allowed by the current workspace and plan, not every AI platform in the product. The platform selector can therefore differ by plan.
@@ -185,16 +186,14 @@ Filtering and sorting are server-side and paginated. Page sizes are 10, 25, 50, 
 
 | Column | Meaning | How to use it |
 | --- | --- | --- |
-| Prompt | The full question is clamped to two lines; hover to read long text. Country and topic may appear below it. | Confirm that the question matches the target scenario. |
+| Prompt | The full question is clamped to two lines; country and topic may appear below it. | Confirm that the question matches the target scenario. |
 | Visibility | AIGVR visibility percentage and change for the current filters. | Compare only with the same scope. |
-| Avg Visibility Level | Average of levels 1, 2, and 3. Level 1 is high, 2 medium, and 3 low; a smaller number means stronger presentation. | It is not a recommendation rank; read the original responses. |
-| Competitors | Configured competitors that co-occur with the brand in the same answers. | Co-occurrence is not market share and competitors are not auto-discovered. |
-| Share | SoM (Share of Model) and change. | Share within monitored answers, not sales share. |
+| Competitors | Brands that co-occur with the monitored brand in the same answers. | Co-occurrence is not market share. Open the prompt details to inspect the underlying answers. |
+| Mention rate | The percentage of completed monitoring records in which the brand is mentioned. | Compare only when the prompt, platform, country, and time window match. |
 | Citation | Citation rate for brand sources in the current scope and change. | Open details to verify URLs and source types. |
-| Records | Number of executions in the current scope. | Record the completed count before interpreting a score. |
-| Status | Active or Inactive. | It affects future monitoring, not historical data. |
+| Archived at | On the archived tab, the archive or last-update time for the prompt. The monitoring tab uses the tab state instead of repeating a status value on every row. | Use it to locate old prompts before restoring or deleting them. |
 
-The summary bar is calculated over all filtered results, not only the current page. “Change” compares the current filtered result with the previous window of equal length; changing the time range or platform also changes the comparison baseline.
+The summary bar now mirrors the main metrics: visibility, mention rate, and citation rate. It is calculated over all filtered results, not only the current page. “Change” compares the current filtered result with the previous window of equal length; changing the time range or platform also changes the comparison baseline.
 
 ### Row and batch actions
 
