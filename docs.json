@@ -265,6 +265,7 @@
                 "group": "开始使用",
                 "icon": "book-open",
                 "pages": [
+                  "zh/get-started/register-account",
                   "zh/developers/data-api"
                 ]
               },
