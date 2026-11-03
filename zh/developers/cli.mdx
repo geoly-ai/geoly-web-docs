@@ -422,7 +422,7 @@ echo '{"time_range":"7d"}' | geoly call get_brand_overview --input -
 
 单独写的参数会覆盖 `--data` / `--input` 里的同名字段。如果工具参数与 CLI 自身的选项同名（`org`、`profile`、`output`、`timeout`、`yes` 等），请放进 `--data`。分页参数按各工具自己的定义透传（`page` / `page_size` 或 `limit` / `offset`）；服务端标记结果不完整时（`_truncated`、`hasMore`、`totalPages`），这些字段会保留在结果中，CLI 还会在 stderr 上提示。
 
-**写入工具**——`create_prompt`、`create_topic`、`create_competitor`、`archive_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`trigger_prompt`——只有在授权时为单个组织勾选了对应资源的写入权限才会出现。每次执行都需要确认：终端里回答 `[y/N]`，或在脚本里加 `--yes`，否则返回 `write_blocked`。`trigger_prompt` 还会立即执行一次监测并消耗 credits。
+**写入工具**——`create_prompt`、`create_topic`、`create_competitor`、`archive_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`trigger_prompt`——只有在授权时为单个组织勾选了对应资源的写入权限才会出现。每次执行都需要确认：终端里回答 `[y/N]`，或在脚本里加 `--yes`，否则返回 `write_blocked`。`trigger_prompt` 还会立即执行一次监测并消耗产品监测额度；它不按 MCP 数据行单独计费，但仍受套餐和监测配额限制。
 
 ### 交给托管 Agent
 

@@ -425,7 +425,7 @@ echo '{"time_range":"7d"}' | geoly call get_brand_overview --input -
 
 Individual flags override the same fields in `--data` / `--input`. A tool parameter that shares its name with a CLI flag (`org`, `profile`, `output`, `timeout`, `yes`…) goes inside `--data`. Paging parameters pass through as each tool defines them (`page` / `page_size` or `limit` / `offset`); when the server marks a partial result (`_truncated`, `hasMore`, `totalPages`), the fields stay in the payload and the CLI adds a hint on stderr.
 
-**Write tools** — `create_prompt`, `create_topic`, `create_competitor`, `archive_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `trigger_prompt` — appear only when the consent granted Write on that resource for one organization. They run only after a confirmation: `[y/N]` in a terminal or `--yes` in a script; otherwise the result is `write_blocked`. `trigger_prompt` also runs monitoring right away and consumes credits.
+**Write tools** — `create_prompt`, `create_topic`, `create_competitor`, `archive_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `trigger_prompt` — appear only when the consent granted Write on that resource for one organization. They run only after a confirmation: `[y/N]` in a terminal or `--yes` in a script; otherwise the result is `write_blocked`. `trigger_prompt` also runs monitoring right away and consumes product monitoring capacity or credits; it is not charged as an MCP data row.
 
 ### Asking the hosted agent
 
