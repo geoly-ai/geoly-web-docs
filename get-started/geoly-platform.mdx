@@ -3,7 +3,7 @@ title: "What is GEOly?"
 description: "Learn how GEOly separates public AI-search research from monitored brand data and turns AI visibility, citations, shopping, and prompt evidence into action."
 ---
 
-GEOly helps you understand how AI platforms describe, recommend, rank, and cite your brand. This guide separates public industry research from your monitored workspace data, then shows how to turn each type of evidence into a practical next step.
+Use this page as a UI map for GEOly. It explains what each main screen shows, which filters and controls you can use, and how to move from a Prompt or public research signal to a documented action.
 
 GEOly is a Generative Engine Optimization (GEO) platform for understanding how AI systems describe, recommend, rank, and cite brands. It combines two different kinds of evidence:
 
@@ -12,22 +12,23 @@ GEOly is a Generative Engine Optimization (GEO) platform for understanding how A
 
 Keep these scopes separate. Public research is useful for market discovery; monitored data is tied to the brand, Prompt set, platforms, countries, and time range configured in the current workspace.
 
-## Current workspace map
+## UI map: find the right screen
 
-The current GEOly navigation is organized as follows:
+GEOly's left navigation separates public research from your monitored brand workspace. Use the following map to choose the right screen:
 
-| Area | Pages | What it is for |
+| UI area | Main screens | What you can do |
 | --- | --- | --- |
-| **Public** | Explore | Public research across categories, topics, brands, sources, Fanouts, Shopping, and Ads |
-| **Monitoring** | Prompts | The questions GEOly monitors for your brand |
-| **Performance** | Overview, AI Answers, Perception, Shopping | Your brand's monitored visibility, answers, narrative, and product-shelf performance |
-| **Sources** | Citations, Fanouts, AI Traffic | The evidence and retrieval behavior behind monitored answers |
-| **MCP & Tools** | MCP, Tools | Connect authorized AI clients and run GEO diagnostics or site exploration |
-| **AI assistant** | Right-side panel | Ask questions about the current page and continue evidence-based analysis |
+| **Public** | Explore, AI Search, Shopping, Ads | Browse the public dataset by market, category, Topic, brand, product, source, query expansion, shopping result, or ad observation. |
+| **Monitoring** | Prompts | Add, import, organize, filter, archive, and inspect the questions GEOly monitors for the current brand. |
+| **Performance** | Overview, AI Answers, Perception, Shopping | Review monitored visibility, read original AI answers, compare brand attributes, and inspect the monitored AI Shelf. |
+| **Sources** | Citations, Fanouts, AI Traffic | Trace cited domains and pages, inspect AI retrieval queries, and review available AI referral traffic data. |
+| **MCP & Tools** | MCP, Tools | Authorize supported AI clients and open GEO diagnostics or AI site-exploration tools available to the organization. |
+| **Settings** | Brand, Organization, Account, Developers | Manage workspace-level settings, members, competitors, and developer access such as API keys when available. |
+| **AI assistant** | Right-side panel | Ask questions about the current page and use the page context to continue an investigation. |
 
-Availability, platforms, history, and usage limits depend on the organization and plan shown in the account.
+The visible screens, filters, platforms, history, and actions depend on the current organization and account access.
 
-## 1. Start with Performance → Overview
+## 1. Performance → Overview: read the main dashboard
 
 Overview summarizes the selected brand under the current date, platform, Topic, and country filters. It can show:
 
@@ -42,7 +43,7 @@ Overview summarizes the selected brand under the current date, platform, Topic, 
 
 Do not interpret these metrics as traffic, revenue, conversion, sales share, or causal impact. Always keep the filters and completed-answer volume visible when comparing periods.
 
-## 2. Use Public → Explore for market research
+## 2. Public → Explore: browse the research workspace
 
 Explore browses GEOly's public dataset. Select the country/language and platform, then search or open a category, Topic, brand, or product. The page also surfaces saved entities and trending Topics where data is available.
 
@@ -58,7 +59,7 @@ Use the tabs together:
 
 Public results describe GEOly's current collection scope. They are not complete market coverage, user search logs, or first-party analytics.
 
-## 3. Configure Monitoring → Prompts
+## 3. Monitoring → Prompts: manage monitored questions
 
 A Prompt is a complete natural-language question GEOly monitors. It should represent a real discovery, comparison, purchase, or use-case question, not just a keyword.
 
@@ -74,7 +75,7 @@ Open **Add Prompt** to use one of three tabs:
 
 Saving a Prompt starts monitoring work; it does not mean completed AI answers already exist. Wait for records to arrive before interpreting the result.
 
-## 4. Read a Prompt from evidence to action
+## 4. Prompt details: inspect one monitored question
 
 The current Prompt detail page is organized into four sections:
 
@@ -96,7 +97,7 @@ A reliable review follows this order:
 
 Absence under one filter set is not proof that the brand never appears. It may reflect coverage, date range, platform support, or incomplete records.
 
-## 5. Review Performance → Perception
+## 5. Performance → Perception: compare attributes
 
 Perception analyzes what AI answers say about the brand and competing brands. The comparison matrix groups recurring points such as portability, image quality, battery life, price, or other attributes found in the answer set.
 
@@ -106,7 +107,7 @@ The number in a cell is the count of answers discussing that brand and point. Co
 
 Perception is a beta evidence-analysis surface. Attribute counts can overlap because one answer may discuss several points. A missing cell is not a zero-quality score, and praise/criticism is not customer satisfaction, conversion, or market rank.
 
-## 6. Trace Sources → Citations and Fanouts
+## 6. Sources → Citations and Fanouts: trace evidence
 
 Citations shows the domains and pages referenced by monitored AI answers. The current page provides an overview, trend, Top/New/Rising/Falling views, source types, and searchable **Domains** and **Pages** tables.
 
@@ -121,7 +122,7 @@ Use it to answer:
 
 Fanouts shows AI-generated retrieval queries when a platform returns them. They describe AI retrieval behavior, not real-user search volume. A citation also does not prove endorsement, accuracy, traffic, or conversion; read the answer and source page before acting.
 
-## 7. Separate public Shopping from your monitored AI Shelf
+## 7. Shopping: compare public products and AI Shelf
 
 Open **Public → Explore → Shopping** to research products observed across GEOly's public shopping dataset. The current board uses row-based rankings for **Most shown**, **Rising fastest**, and **New to the board**.
 
@@ -139,7 +140,7 @@ Open **Performance → Shopping** for the separate monitored-brand view, titled 
 
 AI Shelf metrics use different denominators. For example, shelf trigger rate is based on answers that produced a shopping shelf, while appearance rate is based on those shelf answers. Read the denominator shown under each metric before comparing them.
 
-## 8. Use MCP & Tools and the AI assistant
+## 8. MCP & Tools and AI assistant: connect and investigate
 
 **MCP & Tools → MCP** connects supported AI clients through OAuth and lists authorized apps. Access shown as read-only remains read-only; revoke access only when you intend to require a new authorization.
 
@@ -151,7 +152,7 @@ The floating **AI assistant** opens on the right side of the current page. It ca
 
 ![GEOly AI assistant panel on the current page](https://gslkfhamqhkktynnjqng.supabase.co/storage/v1/object/public/cms-media/cms-geoly-ai-assistant-current-20261014.jpg "GEOly AI assistant")
 
-## Recommended operating workflow
+## A practical UI workflow
 
 1. Define the market, brand, and customer decisions you need to understand.
 2. Use Public Explore to identify categories, Topics, sources, fan-outs, and shopping patterns.
