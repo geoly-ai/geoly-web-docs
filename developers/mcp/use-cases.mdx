@@ -1,0 +1,123 @@
+---
+title: "Use cases"
+description: "Example questions and workflows for the GEOly MCP server, grouped by what you want to find out."
+---
+
+Ask in plain language. Your assistant picks the tools, reads the data, and answers with the same numbers the app shows. The tools named under each example are what the assistant usually calls; you never need to name them.
+
+## Example workflows
+
+### 1. Brand visibility overview
+
+> *"How visible is our brand in AI answers over the last 30 days, and which platform is weakest?"*
+
+Returns visibility, mention rate, share of voice, and citation rate for the window, with a per-platform breakdown and your strongest and weakest platform. Uses `get_brand_overview`.
+
+### 2. Competitive benchmarking by platform
+
+> *"Rank us against the competitors we track, and show where each one beats us by platform."*
+
+A ranked board of your tracked brands, plus a brand × platform matrix that shows where a competitor leads. Uses `get_brand_board` and `get_platform_matrix`.
+
+### 3. Citation and source analysis
+
+> *"Which domains does AI cite most for our prompts, and how often is our own site among them?"*
+
+The cited domains and URLs with how often each appears, which ones are your own site or a competitor's, and the links AI writes directly into its answers. Uses `get_citation_overview`, then `get_domain_detail` or `get_url_detail` to drill in.
+
+### 4. Blind-spot prompts
+
+> *"Which prompts never mention us? Show the answers for the worst three."*
+
+Your prompts sorted by mention rate, lowest first, then the actual AI answers for the ones that miss you, with the brands they named instead. Uses `get_prompt_list` (`view="mention_rates"`) and `list_brand_answers`.
+
+### 5. Visibility trend
+
+> *"Show our daily visibility on ChatGPT and Gemini for the last four weeks compared with the four weeks before."*
+
+A day-by-day series per platform with window totals and the change against the previous period. Uses `get_daily_trend`.
+
+## More ideas
+
+### Brand visibility
+
+- *"What's our share of voice this month, and how did it change from last month?"*
+- *"Break our visibility down by topic. Where are we strongest?"*
+- *"How often are we ranked first when AI mentions us?"* (win rate)
+
+### Competitors
+
+- *"Which brands does AI name most often alongside us?"*
+- *"Which competitor gained the most visibility this week?"*
+- *"Add Acme as a tracked competitor."*
+
+### Sources and citations
+
+- *"Which of our pages get cited most, and on which prompts?"*
+- *"Which third-party sites cite our competitors but not us?"*
+- *"Which links does ChatGPT put directly into its answers for our prompts?"*
+
+### AI answers
+
+- *"Show me what ChatGPT said yesterday for our top prompt, with its sources."*
+- *"What search queries did the AI run before answering our prompts?"*
+
+### Perception
+
+- *"Which attributes does AI praise or criticize us for, compared with our competitors?"*
+- *"Show the exact sentences where AI is negative about our pricing."*
+- *"What's our sentiment trend over the last 90 days?"*
+
+### AI shopping
+
+- *"How often do our products appear in ChatGPT shopping cards, and who takes the shelf when we don't?"*
+- *"On which prompts do shopping cards show up without our products?"*
+
+### Your website
+
+- *"What are the top issues in our latest GEO audit?"*
+- *"Is our site ready for AI agents? What blocks the next level?"*
+- *"How much traffic did AI assistants send us last month?"* (needs GA4 or Cloudflare connected)
+
+### Public market research
+
+- *"Who leads the portable power station category in AI answers, and who is rising?"*
+- *"Where is the white space in this category — topics no brand owns yet?"*
+- *"What do people ask AI about air purifiers, and which brands win those questions?"*
+- *"Which products dominate AI shopping boards for robot vacuums?"*
+
+These use public industry intelligence (Grow and above, metered).
+
+### Reporting
+
+- *"Write a weekly report: headline numbers, competitor movers, citation shifts, and three actions."*
+- *"Compare our visibility before and after our launch on 2026-10-15."*
+
+For recurring reports, try the built-in [prompts](/developers/mcp/prompts).
+
+### Edit your setup
+
+- *"Create a topic 'Camping power' and add these five prompts to it."*
+- *"Tag every prompt that mentions 'price' with 'pricing'."*
+- *"Archive the prompts in the 'Old launch' topic."*
+- *"Run our top prompt again now."*
+
+Your client asks you to confirm before each change. Write tools need a write grant and a connection to one organization.
+
+## Tips
+
+**Give the assistant five things.** The goal (what you need to decide), the scope (brand, or public category and market), the platform, the time window, and the output you want (a table, a summary, or a list of evidence).
+
+> *"For our brand, compare ChatGPT visibility in the last 30 days with the 30 days before. Show the five prompts with the biggest drop, the sources cited in those answers, and what we should check. Don't guess causes without evidence."*
+
+**Quote the window the tool returns.** Tools echo the exact window they read, in UTC+8 business days. Use that window in reports.
+
+**"Not ready" is not zero.** A metric that is still being computed, or has no data for a filter, comes back as `null` or `not-ready`. It never means 0%.
+
+**Mentions and citations are different.** A mention means AI named your brand. A citation means the answer referenced a source. Neither is a website visit.
+
+**A change is a signal, not a cause.** Ask the assistant to label inferred causes as hypotheses and back them with the answers and sources.
+
+**Keep your data and public data apart.** Your monitoring covers your own prompts; public industry data covers a shared market sample. Their numbers aren't directly comparable.
+
+**Mind the credits.** Start with the default page size for public research, and check `get_quota` before large pulls.

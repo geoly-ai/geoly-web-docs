@@ -1,0 +1,157 @@
+---
+title: "Setup guide"
+description: "Step-by-step instructions for connecting the GEOly MCP server to Claude, Codex, Cursor, VS Code, Windsurf, and other MCP clients."
+---
+
+## Server URL
+
+```text
+https://app.geoly.ai/api/mcp/v1
+```
+
+You can also copy it in GEOly under **Settings → Developers → MCP**. That page picks your client and generates the exact command or configuration below.
+
+## Authentication
+
+GEOly uses OAuth. You don't create or paste a token: the first time your client connects, it opens GEOly in the browser.
+
+1. Sign in to GEOly.
+2. Choose one organization, or all organizations for read-only access across them.
+3. Choose what the client may read, and grant write access only for what it has to change.
+4. Approve, then return to your client.
+
+<video controls playsinline preload="metadata" width="100%" src="https://cdn.shopify.com/videos/c/o/v/cf1b4c7ead9e48b1a46f1536cd205504.mp4"></video>
+
+## Claude Code (CLI)
+
+```bash
+claude mcp add --transport http geoly "https://app.geoly.ai/api/mcp/v1"
+```
+
+Start `claude`, type `/mcp` in the session, select `geoly`, and complete sign-in in the browser. `/mcp` is a command inside Claude Code, not a terminal command.
+
+## Claude Desktop and claude.ai
+
+If your Claude plan lets you add custom connectors, open **Settings → Connectors → Add custom connector** and paste the server URL. Sign in when Claude asks. Whether custom connectors are available depends on your Claude plan and your organization admin.
+
+Without custom connectors, use the local bridge in Claude Desktop's MCP configuration. It needs Node.js so that `npx` runs:
+
+```json
+{
+  "mcpServers": {
+    "geoly": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://app.geoly.ai/api/mcp/v1"]
+    }
+  }
+}
+```
+
+Quit and reopen Claude Desktop. The bridge opens the browser for sign-in when needed.
+
+## Codex (CLI and IDE)
+
+Install the official GEOly plugin. It includes the MCP server and the [Agent Skill](https://www.geoly.ai/open/skill):
+
+```bash
+codex plugin marketplace add geoly-ai/codex-plugins
+codex plugin add geoly-mcp@geoly
+```
+
+Restart Codex if it asks. The first GEOly call opens sign-in in the browser. To update later, run `codex plugin marketplace upgrade geoly`.
+
+## Cursor
+
+Add this to `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "geoly": {
+      "url": "https://app.geoly.ai/api/mcp/v1"
+    }
+  }
+}
+```
+
+Reload Cursor, enable the server under **Settings → MCP**, and sign in when the first GEOly tool runs.
+
+## VS Code (GitHub Copilot)
+
+Create or update `.vscode/mcp.json` in your project:
+
+```json
+{
+  "servers": {
+    "geoly": {
+      "type": "http",
+      "url": "https://app.geoly.ai/api/mcp/v1"
+    }
+  }
+}
+```
+
+Start the server from the editor and sign in when prompted. GEOly tools are available in Copilot's agent mode.
+
+## Windsurf
+
+Add this to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "geoly": {
+      "serverUrl": "https://app.geoly.ai/api/mcp/v1"
+    }
+  }
+}
+```
+
+Reload Windsurf and sign in on the first call.
+
+## Other platforms
+
+Any client that supports remote MCP servers over Streamable HTTP with OAuth works. Use the server URL above. For a client that only runs local (stdio) servers, use the `mcp-remote` bridge shown under Claude Desktop.
+
+## Install the Agent Skill
+
+The skill teaches your assistant how to use GEOly: find the organization and brand first, pick the right tool, and quote each metric the way the app defines it. Install it once per machine:
+
+```bash
+npx skills add geoly-ai/agent-skills
+```
+
+If you use the [GEOly CLI](/developers/cli), `geoly init` installs the latest skill for Claude Code, Codex, and Cursor. The Codex plugin already includes it. See the [skill page](https://www.geoly.ai/open/skill) for details.
+
+## Verify your connection
+
+Ask your assistant:
+
+> *"Using GEOly, list the brands I can access and show my brand's visibility for the last 30 days."*
+
+You should get your brand names, then a short overview with visibility, mention rate, and the window it covers. If the assistant says it has no GEOly tools, check the troubleshooting steps below.
+
+## Troubleshooting
+
+**The browser never opened for sign-in.**
+Start or call the `geoly` server from your client (`/mcp` in Claude Code). For the Claude Desktop bridge, make sure `npx` runs in your terminal. Reload or restart the client after saving the configuration.
+
+**I see fewer tools than expected.**
+The server only lists what your connection can use. Check the organization you chose, the read grants you approved, your role, and your plan. Public industry tools need Grow or above. See [which tools you see](/developers/mcp/tools#which-tools-you-see).
+
+**Write tools are missing.**
+You didn't grant write access, or you connected to all organizations (write tools are off there). Reconnect, choose one organization, and grant write access for the resources you want to change.
+
+**The assistant queried the wrong brand.**
+With several brands or organizations, ask it to list them first and name the one you mean. Never approve a change until the target brand is shown.
+
+**A tool returns a quota error.**
+Your organization's MCP Credits are used up for this month. Free tools keep working. Ask for `get_quota` to see the balance and the reset date.
+
+**Codex shows old tools or instructions.**
+Run `codex plugin marketplace upgrade geoly`, update `geoly-mcp@geoly`, and restart Codex. Sign in again if the authorization expired.
+
+**Built-in prompts don't show up.**
+Remove and re-add the server to refresh the tool and prompt list. A prompt only appears when every tool it needs is available on your connection.
+
+Still stuck? Contact us from the chat in the GEOly app.

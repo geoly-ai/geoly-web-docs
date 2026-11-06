@@ -1,0 +1,136 @@
+---
+title: "Prompts"
+description: "GEOly ships native MCP prompts: ready-to-run reports exposed as slash commands in your AI tool. Each one runs a fixed sequence of tool calls and formats the result for you."
+---
+
+A prompt is a finished analysis behind one command. Pick it, give it a brand, and your assistant runs the tool calls in a fixed order, applies the same metric definitions as the app, and returns a formatted report. You can keep asking follow-up questions in the same conversation.
+
+## How to invoke a prompt
+
+Where prompts appear depends on your client.
+
+| Client | How to invoke |
+| - | - |
+| Claude Code | Type `/` and pick the command, for example `/mcp__geoly__geoly_weekly_pulse` |
+| Claude Desktop and claude.ai | Open the **+** menu in the message box, choose the GEOly connector, and pick the prompt |
+| Cursor | Type `/` in the agent chat and pick the prompt |
+| Other MCP clients | Check your client's documentation for MCP prompt support |
+
+<Tip>
+If prompts don't show up after connecting, remove and re-add the GEOly server to refresh the list. A prompt only appears when every tool it uses is available on your connection.
+</Tip>
+
+**The `brand` argument.** On a connection to one brand, prompts run on that brand and have no `brand` argument. When you can reach several brands or organizations, pass the brand name or id.
+
+## Available prompts
+
+### geoly\_weekly\_pulse
+
+**Weekly Visibility Pulse.** A week-over-week digest: your headline metrics per platform, competitor movers, new competitor entries, and the cited domains that moved most. Formatted for sharing.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+
+Use when: you want a Monday-morning snapshot of what changed last week.
+
+Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, `get_brand_board`, and `get_citation_overview`.
+
+***
+
+### geoly\_competitor\_radar
+
+**Competitor Movement Radar.** Detects significant competitor movements week over week, shows on which platforms they happen, and which cited domains carry them while your brand is absent.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+| `threshold_pp` | No | Minimum visibility change, in percentage points, to flag a competitor (default 5) |
+
+Use when: you want to know who is gaining on you and through which sources.
+
+Calls `get_brand_context`, `get_brand_board`, `get_platform_matrix`, and `get_citation_overview`.
+
+***
+
+### geoly\_platform\_scorecard
+
+**AI Platform Scorecard.** One scorecard per AI platform: mention rate, citation rate, visibility, sentiment, and share of mentions, plus the platform with the most untapped potential.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+
+Use when: you need to decide which AI platform to focus on.
+
+Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, and `get_platform_matrix`.
+
+***
+
+### geoly\_topic\_heatmap
+
+**Topic × Platform Heatmap.** Visibility across your topics and AI platforms, calibrated to your own average so each cell reads as blind spot, weak, moderate, strong, or dominant.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+
+Use when: you want to see which topics are weak on which platform at a glance.
+
+Calls `get_brand_context`, `get_platform_matrix`, and `get_citation_overview`.
+
+***
+
+### geoly\_source\_gap\_audit
+
+**Citation Source Audit.** How your own domains perform as cited sources, which domains AI cites instead, and the content gaps where competitors are cited and you are not.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+
+Use when: you plan content or digital PR and want to know which sources AI relies on.
+
+Calls `get_brand_context`, `get_citation_overview`, and `get_domain_detail`.
+
+***
+
+### geoly\_campaign\_tracker
+
+**Campaign Impact Tracker.** A before-and-after comparison around a launch date: mention and citation rates per platform, and whether specific URLs were picked up as AI citations.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+| `campaign_date` | Yes | Launch date, `YYYY-MM-DD` (the business date shown in the app) |
+| `urls` | No | Comma-separated URLs to track. Omit to look at your own domains broadly |
+
+Use when: you launched a page, product, or PR push and want to know if AI noticed.
+
+Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, `get_url_detail`, and `get_citation_overview`.
+
+***
+
+### geoly\_prompt\_set\_grader
+
+**Prompt Set Grader.** Grades your tracked prompt set on topic balance, tag hygiene, funnel coverage, branded versus non-branded split, duplicates, and platform data coverage. Returns an A–F report card with the top three fixes.
+
+| Argument | Required | Description |
+| - | - | - |
+| `brand` | On multi-brand connections | Brand name or id |
+
+Use when: you set up monitoring or want to check that your prompts reflect real customer questions.
+
+Changing the prompt set changes what you measure, not how visible you are. The grader names gaps; it doesn't add prompts to lift the numbers.
+
+Calls `get_brand_context`, `get_prompt_list`, and `get_topic_list`.
+
+## Combining prompts with free-form questions
+
+Prompts and plain questions work in the same conversation. Run a prompt for the structured report, then dig into what stands out:
+
+1. Run `geoly_weekly_pulse` for the overview.
+2. Ask *"Show me the ChatGPT answers behind that drop in mention rate."*
+3. Ask *"Which domains are cited there instead of ours?"*
+
+Every prompt quotes numbers with the window the tools returned, never averages daily values into a window value, and labels any inferred cause as a hypothesis.

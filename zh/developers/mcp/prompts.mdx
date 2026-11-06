@@ -1,0 +1,136 @@
+---
+title: "斜杠命令"
+description: "GEOly 内置了 MCP prompts：在 AI 工具里以斜杠命令的形式出现、拿来就能跑的报告。每条命令按固定顺序调用工具，并把结果排好版。"
+---
+
+一条命令就是一份成型的分析。选中它、给一个品牌，AI 助手就会按固定顺序调用工具，套用和后台一致的指标口径，返回排好版的报告。之后还可以在同一个对话里继续追问。
+
+## 怎么调用
+
+命令出现的位置取决于客户端。
+
+| 客户端 | 调用方式 |
+| - | - |
+| Claude Code | 输入 `/` 后选择命令，例如 `/mcp__geoly__geoly_weekly_pulse` |
+| Claude Desktop 和 claude.ai | 点输入框的 **+** 菜单，选择 GEOly 连接器，再选命令 |
+| Cursor | 在 Agent 对话里输入 `/` 后选择命令 |
+| 其他 MCP 客户端 | 查看客户端文档里对 MCP prompts 的支持情况 |
+
+<Tip>
+连接后看不到命令，就删掉 GEOly 服务器再重新添加，刷新列表。一条命令只有在它用到的工具在当前连接上全部可用时才会出现。
+</Tip>
+
+**`brand` 参数**：连接只对应一个品牌时，命令直接作用于这个品牌，没有 `brand` 参数；能访问多个品牌或组织时，需要传品牌名或品牌 id。
+
+## 全部命令
+
+### geoly\_weekly\_pulse
+
+**周度可见度速报。** 周环比摘要：分平台的核心指标、竞品涨跌、新出现的竞品，以及变化最大的被引域名。排版适合直接分享。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+
+适合：周一早上快速了解上周发生了什么。
+
+调用 `get_brand_context`、`get_daily_trend`、`get_brand_overview`、`get_brand_board` 和 `get_citation_overview`。
+
+***
+
+### geoly\_competitor\_radar
+
+**竞品动向雷达。** 找出周环比变化明显的竞品，看它们在哪些平台上发生变化，以及在你缺席时是哪些被引域名带起了它们。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+| `threshold_pp` | 否 | 标记竞品所需的最小可见度变化（百分点，默认 5） |
+
+适合：想知道谁在追赶你、靠的是哪些信源。
+
+调用 `get_brand_context`、`get_brand_board`、`get_platform_matrix` 和 `get_citation_overview`。
+
+***
+
+### geoly\_platform\_scorecard
+
+**AI 平台记分卡。** 每个 AI 平台一张记分卡：提及率、引用率、可见度、情感和提及份额，并指出潜力最大的平台。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+
+适合：决定接下来重点投入哪个 AI 平台。
+
+调用 `get_brand_context`、`get_daily_trend`、`get_brand_overview` 和 `get_platform_matrix`。
+
+***
+
+### geoly\_topic\_heatmap
+
+**Topic × 平台热力图。** 各 topic 在各 AI 平台上的可见度，以你自己的平均水平为基准，把每个格子标成盲区、偏弱、一般、强势或主导。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+
+适合：一眼看出哪些 topic 在哪个平台上偏弱。
+
+调用 `get_brand_context`、`get_platform_matrix` 和 `get_citation_overview`。
+
+***
+
+### geoly\_source\_gap\_audit
+
+**引用来源审计。** 你自己的域名作为被引来源表现如何，AI 转而引用了哪些域名，以及竞品被引用而你没有的内容缺口。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+
+适合：做内容或数字 PR 规划前，弄清 AI 依赖哪些来源。
+
+调用 `get_brand_context`、`get_citation_overview` 和 `get_domain_detail`。
+
+***
+
+### geoly\_campaign\_tracker
+
+**活动效果追踪。** 以上线日期为界做前后对比：分平台的提及率和引用率，以及指定 URL 有没有被 AI 引用。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+| `campaign_date` | 是 | 上线日期，`YYYY-MM-DD`（后台显示的业务日期） |
+| `urls` | 否 | 要追踪的 URL，用英文逗号分隔。不填则整体看你自己的域名 |
+
+适合：上线了新页面、新品或 PR 活动后，想知道 AI 有没有注意到。
+
+调用 `get_brand_context`、`get_daily_trend`、`get_brand_overview`、`get_url_detail` 和 `get_citation_overview`。
+
+***
+
+### geoly\_prompt\_set\_grader
+
+**提示词集体检。** 从 topic 均衡、标签规范、漏斗覆盖、品牌词与非品牌词占比、重复和平台数据覆盖几个方面给你跟踪的提示词集打分，返回 A–F 成绩单和最该先改的三件事。
+
+| 参数 | 必填 | 说明 |
+| - | - | - |
+| `brand` | 多品牌连接时必填 | 品牌名或品牌 id |
+
+适合：刚搭好监控，或想检查提示词是否反映了真实的用户提问。
+
+改动提示词集改变的是你测量的范围，不是你的可见度。体检只指出缺口，不会为了抬高数字去加提示词。
+
+调用 `get_brand_context`、`get_prompt_list` 和 `get_topic_list`。
+
+## 命令和自由提问搭配使用
+
+命令和普通提问可以在同一个对话里混用。先用命令拿结构化报告，再追问值得深挖的地方：
+
+1. 运行 `geoly_weekly_pulse` 看全局。
+2. 追问 *「把提及率下降背后的 ChatGPT 回答给我看看。」*
+3. 再问 *「那些回答里引用的是哪些域名，而不是我们的？」*
+
+每条命令都会用工具返回的窗口来引用数字，不会把逐日数值平均成窗口值，推断出的原因一律标为「假设」。
