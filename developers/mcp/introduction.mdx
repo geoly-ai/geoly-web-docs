@@ -1,0 +1,117 @@
+---
+title: "MCP Server"
+description: "Connect Claude, Cursor, Codex, and other MCP clients to your GEOly data. Ask in plain language and get answers from the same data the app shows."
+---
+
+Ask your AI assistant about your brand's visibility in AI search and get answers from your actual GEOly data. It works with Claude, Cursor, Codex, VS Code, Windsurf, and any other client that supports remote MCP.
+
+## What you can do
+
+- **Check brand visibility** on ChatGPT, Gemini, Google AI Mode, and Google AI Overview: visibility, mention rate, share of voice, citation rate, and your strongest and weakest platform.
+- **Follow the trend** day by day, by platform or by topic, and compare with the previous period.
+- **Compare against the competitors you track**: a ranked board, a platform × brand matrix, and which brands AI names next to you.
+- **Read the AI answers themselves**: every answer per prompt and platform, the brands it named, and the sources it cited.
+- **Analyze citations**: which domains and URLs AI cites for your prompts, whether your own site is among them, and the links AI writes into its answers.
+- **Find blind spots**: prompts where AI never mentions you, and topics where you are weak on a given platform.
+- **See how AI describes you**: sentiment, the attributes AI praises or criticizes, and the exact sentences.
+- **Track AI shopping**: how your products show up in ChatGPT and Google AI Mode shopping cards, and who takes the shelf when you don't.
+- **Check your website**: GEO audit results, agent readiness scans, and AI referral traffic from GA4 or Cloudflare.
+- **Research a market** with public industry data: category leaders, brand momentum, white space, AI search demand, and AI shopping boards.
+- **Run ready-made reports** with seven built-in [prompts](/developers/mcp/prompts), such as the weekly pulse, competitor radar, and campaign tracker.
+- **Manage your setup**: create brands, topics, prompts, and competitors, retag or move prompts, archive prompts, or start a monitoring run. Your client asks you to confirm before every change.
+
+## How it works
+
+**1. Connect**
+
+Add the server URL to your AI tool. The [setup guide](/developers/mcp/setup) has the exact steps for each client.
+
+**2. Sign in**
+
+Your client opens GEOly in the browser. Choose the organization and what the client may read or change, then approve. This happens once per client.
+
+**3. Ask questions or run a prompt**
+
+Ask in plain language:
+
+- *"How did our visibility on ChatGPT change over the last 30 days?"*
+- *"Which tracked competitor gained the most this week, and on which platform?"*
+- *"Which prompts never mention us?"*
+
+Or pick a built-in [prompt](/developers/mcp/prompts) from the slash menu for a finished report.
+
+## Connection details
+
+Your client may ask for these details:
+
+| Property | Value |
+| - | - |
+| **Server URL** | `https://app.geoly.ai/api/mcp/v1` |
+| **Transport** | Streamable HTTP |
+| **Authentication** | OAuth 2.1 (sign in through the browser) |
+
+`https://app.geoly.ai/api/mcp` (without `/v1`) points to the same server. You can also copy the URL in GEOly under **Settings → Developers → MCP**.
+
+## Authentication
+
+Your client opens a GEOly consent page in the browser. Sign in, then choose:
+
+- **Organization scope.** Pick one organization to read and change it. Pick **all organizations** to read across them; write tools are turned off for that connection so a change can never land in the wrong place.
+- **Read and write access per resource.** Brands, topics, prompts, competitors, citations, sentiment, platforms, analytics, audits, sources, public data, and monitoring runs each have their own read and write switch. Grant write access only for what the client has to change.
+
+The connection acts as you. It can only reach organizations you belong to and data your role can see in the app.
+
+<Note>
+Older read-only `geom_` tokens keep working for existing setups. New connections should use OAuth.
+</Note>
+
+## Read and write access
+
+Most tools only read data. Eight tools change your setup: `create_brand`, `create_topic`, `create_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `archive_prompt`, `create_competitor`, and `trigger_prompt`.
+
+Every write tool is flagged `readOnlyHint: false`, and the two that replace existing data (`update_prompt_tags`, `move_prompts_to_topic`) are also flagged `destructiveHint: true`, so your client asks you to confirm before the call runs. `trigger_prompt` starts a real monitoring run.
+
+See the [tools reference](/developers/mcp/tools) for every tool.
+
+## Plans and MCP Credits
+
+Reading your own data and public industry data uses **MCP Credits**, a monthly allowance shared by your organization. Navigation, discovery, audits, website traffic, every write tool, and the three public source tools are free.
+
+| Plan | MCP Credits per month |
+| - | - |
+| Basic | 3,000 |
+| Grow | 25,000 |
+| Advanced | 75,000 |
+| Plus | 200,000 |
+| Enterprise | Unlimited, or as agreed in your contract |
+
+- **Price per tool.** Each tool's description ends with its cost: free, a fixed price per call (1, 3, or 10 credits), or a price per row returned. The [tools reference](/developers/mcp/tools) lists them all.
+- **Public industry intelligence** needs Grow or above and the public data read grant.
+- **No charge for failures.** Errors and timeouts are not charged. A single call costs at most 2,500 credits.
+- **Check your balance** with `get_quota` (free). Every metered call also returns a `_quota` receipt with its cost and your remaining balance. A balance of `-1` means unlimited.
+- **When credits run out**, free tools keep working. Metered tools return a quota error until the allowance resets on your subscription date.
+
+MCP Credits are separate from AI Credits, which pay for AI features inside the GEOly app.
+
+## The Agent Skill
+
+The MCP connection decides what your assistant can reach. The GEOly Agent Skill teaches it how to use that well: find the organization and brand first, pick the right tool, and explain each metric the way the app defines it. The skill doesn't add access or credits. [Install it](https://www.geoly.ai/open/skill) alongside the MCP connection.
+
+## Supported clients
+
+The server works with any client that supports remote MCP over Streamable HTTP. Step-by-step setup:
+
+- Claude Code
+- Claude Desktop and claude.ai
+- Codex (official GEOly plugin)
+- Cursor
+- VS Code (GitHub Copilot)
+- Windsurf
+
+See the [setup guide](/developers/mcp/setup).
+
+## Requirements
+
+- A GEOly account in an organization with at least one brand
+- A paid plan with MCP Credits (Grow or above for public industry intelligence)
+- A client that supports remote MCP

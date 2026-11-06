@@ -92,7 +92,11 @@
                 "group": "MCP Server",
                 "icon": "plug",
                 "pages": [
-                  "developers/mcp"
+                  "developers/mcp/introduction",
+                  "developers/mcp/setup",
+                  "developers/mcp/use-cases",
+                  "developers/mcp/prompts",
+                  "developers/mcp/tools"
                 ]
               },
               {
@@ -245,7 +249,11 @@
                 "group": "MCP Server",
                 "icon": "plug",
                 "pages": [
-                  "zh/developers/mcp"
+                  "zh/developers/mcp/introduction",
+                  "zh/developers/mcp/setup",
+                  "zh/developers/mcp/use-cases",
+                  "zh/developers/mcp/prompts",
+                  "zh/developers/mcp/tools"
                 ]
               },
               {
@@ -362,5 +370,15 @@
       ],
       "defaults": "required"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/developers/mcp",
+      "destination": "/developers/mcp/introduction"
+    },
+    {
+      "source": "/zh/developers/mcp",
+      "destination": "/zh/developers/mcp/introduction"
+    }
+  ]
 }
