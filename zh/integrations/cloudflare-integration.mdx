@@ -1,9 +1,9 @@
 ---
 title: "Cloudflare 集成操作手册"
-description: "通过 Zone ID 和限定目标 Zone 的只读 API Token 连接 Cloudflare，在“信源 → AI 流量”中查看已识别的 AI 爬虫请求、热门路径、来源地区和安全事件。"
+description: "用域名的区域 ID（Zone ID）和一个只读 API 令牌连接 Cloudflare，在「我的网站 → AI 流量」里查看 AI 爬虫请求、热门路径、来源地区和拦截事件。"
 ---
 
-Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页面、是否被拦截”这类服务端问题。连接后，Geoly 会通过 Cloudflare API 读取指定域名区域（Zone）的请求与安全事件数据，不会向网站注入前端脚本。
+Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页面、是否被拦截”这类服务端问题。连接后，GEOly 会通过 Cloudflare API 读取指定域名区域（Zone）的请求与安全事件数据，不会向网站注入前端脚本。
 
 > 可结合 GA4 与 GEOly 监控数据分别观察爬虫请求、AI 答案中的提及或引用，以及用户会话。三者样本和口径不同，不能仅凭时间先后推断因果。
 
@@ -11,62 +11,75 @@ Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页
 
 开始前请确认：
 
-- 当前账号是所选品牌所属组织的所有者或管理员；
-- 目标域名已经接入 Cloudflare；
-- 你能进入该域名的 Cloudflare 控制台；
-- 你准备为 Geoly 创建一个仅限目标 Zone、只读权限的 API Token。
+- 你是当前品牌所属组织的所有者或管理员；
+- 网站域名已经接入 Cloudflare，并且你能登录该域名所在的 Cloudflare 帐户。
 
-连接所需信息只有两项：
+连接只需要填两项：
 
-1. **Zone ID**：目标域名在 Cloudflare 中的区域标识；
-2. **API Token**：允许 Geoly 读取该 Zone 分析数据的只读令牌。
+| GEOly 里的输入框 | 是什么 | 在 Cloudflare 哪里拿 |
+| --- | --- | --- |
+| **Zone ID** | 域名的 Zone ID（区域 ID），32 位字母数字 | 域名 **Overview**（概述）页右侧的 **API** 卡片 |
+| **API Token** | 你为 GEOly 新建的只读 API 令牌 | **My Profile → API Tokens**（我的个人资料 → API 令牌）里新建 |
 
-## 二、在 Geoly 打开 Cloudflare 集成
+<Note>
+下面的截图都是 Cloudflare 和 GEOly 的英文界面。正文先写英文界面上的名称，括号里是中文界面的对应名称，方便你用任一语言的界面对照操作。
+</Note>
 
-先选择要分析的品牌，打开 **集成 → Cloudflare**。也可以从 **信源 → AI 流量** 的 Cloudflare 数据源入口进入连接页。连接完成后返回 **信源 → AI 流量**，选择 Cloudflare 视图和报告时间范围。
+<Warning>
+**API** 卡片里有两串长得很像的 32 位 ID：**Zone ID**（区域 ID）和 **Account ID**（帐户 ID）。Account ID 不是 API 令牌，填进 API Token 框一定会连接失败。API 令牌必须按下面第三步单独新建；也不要使用 Global API Key。
+</Warning>
 
-![GEOly Cloudflare 连接与 AI 流量查看流程示意图](/images/cloudflare-integration/f56b5e5f5c.jpg "GEOly Cloudflare 连接与 AI 流量流程示意图")
+## 二、复制 Zone ID（区域 ID）
 
-这张图说明当前操作路径与数据边界，是示意图，不是应用界面截图。
+1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)，在域名列表里点开要连接的域名；
+2. 停留在该域名的 **Overview**（概述）页，在页面右侧栏往下滚动，找到 **API** 卡片；
+3. 点击 **Zone ID**（区域 ID）右侧的复制按钮。下面的 **Account ID**（帐户 ID）不用复制。
 
-> 页面当前提示 Zone Analytics Read；实际连接校验还会读取目标 Zone 基本信息，因此 Token 必须同时包含 **Zone → Zone → Read** 与 **Zone → Analytics → Read**。
+![在域名 Overview 页右侧的 API 卡片里复制 Zone ID，不要复制 Account ID](/images/cloudflare-integration/en-01-zone-id.jpg "复制 Zone ID")
 
-Geoly 会在提交时验证 Zone ID 与 Token 是否匹配。验证成功后，返回 **信源 → AI 流量** 查看 Cloudflare 数据。
+Zone ID 必须来自你要分析的那个域名。多个域名各有自己的 Zone ID，不能混用。
 
-## 三、获取 Zone ID
+## 三、创建 API 令牌（API Token）
 
-1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)；
-2. 进入 **Websites**，选择需要连接的域名；
-3. 在域名 **Overview** 页面找到 **API** 区域；
-4. 复制 **Zone ID**。
+1. 打开 [My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens)（我的个人资料 → API 令牌），也可以点上一步 **API** 卡片里的 **Get your API token**（获取您的 API 令牌）。点击右上角的 **Create Token**（创建令牌）。页面下方的 **Global API key** 不要用。
 
-注意：Zone ID 必须来自你准备分析的同一个域名。多个域名分别属于不同 Zone，不能混用。
+   ![User API Tokens 页面右上角的 Create Token 按钮](/images/cloudflare-integration/en-02-api-tokens.jpg "进入 API Tokens 页并点击 Create Token")
 
-## 四、创建最小权限 API Token
+2. 在 **Token name**（令牌名称）里填一个好认的名字，例如 `GEOly`。在 **Policies** 里点击 **Start from scratch**（从头开始），在弹出的菜单中选择 **Start with a Zone policy**。
 
-在 Cloudflare 的个人资料中进入 **API Tokens**，创建一个自定义 Token。建议使用以下配置：
+   ![填写 Token name，然后 Start from scratch 并选择 Start with a Zone policy](/images/cloudflare-integration/en-03-zone-policy.jpg "新建一条 Zone 策略")
 
-| 配置项 | 建议值 |
-| --- | --- |
-| Token 名称 | Geoly Cloudflare Analytics |
-| Zone → Zone | Read |
-| Zone → Analytics | Read |
-| Zone Resources | Include → Specific zone → 选择目标域名 |
+3. 在打开的策略编辑器里：
 
-当前 Geoly 的连接校验会读取目标 Zone 基本信息，因此除了 **Zone Analytics Read**，还需要 **Zone Read**。没有必要把令牌开放给全部 Zone，也不要使用 Global API Key。
+   - 资源：第二个下拉框选 **Specific zone**（特定区域），第三个下拉框选要连接的域名；
+   - 权限：展开 **Analytics & Logs**（分析和日志），勾选 **Analytics** 这一行的 **Read**（读取）。其他权限都不用勾。
 
-创建后请立即复制 Token。Cloudflare 通常只在创建时完整展示一次；请把它当作敏感凭据保存。
+   **Token expiration**（令牌过期时间）和 **Client IP address filtering**（客户端 IP 地址过滤）保持默认即可，然后点击页面底部的 **Continue to summary**（继续以显示摘要）。
 
-## 五、在 Geoly 完成连接
+   ![资源选 Specific zone 和你的域名，权限勾选 Analytics & Logs 里的 Analytics Read](/images/cloudflare-integration/en-04-permissions.jpg "设置资源和权限")
 
-1. 将 Cloudflare 的 **Zone ID** 粘贴到对应输入框；
-2. 将新建的 **API Token** 粘贴到 Token 输入框；
-3. 点击 **连接 Cloudflare**；
-4. 验证成功后进入 **信源 → AI 流量**，切换到 Cloudflare 数据。
+4. 在 **Token Summary**（令牌摘要）页确认权限策略只有「你的域名」和「Analytics: Read」，点击 **Create Token**（创建令牌）。
 
-如果组织中有多个品牌，请先确认左侧当前品牌是否正确；Cloudflare 连接会绑定到当前品牌。
+   ![Token Summary 页确认权限后点击 Create Token](/images/cloudflare-integration/en-05-summary.jpg "确认摘要并创建令牌")
 
-## 六、Cloudflare 数据看什么
+5. 复制页面上显示的令牌（以 `cfut_` 开头的一长串）。**令牌只显示这一次**，离开页面后无法再查看；如果没来得及复制，删掉它重新创建一个即可。
+
+   ![令牌创建成功页面，令牌只显示一次，点击右侧按钮复制](/images/cloudflare-integration/en-06-token-created.jpg "复制新建的 API 令牌")
+
+只需要这一项 **Analytics Read**（Analytics 读取）权限：GEOly 连接时的校验，以及之后读取的请求数据和安全事件，都在这个权限范围内（2026-11 实测）。不需要把令牌开放给全部区域，也不要把令牌发到聊天、截图或工单里。如果给令牌设置了过期时间，到期后 GEOly 将读不到数据，需要重新创建令牌并再次连接。
+
+## 四、在 GEOly 完成连接
+
+1. 确认左上角当前品牌正确。Cloudflare 连接绑定到当前品牌，多个品牌需要分别连接；
+2. 打开 Cloudflare 连接页：还没连接任何数据源时，在 **My website → AI Traffic**（我的网站 → AI 流量）的 Cloudflare 卡片上点击 **Connect now**（立即连接）；已连接过 GA4 等其他数据源时，在同一页的 **Platform Settings**（平台设置）标签里点击 **Connect Cloudflare in Integrations**（前往集成连接 Cloudflare）。也可以直接打开 `app.geoly.ai/integrations/cloudflare`；
+3. 把第二步复制的 Zone ID 粘贴到 **Zone ID**，把第三步复制的令牌粘贴到 **API Token**；
+4. 点击 **Connect Cloudflare**（连接 Cloudflare）。校验通过后会自动跳到 **AI Traffic**（AI 流量）的 Cloudflare 视图。
+
+![在 GEOly 的 Connect Cloudflare 表单中填入 Zone ID 与 API Token，然后点击 Connect Cloudflare](/images/cloudflare-integration/en-07-geoly-connect.jpg "在 GEOly 填写并连接")
+
+连接页的输入框下方也有这两项的取值提示，以及回到本教程的链接。如果提示连接失败，按提示文字对照下文「常见问题与排错」检查。
+
+## 五、Cloudflare 数据看什么
 
 ### 1. AI 爬虫与页面关系
 
@@ -89,7 +102,7 @@ Geoly 会在提交时验证 Zone ID 与 Token 是否匹配。验证成功后，�
 - 某一爬虫的访问是否持续增长或突然中断；
 - 抓取高峰是否与发布、迁移、缓存或安全规则调整时间一致。
 
-趋势上升只能说明抓取请求增加，不能直接证明品牌在 AI 答案中的曝光、引用或排名已经提升。需要到 **信源 → 引用** 和 **监控 → 提示词** 的实际 AI 回答中继续验证。
+趋势上升只能说明抓取请求增加，不能直接证明品牌在 AI 答案中的曝光、引用或排名已经提升。需要到 **信源 → 引用来源** 和 **提示词 → 全部提示词** 的实际 AI 回答中继续验证。
 
 ### 3. Top 被爬页面
 
@@ -119,9 +132,9 @@ Cloudflare 安全数据分为两个相互补充的板块：
 
 拦截数据的完整度受 Cloudflare 套餐、数据保留范围和 Token 可访问数据影响。修改 WAF、Bot 或速率限制规则属于高影响操作，应先由安全或运维负责人评估。若页面没有拦截事件，只能说明当前可查询范围内没有返回匹配事件，不能证明历史上从未发生拦截。
 
-## 七、当前可识别的 AI 爬虫
+## 六、当前可识别的 AI 爬虫
 
-Geoly 当前按 User-Agent 识别以下规则：
+GEOly 当前按 User-Agent 识别以下规则：
 
 | 平台 | 识别标识 |
 | --- | --- |
@@ -132,21 +145,21 @@ Geoly 当前按 User-Agent 识别以下规则：
 | Cohere | cohere-ai |
 | Grok | GrokBot |
 
-该列表表示 Geoly 当前的识别规则，不等于 Cloudflare 能看到的全部机器人。未知或改名的 User-Agent 可能暂时不会被归类为 AI 爬虫。
+该列表表示 GEOly 当前的识别规则，不等于 Cloudflare 能看到的全部机器人。未知或改名的 User-Agent 可能暂时不会被归类为 AI 爬虫。
 
-## 八、时间范围与数据边界
+## 七、时间范围与数据边界
 
 Cloudflare 分析支持最近 7 天、30 天、90 天和自定义日期。实际可查询的最长范围会受到 Cloudflare 套餐与数据保留策略限制，页面会按当前可用范围进行约束。
 
-Geoly 在打开或刷新分析页时向 Cloudflare 查询数据，不采用固定“同步 1–2 小时后入库”的流程。Cloudflare 自身的数据可用性或延迟仍可能随套餐和接口变化。
+GEOly 在打开或刷新分析页时向 Cloudflare 查询数据，不采用固定“同步 1–2 小时后入库”的流程。Cloudflare 自身的数据可用性或延迟仍可能随套餐和接口变化。
 
-## 九、推荐分析流程
+## 八、推荐分析流程
 
 ### 内容团队
 
 1. 在热门爬取页面中找到高频页面；
-2. 到 **信源 → 引用** 查看这些页面是否被 AI 引用；
-3. 到 **监控 → 提示词** 查看相关问题和原始 AI 回答；
+2. 到 **信源 → 引用来源** 查看这些页面是否被 AI 引用；
+3. 到 **提示词 → 全部提示词** 查看相关问题和原始 AI 回答；
 4. 优化未被引用但已被频繁抓取的页面结构、实体信息和证据内容。
 
 ### 技术与安全团队
@@ -159,19 +172,29 @@ Geoly 在打开或刷新分析页时向 Cloudflare 查询数据，不采用固�
 ### 增长团队
 
 1. 用 Cloudflare 判断 AI 爬虫是否持续访问；
-2. 用 Geoly 监控判断品牌是否被提及、引用；
+2. 用 GEOly 监控判断品牌是否被提及、引用；
 3. 用 GA4 判断这些 AI 平台是否带来真实会话、互动与转化。
 
-## 十、常见问题与排错
+## 九、常见问题与排错
 
-### 连接时提示 Zone 或 Token 无效
+### 提示「这是一串 32 位的帐户 ID 或区域 ID，不是 API 令牌」
+
+API Token 框里填的是 ID，不是令牌。最常见的情况是复制了 **API** 卡片里的 **Account ID**（帐户 ID）。按上文第三步新建一个 API 令牌，再粘贴进来。
+
+旧版页面遇到这种情况会提示「Cloudflare API 错误，请稍后重试」，原因相同，重试不会成功。
+
+### 提示 API Token 无效，或没有这个域名的读取权限
 
 依次检查：
 
-- Zone ID 是否完整、是否来自目标域名；
-- Token 是否包含 **Zone Read** 与 **Zone Analytics Read**；
-- Token 的资源范围是否包含该 Zone；
-- Token 是否已被撤销、过期或复制不完整。
+- 粘贴的是新建的 API 令牌，而不是帐户 ID、区域 ID 或 Global API Key；
+- 令牌复制完整、前后没有多余空格，也没有被删除或过期；
+- 令牌给这个域名授予了 **Analytics 读取** 权限（策略编辑器里 **Analytics & Logs → Analytics → Read**，中文界面为「分析和日志 → Analytics → 读取」）；
+- 策略的资源选的是 **Specific zone**（特定区域）+ 你要连接的这个域名（只授权了别的域名也会报这个错）。
+
+### 提示找不到这个 Zone ID
+
+Zone ID 填错了，或者把域名、网址填进了 Zone ID 框。回到该域名 **Overview**（概述）页的 **API** 卡片，重新复制 **Zone ID**（区域 ID）。
 
 ### 连接成功但没有 AI 爬虫数据
 
@@ -196,13 +219,13 @@ AI 爬虫请求通常不会执行 GA4 脚本，因此不应把 Cloudflare 请求
 
 ### 会影响网站性能吗
 
-不会。Geoly 通过 Cloudflare 后端 API 读取数据，不向页面注入脚本，也不会进入网站请求链路。
+不会。GEOly 通过 Cloudflare 后端 API 读取数据，不向页面注入脚本，也不会进入网站请求链路。
 
-## 十一、安全与断开连接
+## 十、安全与断开连接
 
 - 使用仅限目标 Zone 的只读 Token；
 - 不要在聊天、截图或工单中暴露 Token；
 - 人员或供应商变更时及时轮换 Token；
-- 如需停止访问，可在 **集成 → Cloudflare** 的连接管理页断开连接，并在 Cloudflare 中撤销对应 Token。
+- 如需停止访问，打开 `app.geoly.ai/integrations/cloudflare` 点击 **Disconnect**（断开连接），并在 Cloudflare 的 **API Tokens**（API 令牌）页删除对应令牌。
 
 断开连接会停止后续读取，但不会修改 Cloudflare 配置，也不会删除 Cloudflare 原始数据。

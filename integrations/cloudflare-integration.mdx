@@ -1,21 +1,77 @@
 ---
 title: "Cloudflare Integration and AI Crawler Traffic"
+description: "Connect Cloudflare with your domain's Zone ID and a read-only API token, then see AI crawler requests, top paths, countries, and blocked events under My website → AI Traffic."
 ---
 
 Connect a Cloudflare zone to GEOly to inspect AI crawler requests recorded for your site. This report concerns server-side requests identified by their User-Agent. It is separate from GA4 referral sessions and from GEOly's monitoring of AI answers.
 
-## Connect a Cloudflare zone
+## Before you start
 
-1. Open **Integrations → Cloudflare** for the brand whose site you want to inspect. An owner or admin of that brand's organization must make or remove this connection.
-2. In the Cloudflare Dashboard, open the target website and copy its **Zone ID** from the Overview page. Under **My Profile → API Tokens**, create a custom, zone-scoped token with the read permissions needed for zone analytics and security events. Copy the token when Cloudflare displays it and store it securely; do not place it in this article or a support screenshot.
-3. Enter the Zone ID and API token in GEOly. GEOly verifies access before saving the connection. If verification fails, check the selected zone, token scope, permissions, and whether the token has been revoked.
-4. Open **Sources → AI Traffic**, then choose the **Cloudflare** view. The integration page also shows the connected Zone ID and lets an authorized owner or admin disconnect it.
+Make sure that:
 
-This is the current GEOly navigation. Older instructions that start at “Agent Analytics → Platform Settings” no longer describe the current interface.
+- You are an owner or admin of the organization that owns the current brand.
+- The website's domain is on Cloudflare, and you can sign in to the Cloudflare account that holds it.
 
-![Cloudflare connection workflow from Integrations through zone authorization to AI Traffic](/images/cloudflare-integration/757a582284.jpg "GEOly Cloudflare AI Traffic workflow diagram")
+You need two values:
 
-This illustration explains the workflow; it is not an application screenshot.
+| GEOly field | What it is | Where to find it in Cloudflare |
+| --- | --- | --- |
+| **Zone ID** | The domain's Zone ID, a 32-character string | The **API** card on the domain's **Overview** page |
+| **API Token** | A read-only API token you create for GEOly | **My Profile → API Tokens** |
+
+<Warning>
+The **API** card shows two similar 32-character IDs: **Zone ID** and **Account ID**. The Account ID is not an API token, and pasting it into the API Token field always fails. Create a separate API token as described in step 2 below. Don't use the Global API Key either.
+</Warning>
+
+## Step 1: Copy the Zone ID
+
+1. Sign in to the [Cloudflare dashboard](https://dash.cloudflare.com/) and open the domain you want to connect.
+2. On the domain's **Overview** page, scroll down the right-hand column to the **API** card.
+3. Click the copy button next to **Zone ID**. You don't need the **Account ID** below it.
+
+![Copy the Zone ID from the API card on the domain Overview page, not the Account ID](/images/cloudflare-integration/en-01-zone-id.jpg "Copy the Zone ID")
+
+The Zone ID must belong to the domain you want to analyze. Each domain has its own Zone ID.
+
+## Step 2: Create an API token
+
+1. Open [My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens) (or click **Get your API token** in the **API** card), then click **Create Token** in the top-right corner. Don't use the **Global API key** further down the page.
+
+   ![The Create Token button on the User API Tokens page](/images/cloudflare-integration/en-02-api-tokens.jpg "Open API Tokens and click Create Token")
+
+2. Under **Token name**, enter a name you'll recognize, such as `GEOly`. Under **Policies**, click **Start from scratch**, then choose **Start with a Zone policy** from the menu.
+
+   ![Name the token, then Start from scratch and choose Start with a Zone policy](/images/cloudflare-integration/en-03-zone-policy.jpg "Add a zone policy")
+
+3. In the policy editor:
+
+   - Resources: set the second dropdown to **Specific zone** and the third to the domain you want to connect.
+   - Permissions: expand **Analytics & Logs** and check **Read** on the **Analytics** row. Leave every other permission unchecked.
+
+   Leave **Token expiration** and **Client IP address filtering** at their defaults, then click **Continue to summary** at the bottom of the page.
+
+   ![Specific zone set to your domain, and Analytics Read checked under Analytics & Logs](/images/cloudflare-integration/en-04-permissions.jpg "Set resources and permissions")
+
+4. On the **Token Summary** page, check that the policy lists only your domain and **Analytics: Read**, then click **Create Token**.
+
+   ![Confirm the summary, then click Create Token](/images/cloudflare-integration/en-05-summary.jpg "Confirm the summary and create the token")
+
+5. Copy the token shown on the page (a long string starting with `cfut_`). **Cloudflare shows it only once.** If you leave the page before copying it, delete the token and create a new one.
+
+   ![The token created page; the token is shown only once](/images/cloudflare-integration/en-06-token-created.jpg "Copy the new API token")
+
+**Analytics Read** is the only permission GEOly needs. It covers the connection check and the request and security-event data GEOly reads afterwards (verified November 2026). Don't grant the token access to all zones, and don't paste it into chats, screenshots, or support tickets. If you set an expiration date, GEOly stops receiving data when the token expires; create a new token and connect again.
+
+## Step 3: Connect in GEOly
+
+1. Check that the brand selected in the top-left corner is the right one. The Cloudflare connection belongs to the current brand.
+2. Open the Cloudflare connect page. If no data source is connected yet, go to **My website → AI Traffic** and click **Connect now** on the Cloudflare card. If you already connected another source such as GA4, click **Connect Cloudflare in Integrations** on the **Platform Settings** tab of the same page. You can also open `app.geoly.ai/integrations/cloudflare` directly.
+3. Paste the Zone ID from step 1 into **Zone ID**, and the token from step 2 into **API Token**.
+4. Click **Connect Cloudflare**. After the check passes, GEOly opens the Cloudflare view of **AI Traffic**.
+
+![The Connect Cloudflare form in GEOly with Zone ID and API Token filled in](/images/cloudflare-integration/en-07-geoly-connect.jpg "Fill in and connect in GEOly")
+
+The connect page also shows where to find each value and links back to this guide. If the connection fails, follow the message and see **Troubleshooting** below. To disconnect later, open `app.geoly.ai/integrations/cloudflare`, click **Disconnect**, and delete the token on the Cloudflare **API Tokens** page.
 
 ## Choose the reporting scope
 
@@ -43,6 +99,9 @@ Use the report to decide whether a page or rule needs investigation, then valida
 
 ## Troubleshooting
 
+- **"This 32-character value is an Account ID or Zone ID, not an API token":** You pasted an ID into the API Token field, usually the **Account ID** from the **API** card. Create an API token as described in step 2 and paste that instead. Older versions of the page showed "Cloudflare API error. Please try again." in this case; retrying does not help.
+- **"The API token is invalid or can't read this zone":** Check that you pasted a newly created API token (not the Account ID, Zone ID, or Global API Key), that it was copied in full and hasn't been deleted or expired, and that it grants **Analytics Read** on this domain (**Analytics & Logs → Analytics → Read** in the zone policy).
+- **"Zone ID not found":** The Zone ID is wrong, belongs to another domain, or you pasted a domain name or URL. Copy the **Zone ID** again from the **API** card on the domain's **Overview** page.
 - **No data after connection:** Check the zone, token permissions, selected window, Cloudflare retention, and whether recognized crawler activity exists. There is no guaranteed fixed synchronization delay.
 - **A crawler is missing:** The User-Agent may be unknown or changed, or the request may be outside the selected scope. Absence is not proof that the crawler never visited.
 - **Blocked events are missing:** Request analytics and security-event data have separate availability and permission paths. A missing section is not proof that no blocking occurred.
