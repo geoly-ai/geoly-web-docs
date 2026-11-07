@@ -67,7 +67,7 @@ Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页
 ## 四、在 GEOly 完成连接
 
 1. 确认左上角当前品牌正确。Cloudflare 连接绑定到当前品牌，多个品牌需要分别连接；
-2. 打开 **我的网站 → AI 流量**，在 Cloudflare 卡片上点击 **立即连接**（也可以直接打开 **集成 → Cloudflare** 页面）；
+2. 打开 Cloudflare 连接页：还没连接任何数据源时，在 **我的网站 → AI 流量** 的 Cloudflare 卡片上点击 **立即连接**；已连接过 GA4 等其他数据源时，在同一页的 **平台设置** 标签里点击 **前往集成连接 Cloudflare**。也可以直接打开 `app.geoly.ai/integrations/cloudflare`；
 3. 把第二步复制的区域 ID 粘贴到 **Zone ID**，把第三步复制的令牌粘贴到 **API Token**；
 4. 点击 **连接 Cloudflare**。校验通过后会自动跳到 **AI 流量** 的 Cloudflare 视图。
 
@@ -220,6 +220,6 @@ AI 爬虫请求通常不会执行 GA4 脚本，因此不应把 Cloudflare 请求
 - 使用仅限目标 Zone 的只读 Token；
 - 不要在聊天、截图或工单中暴露 Token；
 - 人员或供应商变更时及时轮换 Token；
-- 如需停止访问，可在 **集成 → Cloudflare** 的连接管理页断开连接，并在 Cloudflare 中撤销对应 Token。
+- 如需停止访问，打开 `app.geoly.ai/integrations/cloudflare` 点击 **断开连接**，并在 Cloudflare 的 **API 令牌** 页删除对应令牌。
 
 断开连接会停止后续读取，但不会修改 Cloudflare 配置，也不会删除 Cloudflare 原始数据。
