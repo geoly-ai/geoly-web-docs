@@ -37,32 +37,32 @@ Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页
 
 ## 三、创建 API 令牌（API Token）
 
-1. 打开 [我的个人资料 → API 令牌](https://dash.cloudflare.com/profile/api-tokens)（也可以点上一步 **API** 卡片里的 **获取您的 API 令牌**），点击 **创建令牌**。
+1. 打开 [我的个人资料 → API 令牌](https://dash.cloudflare.com/profile/api-tokens)（也可以点上一步 **API** 卡片里的 **获取您的 API 令牌**），点击右上角的 **创建令牌**。页面下方的 **Global API key** 不要用。
 
-   ![API 令牌页面右上方的创建令牌按钮](/images/cloudflare-integration/zh-02-api-tokens.jpg "进入 API 令牌页并点击创建令牌")
+   ![用户 API 令牌页面右上角的创建令牌按钮](/images/cloudflare-integration/zh-02-api-tokens.jpg "进入 API 令牌页并点击创建令牌")
 
-2. 页面列出了很多模板。拉到最下方，在 **创建自定义令牌** 处点击 **开始使用**。
+2. 在 **令牌名称** 里填一个好认的名字，例如 `GEOly`。在 **Policies** 里点击 **从头开始**，在弹出的菜单中选择 **Start with a Zone policy**（区域策略）。
 
-   ![模板列表最下方的创建自定义令牌](/images/cloudflare-integration/zh-03-custom-token.jpg "选择创建自定义令牌")
+   ![填写令牌名称，然后从头开始并选择 Start with a Zone policy](/images/cloudflare-integration/zh-03-zone-policy.jpg "新建一条区域策略")
 
-3. 按下表填写，然后点击页面底部的 **继续以显示摘要**：
+3. 在打开的策略编辑器里：
 
-   | 配置项 | 填写 |
-   | --- | --- |
-   | 令牌名称 | 例如 `GEOly Cloudflare Analytics` |
-   | 权限 | **区域** → **Analytics** → **读取** |
-   | 区域资源 | **包括** → **特定区域** → 选择要连接的域名 |
-   | 客户端 IP 地址筛选、TTL | 保持默认 |
+   - 资源：第二个下拉框选 **特定区域**，第三个下拉框选要连接的域名；
+   - 权限：展开 **分析和日志**，勾选 **Analytics** 这一行的 **读取**。其他权限都不用勾。
 
-   ![自定义令牌的权限与区域资源配置](/images/cloudflare-integration/zh-04-permissions.jpg "配置权限和区域资源")
+   **令牌过期时间** 和 **客户端 IP 地址过滤** 保持默认即可，然后点击页面底部的 **继续以显示摘要**。
 
-4. 在摘要页确认权限只有 Analytics 读取、范围是你的域名，点击 **创建令牌**。
+   ![资源选特定区域和你的域名，权限勾选分析和日志里的 Analytics 读取](/images/cloudflare-integration/zh-04-permissions.jpg "设置资源和权限")
 
-5. 复制页面上显示的令牌。**令牌只显示这一次**，离开页面后无法再查看；如果没来得及复制，删掉它重新创建一个即可。
+4. 在 **令牌摘要** 页确认权限策略只有「你的域名」和「Analytics: 读取」，点击 **创建令牌**。
 
-   ![令牌创建成功页面，点击复制按钮复制令牌](/images/cloudflare-integration/zh-05-token-created.jpg "复制新建的 API 令牌")
+   ![令牌摘要页确认权限后点击创建令牌](/images/cloudflare-integration/zh-05-summary.jpg "确认摘要并创建令牌")
 
-只需要 **区域 → Analytics → 读取** 这一项权限：GEOly 连接时的校验，以及之后读取的请求数据和安全事件，都在这个权限范围内。不需要把令牌开放给全部区域，也不要把令牌发到聊天、截图或工单里。
+5. 复制页面上显示的令牌（以 `cfut_` 开头的一长串）。**令牌只显示这一次**，离开页面后无法再查看；如果没来得及复制，删掉它重新创建一个即可。
+
+   ![令牌创建成功页面，令牌只显示一次，点击右侧按钮复制](/images/cloudflare-integration/zh-06-token-created.jpg "复制新建的 API 令牌")
+
+只需要这一项 **Analytics 读取** 权限：GEOly 连接时的校验，以及之后读取的请求数据和安全事件，都在这个权限范围内（2026-11 实测）。不需要把令牌开放给全部区域，也不要把令牌发到聊天、截图或工单里。如果给令牌设置了过期时间，到期后 GEOly 将读不到数据，需要重新创建令牌并再次连接。
 
 ## 四、在 GEOly 完成连接
 
@@ -71,9 +71,7 @@ Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页
 3. 把第二步复制的区域 ID 粘贴到 **Zone ID**，把第三步复制的令牌粘贴到 **API Token**；
 4. 点击 **连接 Cloudflare**。校验通过后会自动跳到 **AI 流量** 的 Cloudflare 视图。
 
-![在 GEOly 的连接 Cloudflare 表单中填入 Zone ID 与 API Token](/images/cloudflare-integration/zh-06-geoly-connect.jpg "在 GEOly 填写并连接")
-
-如果提示连接失败，按提示文字对照下文「常见问题与排错」检查。
+连接页的输入框下方也有这两项的取值提示，以及回到本教程的链接。如果提示连接失败，按提示文字对照下文「常见问题与排错」检查。
 
 ## 五、Cloudflare 数据看什么
 
@@ -185,7 +183,7 @@ API Token 框里填的是 ID，不是令牌。最常见的情况是复制了 **A
 
 - 粘贴的是新建的 API 令牌，而不是帐户 ID、区域 ID 或 Global API Key；
 - 令牌复制完整、前后没有多余空格，也没有被删除或过期；
-- 权限包含 **区域 → Analytics → 读取**；
+- 令牌给这个域名授予了 **Analytics 读取** 权限（策略编辑器里 **分析和日志 → Analytics → 读取**）；
 - **区域资源** 包含你要连接的这个域名（只授权了别的域名也会报这个错）。
 
 ### 提示找不到这个 Zone ID
