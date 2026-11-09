@@ -72,7 +72,8 @@
                 "icon": "plug",
                 "pages": [
                   "integrations/google-analytics-help-docs",
-                  "integrations/cloudflare-integration"
+                  "integrations/cloudflare-integration",
+                  "integrations/github-connector"
                 ]
               },
               {
@@ -229,7 +230,8 @@
                 "icon": "plug",
                 "pages": [
                   "zh/integrations/google-analytics-help-docs",
-                  "zh/integrations/cloudflare-integration"
+                  "zh/integrations/cloudflare-integration",
+                  "zh/integrations/github-connector"
                 ]
               },
               {
