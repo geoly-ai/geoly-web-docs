@@ -15,7 +15,7 @@ Make sure that:
 - You can sign in to the GitHub account you want to connect.
 - To use repositories that belong to a GitHub organization, you are an owner of that organization, or an owner can approve the installation for you.
 
-Each connection uses your own GitHub login. Other people in your GEOly organization can't use it, and the agent only reaches repositories that both your GitHub account can access and you selected for the app.
+Each connection uses your own GitHub login. Other people in your GEOly organization can't use it. The agent can read any public repository, but it can only write to, or read private code in, repositories that your GitHub account can access and that you selected for the app.
 
 ## Step 1: Open GitHub on the Connectors page
 
@@ -38,7 +38,7 @@ GitHub shows **Authorize GEOly Agent**. Check that the account named on the page
 
 ![GitHub's Authorize GEOly Agent page](/images/github-connector/en-03-authorize.jpg "Authorize GEOly Agent on GitHub")
 
-Authorizing lets GEOly act as you on GitHub, within the repositories you choose in the next step. It does not give GEOly your GitHub password.
+Authorizing lets GEOly act as you on GitHub. Beyond reading public repositories, it can only work in the repositories you choose in the next step. It does not give GEOly your GitHub password.
 
 ## Step 4: Choose repositories
 
@@ -54,6 +54,8 @@ Right after you authorize, GitHub opens **Install GEOly Agent**.
    ![Only select repositories, the permissions GEOly Agent asks for, and the Install button](/images/github-connector/en-05-select-repos.jpg "Choose repositories and install")
 
 GitHub then brings you back to the GEOly **Connectors** page, and GitHub appears under **Connected**.
+
+If you aren't an owner of the organization, GitHub shows **Request** instead of **Install** and sends the request to the organization's owners. GEOly then shows "Request sent. The agent can use it once an organization owner approves." The repositories become available as soon as an owner approves; you don't need to connect again.
 
 <Warning>
 Don't skip this step. Until the app is installed on a repository, the agent can only read public repositories, and private repositories look as if they don't exist. If you closed the GitHub page early, open the connection in GEOly and click **Choose repositories** (see below).

@@ -19,7 +19,7 @@ GitHub 连接器让 GEOly Agent 能在你的仓库里干活：读 issue、PR 和
 - 你能登录要连接的 GitHub 帐户；
 - 如果要用某个 GitHub 组织（Organization）下的仓库，你是这个组织的所有者（Owner），或者有所有者帮你批准安装。
 
-每个连接都用你自己的 GitHub 登录，GEOly 组织里的其他人用不了。Agent 只能碰到同时满足两个条件的仓库：你的 GitHub 帐户有权限，并且你给这个应用选了它。
+每个连接都用你自己的 GitHub 登录，GEOly 组织里的其他人用不了。公开仓库 Agent 都能读；但要写入，或者读私有仓库的代码，仓库必须同时满足两个条件：你的 GitHub 帐户有权限，并且你给这个应用选了它。
 
 ## 二、在连接器页找到 GitHub
 
@@ -42,7 +42,7 @@ GitHub 会打开 **Authorize GEOly Agent** 页面。先确认页面上显示的�
 
 ![GitHub 的 Authorize GEOly Agent 页面](/images/github-connector/en-03-authorize.jpg "在 GitHub 上授权 GEOly Agent")
 
-授权的意思是：GEOly 可以以你的身份操作 GitHub，但只限于你下一步选的那些仓库。GEOly 拿不到你的 GitHub 密码。
+授权的意思是：GEOly 可以以你的身份操作 GitHub。除了读公开仓库，它只能在你下一步选的那些仓库里干活。GEOly 拿不到你的 GitHub 密码。
 
 ## 五、选择仓库
 
@@ -58,6 +58,8 @@ GitHub 会打开 **Authorize GEOly Agent** 页面。先确认页面上显示的�
    ![Only select repositories、GEOly Agent 申请的权限与 Install 按钮](/images/github-connector/en-05-select-repos.jpg "选择仓库并安装")
 
 装好后 GitHub 会把你带回 GEOly 的 **Connectors**（连接器）页，GitHub 出现在 **Connected**（已连接）里。
+
+如果你不是该组织的所有者，GitHub 页面上的按钮会是 **Request** 而不是 **Install**，申请会发给组织所有者，GEOly 这边会提示「已发出安装申请，组织所有者批准后 Agent 才能用」。所有者一批准，这些仓库就能用了，不用重新连接。
 
 <Warning>
 这一步不能跳过。应用装到仓库之前，Agent 只能读公开仓库，私有仓库在它看来就像不存在一样。如果你提前关掉了 GitHub 页面，在 GEOly 里打开这个连接，点 **Choose repositories**（选择仓库）补上，做法见下一节。
