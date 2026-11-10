@@ -1,6 +1,6 @@
 ---
 title: "授权 Google Analytics（GA4）操作手册"
-description: "通过只读 OAuth 将 GA4 媒体资源连接到 GEOly，在“信源 → AI 流量”中查看 AI 引荐会话、落地页、参与率和已配置的购买转化。"
+description: "通过只读 OAuth 将 GA4 媒体资源连接到 GEOly，在“我的网站 → AI 流量”中查看 AI 引荐会话、落地页、参与率和已配置的购买转化。"
 ---
 
 Google Analytics 4（GA4）集成用于观察“AI 平台带来了多少真实网站访问，以及这些访问产生了怎样的参与和转化”。授权后，Geoly 通过 Google Analytics Admin API 读取当前账号可访问的账号与媒体资源列表，并通过 Google Analytics Data API 读取你选定媒体资源的报表数据。整个流程使用只读权限，不会修改属性、事件、受众或历史数据。
@@ -20,11 +20,7 @@ Google Analytics 4（GA4）集成用于观察“AI 平台带来了多少真实�
 
 ## 二、从 Geoly 发起 GA4 授权
 
-先选择要分析的品牌，打开 **集成 → GA4**。也可从 **信源 → AI 流量** 的 Google Analytics 数据源入口进入连接页。点击 **连接 Google Analytics** 后，GEOly 会跳转到 Google OAuth 流程。
-
-![GEOly GA4 只读授权与 AI 流量查看流程示意图](/images/google-analytics-help-docs/9eb9eacf26.jpg "GEOly GA4 连接流程示意图")
-
-这张图说明当前连接路径，是示意图，不是应用界面截图。
+先选择要分析的品牌，再打开 GA4 连接页：还没连接任何数据源时，在 **My website → AI Traffic**（我的网站 → AI 流量）的 Google Analytics 卡片上点击 **Connect now**（立即连接）；已连接过 Cloudflare 等其他数据源时，在同一页的 **Platform Settings**（平台设置）标签里点击 **Connect Google Analytics in Integrations**（前往集成连接 Google Analytics）。也可以直接打开 `app.geoly.ai/integrations/ga4`。点击 **Connect Google Analytics**（连接 Google Analytics）后，GEOly 会跳转到 Google OAuth 流程。
 
 Geoly 请求的核心权限是 Google Analytics 只读权限。该权限用于读取报表数据，不能编辑 GA4 配置，也不能写入或删除事件。
 
@@ -51,7 +47,7 @@ OAuth 成功后，Geoly 会读取当前 Google 账号可访问的 GA4 账号和�
 
 ## 五、授权后在哪里查看数据
 
-完成媒体资源绑定后，系统会进入 **信源 → AI 流量**，切换到 GA4 数据。
+完成媒体资源绑定后，系统会进入 **My website → AI Traffic**（我的网站 → AI 流量），切换到 GA4 数据。
 
 GA4 连接成功后，如果本次授权选择了多个媒体资源，页面顶部会显示媒体资源切换器，可在已授权范围内切换当前查看的媒体资源。页面右上角的设置菜单用于断开 GA4 连接。若页面仍显示未连接，请先确认当前品牌是否为刚才完成授权的品牌。
 
@@ -149,7 +145,7 @@ GA4 连接成功后，如果本次授权选择了多个媒体资源，页面顶�
 
 落地页是会话进入网站时首先访问的页面，不等于用户浏览过程中的全部页面。高会话但低参与或低购买转化的页面，应进一步检查首屏信息、页面速度、移动端体验、证据内容和转化路径。
 
-页面路径还应与 **信源 → 引用** 中的具体 URL、**监控 → 提示词** 中的答案与 Topic 一起核对，以判断“被引用、被点击、到站后表现”分别发生在哪个阶段。
+页面路径还应与 **Sources → Citations**（信源 → 引用来源）中的具体 URL、**Prompts → All prompts**（提示词 → 全部提示词）中的答案与 Topic 一起核对，以判断“被引用、被点击、到站后表现”分别发生在哪个阶段。
 
 ### 6. AI 平台流量占比与平均会话时长
 
@@ -200,8 +196,8 @@ GA4 数据以 Google Analytics Data API 当前可返回的结果为准；刚发�
 ### 内容与 GEO 团队
 
 1. 在 GA4 找到高 AI 流量落地页；
-2. 到 **信源 → 引用** 查看页面在哪些 AI 答案中被引用；
-3. 到 **监控 → 提示词** 查看对应问题、答案和竞品；
+2. 到 **Sources → Citations**（信源 → 引用来源）查看页面在哪些 AI 答案中被引用；
+3. 到 **Prompts → All prompts**（提示词 → 全部提示词）查看对应问题、答案和竞品；
 4. 对高流量低参与页面优化首屏答案、证据、导航和转化路径；
 5. 对高引用低流量页面检查标题、摘要、品牌承接与链接可点击性。
 

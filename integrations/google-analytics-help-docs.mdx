@@ -6,16 +6,12 @@ GEOly connects to Google Analytics 4 (GA4) with read-only OAuth access so you ca
 
 ## Where to find it
 
-1. Open **Integrations → GA4**.
-2. Connect the Google account that can access the required GA4 property.
+1. Open the GA4 connect page. If no data source is connected yet, go to **My website → AI Traffic** and click **Connect now** on the Google Analytics card. If you already connected another source such as Cloudflare, click **Connect Google Analytics in Integrations** on the **Platform Settings** tab of the same page. You can also open `app.geoly.ai/integrations/ga4` directly.
+2. Click **Connect Google Analytics** and sign in with the Google account that can access the required GA4 property.
 3. Select one or more available GA4 properties and bind them to the current brand.
-4. After binding, open **Sources → AI Traffic** and select the property and reporting window.
+4. After binding, open **My website → AI Traffic** and select the property and reporting window.
 
 Only an `owner` or `admin` of the brand's organization can read the available properties, bind a property, or disconnect GA4. GEOly requests the Google Analytics read-only scope; it does not write to the GA4 property.
-
-![GA4 connection workflow from Integrations through read-only Google authorization and property selection to AI Traffic](/images/google-analytics-help-docs/1f9e1aef1b.jpg "GEOly GA4 connection workflow diagram")
-
-This workflow diagram explains the current navigation and authorization sequence; it is not a screenshot of the application.
 
 ## Choose a property and reporting window
 
@@ -53,4 +49,4 @@ For conversion and revenue analysis, confirm that the GA4 property has the relev
 - Results can differ from the GA4 interface because of date ranges, filters, attribution settings, consent handling, sampling, and data processing time.
 - Disconnecting GA4 removes the stored connection and property binding from GEOly; it does not delete data from Google Analytics.
 
-Use AI Traffic to connect AI referral activity with first-party analytics. Use Monitoring → Prompts, Performance, and Sources → Citations to investigate what AI systems say, cite, and recommend about the brand.
+Use AI Traffic to connect AI referral activity with first-party analytics. Use **Prompts → All prompts**, **Home → Overview**, and **Sources → Citations** to investigate what AI systems say, cite, and recommend about the brand.

@@ -19,7 +19,7 @@ Please set up the GEOly CLI and use it to answer a question about my brand's AI 
 3. Run `geoly whoami` and `geoly call get_brand_context`, and tell me which organization and brand you are connected to.
 4. Run `geoly tools --json` to see which tools are available, then answer my question with `geoly run "<question>"` (or `geoly call <tool>` when I ask for specific data).
 
-My question: How did our visibility in ChatGPT and Perplexity change over the last 30 days, and what drove it?
+My question: How did our visibility in ChatGPT and Google AI Mode change over the last 30 days, and what drove it?
 ```
 
 ## What it looks like
@@ -222,7 +222,7 @@ OpenCode, a custom agent, a CI job driven by an LLM — anything that can run a 
 **GEOly (AI visibility data)**
 
 Use the `geoly` CLI for questions about our brand's visibility in AI answers
-(ChatGPT, Perplexity, Gemini, Google AI Mode, Google AI Overview, Copilot).
+(ChatGPT, Gemini, Google AI Mode, Google AI Overview).
 
 - A whole question that ends in a written answer: `geoly run "<question>"`.
   Read `answer` from the JSON on stdout. If `status` is `running`, run the `next`
@@ -278,7 +278,7 @@ geoly call get_daily_trend --start_date 2026-09-01 --end_date 2026-09-21 --break
 | `get_prompt_record_detail` | One answer in full: text, citations, the searches the AI ran, brands named. |
 
 ```sh
-geoly call list_brand_answers --time_range 7d --platform perplexity --only_mentioned --page_size 20
+geoly call list_brand_answers --time_range 7d --platform gemini --only_mentioned --page_size 20
 ```
 
 ### Citations and sources
@@ -374,7 +374,7 @@ geoly call search_public_entities --query "standing desk" --limit 10
 Once the CLI is set up, copy any of these into your agent.
 
 ```prompt title="Visibility trend"
-Use geoly: how did our visibility change on ChatGPT and Perplexity over the last 30 days compared with the 30 days before, and which prompts drove the change? Show the numbers you used.
+Use geoly: how did our visibility change on ChatGPT and Google AI Mode over the last 30 days compared with the 30 days before, and which prompts drove the change? Show the numbers you used.
 ```
 
 ```prompt title="Prompts where we are missing"

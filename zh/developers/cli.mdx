@@ -19,7 +19,7 @@ GEOly CLI（命令名 `geoly`）让你已经在用的 Agent 直接向 GEOly 要�
 3. 运行 `geoly whoami` 和 `geoly call get_brand_context`，告诉我当前连接的是哪个组织和品牌。
 4. 运行 `geoly tools --json` 了解可用工具，然后用 `geoly run "<问题>"` 回答我的问题（如果我要的是具体数据，就用 `geoly call <tool>`）。
 
-我的问题：过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度怎么变的？是什么带来的？
+我的问题：过去 30 天我们在 ChatGPT 和 Google AI Mode 上的可见度怎么变的？是什么带来的？
 ```
 
 ## 用起来是什么样
@@ -221,8 +221,8 @@ OpenCode、自建 Agent、由大模型驱动的 CI 任务——只要能执行�
 ```markdown
 **GEOly（AI 可见度数据）**
 
-凡是涉及我们品牌在 AI 回答中表现的问题（ChatGPT、Perplexity、Gemini、
-Google AI Mode、Google AI Overview、Copilot），使用 `geoly` 命令行。
+凡是涉及我们品牌在 AI 回答中表现的问题（ChatGPT、Gemini、
+Google AI Mode、Google AI Overview），使用 `geoly` 命令行。
 
 - 需要一段完整结论的问题：`geoly run "<问题>"`，从 stdout 的 JSON 里读 `answer`。
   如果 `status` 是 `running`，执行它打印的 `next` 命令（`geoly runs wait <run_id>`），
@@ -275,7 +275,7 @@ geoly call get_daily_trend --start_date 2026-09-01 --end_date 2026-09-21 --break
 | `get_prompt_record_detail` | 单条回答的完整内容：原文、引用、AI 实际搜索的词、提到的品牌。 |
 
 ```sh
-geoly call list_brand_answers --time_range 7d --platform perplexity --only_mentioned --page_size 20
+geoly call list_brand_answers --time_range 7d --platform gemini --only_mentioned --page_size 20
 ```
 
 ### 引用与信源
@@ -371,7 +371,7 @@ geoly call search_public_entities --query "standing desk" --limit 10
 CLI 装好之后，把下面任意一段复制给你的 Agent。
 
 ```prompt title="可见度趋势"
-用 geoly：过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度与前 30 天相比怎么变的？是哪些 Prompt 带来的变化？请列出你用到的数字。
+用 geoly：过去 30 天我们在 ChatGPT 和 Google AI Mode 上的可见度与前 30 天相比怎么变的？是哪些 Prompt 带来的变化？请列出你用到的数字。
 ```
 
 ```prompt title="没被提到的 Prompt"
