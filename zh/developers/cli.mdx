@@ -16,7 +16,7 @@ GEOly CLI（命令名 `geoly`）让你已经在用的 Agent 直接向 GEOly 要�
    - macOS / Linux：curl -fsSL https://geoly.ai/install.sh | sh
    - Windows PowerShell：irm https://geoly.ai/install.ps1 | iex
 2. 运行 `geoly init`。它会安装 GEOly 技能并引导我登录。如果打印出登录链接，请把链接发给我，等我在浏览器里完成授权。如果这台机器没有浏览器，请运行 `geoly auth login --remote`，把链接发给我；我把授权码贴回来后，运行 `geoly auth login --code <授权码>`。
-3. 运行 `geoly whoami` 和 `geoly call get_brand_context`，告诉我当前连接的是哪个组织和品牌。
+3. 运行 `geoly whoami` 和 `geoly call get_brand_context`，告诉我当前连接的是哪个组织和项目。
 4. 运行 `geoly tools --json` 了解可用工具，然后用 `geoly run "<问题>"` 回答我的问题（如果我要的是具体数据，就用 `geoly call <tool>`）。
 
 我的问题：过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度怎么变的？是什么带来的？
@@ -89,7 +89,7 @@ geoly init
 
 `geoly init` 做两件事：
 
-1. **把 GEOly Agent Skill 装进本机找到的 Agent 宿主。** 它检查 `~/.claude`、`~/.codex`、`~/.cursor` 是否存在，分别把技能写入 `~/.claude/skills/geoly-mcp/`、`~/.codex/skills/geoly-mcp/`、`~/.cursor/skills/geoly-mcp/`。技能从 app.geoly.ai 实时获取，保证与线上服务一致（取不到时使用 CLI 内置的副本）。它教 Agent 什么时候用 `geoly run`、什么时候用 `geoly call`，先确认组织和品牌，以及怎样正确解读 GEOly 的指标。除此之外不改动任何配置，也不授予任何权限。
+1. **把 GEOly Agent Skill 装进本机找到的 Agent 宿主。** 它检查 `~/.claude`、`~/.codex`、`~/.cursor` 是否存在，分别把技能写入 `~/.claude/skills/geoly-mcp/`、`~/.codex/skills/geoly-mcp/`、`~/.cursor/skills/geoly-mcp/`。技能从 app.geoly.ai 实时获取，保证与线上服务一致（取不到时使用 CLI 内置的副本）。它教 Agent 什么时候用 `geoly run`、什么时候用 `geoly call`，先确认组织和项目，以及怎样正确解读 GEOly 的指标。除此之外不改动任何配置，也不授予任何权限。
 2. **完成登录**（见第三步）。在没有浏览器的机器上，它会发起粘贴授权码登录，并告诉你完成登录的那条命令。
 
 其他用法：
@@ -99,7 +99,7 @@ geoly init --agent codex     # 只装一个宿主：claude-code | codex | cursor
 geoly init --no-login        # 只装技能（dotfiles、CI 镜像）
 ```
 
-请把 `.geoly/` 加进项目的 `.gitignore`：`geoly run` 会把回执写在那里。
+请把 `.geoly/` 加进代码仓库的 `.gitignore`：`geoly run` 会把回执写在那里。
 
 ### 第三步：授权一次
 
@@ -185,7 +185,7 @@ geoly whoami         # 当前账号、组织、模式和可用工具
 geoly auth logout    # 删除当前 profile 保存的凭据
 ```
 
-`geoly auth status` 输出 `mode`、`authorized`、`profile`、`endpoint`、`expiresAt` 和 `scope`。`geoly whoami` 会向服务端确认，输出鉴权方式、当前组织、Token 到期时间、`mode`（`single`、`multi-brand` 或 `multi-org`）、`toolCount`、是否开启公开行业工具，以及 `writeTools`——你的授权实际开放的写入工具。
+`geoly auth status` 输出 `mode`、`authorized`、`profile`、`endpoint`、`expiresAt` 和 `scope`。`geoly whoami` 会向服务端确认，输出鉴权方式、当前组织、Token 到期时间、`mode`（`single`、`multi-brand` 或 `multi-org`；`multi-brand` 表示组织下有多个项目）、`toolCount`、是否开启公开行业工具，以及 `writeTools`——你的授权实际开放的写入工具。
 
 访问令牌有效期约 14 天，到期后下一条命令会重新引导你登录。
 
@@ -195,13 +195,15 @@ geoly auth logout    # 删除当前 profile 保存的凭据
 | `~/.geoly/settings-<profile>.json` | 你在交互会话里上一次选择的组织 |
 | `./.geoly/runs/<run_id>.json` | `geoly run` 的回执，写在当前目录下 |
 
-**组织与品牌。** 选择单个组织时可读，并可写入你勾选过的资源；选择全部组织时一律只读。能看到哪些工具还取决于套餐和你的角色——工具少了不代表登录失败。
+**组织与项目。** 选择单个组织时可读，并可写入你勾选过的资源；选择全部组织时一律只读。能看到哪些工具还取决于套餐和你的角色——工具少了不代表登录失败。
+
+项目（Project）是 GEOly 的监测单元：一个项目监测一个自有品牌及其竞品。由于历史原因，项目 id 通过 `brand_id` 参数传递，`list_brands` 等工具列出的是项目。自有监测用的 `brand_id` 永远不是 `public_brand.id`。
 
 ```sh
 geoly call list_organizations                  # 可访问多个组织时
-geoly call list_brands                         # 组织下有多个品牌时
-geoly call get_brand_overview --org <org_id> --brand_id <brand_id>
-geoly run "…" --org <org_id> --brand <brand_id>
+geoly call list_brands                         # 列出项目，组织下有多个项目时
+geoly call get_brand_overview --org <org_id> --brand_id <project_id>
+geoly run "…" --org <org_id> --brand <project_id>
 ```
 
 - `--org <org_id>` 对所有命令都有效，把这条命令限定在一个组织。
@@ -230,7 +232,7 @@ Google AI Mode、Google AI Overview、Copilot），使用 `geoly` 命令行。
   （原因见 `stopped_reason`）。
 - 需要具体数据：先 `geoly tools --json` 发现工具，`geoly schema <tool>` 查看参数，
   再 `geoly call <tool> --<参数> <值>`。参数名原样使用（下划线），未声明的参数会被拒绝。
-- 每次会话先执行 `geoly call get_brand_context`（免费），了解品牌、套餐、平台、话题和竞品。
+- 每次会话先执行 `geoly call get_brand_context`（免费），了解项目（及其自有品牌）、套餐、平台、话题和竞品。
 - stdout 是 JSON 数据，stderr 是进度与错误；加 `--error-format json` 可让错误也输出为 JSON。
 - 退出码：0 成功；1 工具出错；2 命令写错需修正；3 需要登录（`geoly auth login`）；
   4 被限流（等待 `retryAfter`）；5 组织没有有效订阅；6 服务暂时异常（重试一次）；
@@ -250,8 +252,8 @@ Google AI Mode、Google AI Overview、Copilot），使用 `geoly` 命令行。
 
 | 工具 | 能回答什么 |
 | --- | --- |
-| `get_brand_context` | 免费，每次会话调用一次：品牌、组织与套餐、可用平台、话题、已跟踪竞品、数据时间范围、剩余 credits。 |
-| `list_organizations` / `list_brands` | 你能访问哪些组织和品牌（仅在多组织或多品牌时出现）。 |
+| `get_brand_context` | 免费，每次会话调用一次：项目及其品牌、组织与套餐、可用平台、话题、已跟踪竞品、数据时间范围、剩余 credits。 |
+| `list_organizations` / `list_brands` | 你能访问哪些组织和项目；`list_brands` 列出的是项目（仅在能访问多个组织或多个项目时出现）。 |
 
 ### 品牌可见度总览与趋势
 
@@ -428,7 +430,7 @@ echo '{"time_range":"7d"}' | geoly call get_brand_overview --input -
 
 | 参数 | 作用 |
 | --- | --- |
-| `--brand <id>` | 指定品牌（组织下有多个品牌时需要） |
+| `--brand <id>` | 指定项目，传项目 id（即 `brand_id`）；组织下有多个项目时需要 |
 | `--context <文本>` / `--context @文件` | 补充背景；`@文件` 读取 UTF-8（或带 BOM 的 UTF-16）文本文件 |
 | `--spec <名称>` | 服务端定义的固定格式交付物：`geo-weekly-brand-health`、`geo-content-brief`、`geo-keyword-research-report`、`geo-serp-gap` |
 | `--max-credits <n>` | 本次运行的消耗上限，25–2000 credits |
@@ -480,7 +482,7 @@ geoly run run_…          # 查看某次运行的当前状态
 geoly runs list          # 组织最近的运行（--limit 1–50，默认 20）
 ```
 
-**重试不会重复扣费。** 每次 `geoly run` 都会带上一个幂等键，由组织、品牌、spec、问题、context、`--max-credits` 和 `--allow-writes` 共同生成。10 分钟内重复执行完全相同的命令，会回放已有的那次运行（stderr 提示 `replayed run …`），不会新开一次、也不会再扣一次费；上述任一输入变了，就是一次新的运行。脚本可以用 `--idempotency-key` 自定义键（8–128 位，字符限 `A-Z a-z 0-9 _ - : .`）。
+**重试不会重复扣费。** 每次 `geoly run` 都会带上一个幂等键，由组织、项目、spec、问题、context、`--max-credits` 和 `--allow-writes` 共同生成。10 分钟内重复执行完全相同的命令，会回放已有的那次运行（stderr 提示 `replayed run …`），不会新开一次、也不会再扣一次费；上述任一输入变了，就是一次新的运行。脚本可以用 `--idempotency-key` 自定义键（8–128 位，字符限 `A-Z a-z 0-9 _ - : .`）。
 
 **回执落盘。** 每次完成的运行都会写入当前目录的 `./.geoly/runs/<run_id>.json`，Agent 可以直接读文件拿到长答案，不必重问。`-o <文件>` 可指定路径（此时 stdout 只输出 `status`、`run_id`、`saved_to`）。
 
@@ -509,11 +511,11 @@ error[usage_error]: --time-range is not a parameter of get_brand_overview
   hint: Did you mean --time_range? Declared parameters: --time_range, --start_date, …
 ```
 
-服务端对所有调用也执行同样的规则，并列出可用参数，例如 `Unknown argument(s) nope for get_prompt_list. Accepted: …`。`org_id` 和 `brand_id` 在所有工具上都被接受。按报错里给出的名字改，或用 `geoly schema <tool>` 核对；参数名使用下划线。
+服务端对所有调用也执行同样的规则，并列出可用参数，例如 `Unknown argument(s) nope for get_prompt_list. Accepted: …`。`org_id` 和 `brand_id`（即项目 id）在所有工具上都被接受。按报错里给出的名字改，或用 `geoly schema <tool>` 核对；参数名使用下划线。
 
 **`Unknown tool "…"`。** 该工具对当前账号、套餐或授权不可用，或者名字拼错了——提示会给出最接近的工具名。可以试试 `geoly tools --refresh`。
 
-**提示 “spans multiple organizations” 或需要指定品牌。** 加上 `--org <org_id>`；品牌类工具再加 `--brand_id <id>`（`geoly run` 用 `--brand <id>`）。`geoly call list_organizations` / `list_brands` 会列出可选项。
+**提示 “spans multiple organizations” 或需要指定项目。** 加上 `--org <org_id>`；项目级工具再加 `--brand_id <项目 id>`（`geoly run` 用 `--brand <项目 id>`）。`geoly call list_organizations` / `list_brands` 会列出可选项。
 
 **`subscription_required`（退出码 5）与 `quota_exhausted`（退出码 7）。** 两者都是 HTTP 402：前者表示组织没有有效套餐，后者表示本期 credits 已用完。提示里会附上账单链接和重置日期。
 

@@ -1,47 +1,49 @@
 ---
 title: "Basic Management Function"
-description: "Configure GEOly account, organization, brand, and MCP settings using the current Settings navigation and permission scope."
+description: "Configure GEOly account, organization, project, and MCP settings using the current Settings navigation and permission scope."
 ---
 
-**Where to start:** Sign in to GEOly, then use the left navigation and current brand menu to configure your workspace.
+**Where to start:** Sign in to GEOly, then use the left navigation and the project menu to configure your project.
 
-This guide covers the account, organization, brand, and monitoring settings used in the current GEOly product. Completing these settings helps GEOly identify your brand consistently in AI answers, keeps Monitoring scoped to the correct brand, and prevents teams from working in the wrong workspace.
+This guide covers the account, organization, project, and monitoring settings used in the current GEOly product. Completing these settings helps GEOly identify your brand consistently in AI answers, keeps Monitoring scoped to the correct project, and prevents teams from working in the wrong project.
 
-## 1. Sign in and confirm your workspace
+A project is GEOly's monitoring unit: it tracks one own brand plus its competitors, and it is named after that brand. Your organization's plan sets how many projects it can have.
 
-Open [app.geoly.ai](https://app.geoly.ai) and sign in. Before changing settings, confirm the organization, plan, and active brand shown in the workspace.
+## 1. Sign in and confirm your project
+
+Open [app.geoly.ai](https://app.geoly.ai) and sign in. Before changing settings, confirm the organization, plan, and active project shown in the app.
 
 Your available data and actions depend on:
 
 - the organization you are working in;
-- the active brand;
+- the active project;
 - your account permissions; and
-- the plan and data scope available to that workspace.
+- the plan and data scope available to that organization and project.
 
-Switching brands changes the scope used by Prompts, Performance and Sources, and brand settings. It does not merge data between brands.
+Switching projects changes the scope used by Prompts, Performance and Sources, and project settings. It does not merge data between projects.
 
-## 2. Switch brands and open Brand settings
+## 2. Switch projects and open Project settings
 
-Use the brand menu in the left navigation to:
+Use the project menu in the left navigation to:
 
-- view the active brand;
-- switch to another authorized brand;
-- choose **Add Brand** when your account has permission to create another brand; and
-- open **Brand settings** for the current brand.
+- view the active project;
+- switch to another authorized project;
+- choose **Add Project** when your account has permission to create another project; and
+- open **Project settings** for the current project.
 
-After switching, confirm the brand name shown in the product before creating Prompts, competitors, or monitoring tasks.
+After switching, confirm the project name shown in the product before creating Prompts, competitors, or monitoring tasks.
 
 ## 3. Configure brand information and matching rules
 
-The current **Brand settings** page includes:
+Open **Settings → Project → Brand profile**. The page includes:
 
 - **Brand Name:** the name shown in GEOly.
 - **Match Terms:** brand names, aliases, product names, and spelling variants used to detect mentions in AI answers. Separate multiple terms with commas.
 - **Website:** the official brand website URL.
 - **Logo URL:** optional; if empty, GEOly can use the website favicon.
-- **Competitors:** configured through the separate Settings → Brand → Competitors page.
+- **Competitors:** managed on the separate **Settings → Project → Brands** page.
 
-![Current GEOly brand information and separate Competitors page navigation diagram](/images/basic-management/c1f1fe8b9f.jpg "Brand settings navigation diagram, not an application screenshot")
+![Current GEOly brand information and separate Competitors page navigation diagram](/images/basic-management/c1f1fe8b9f.jpg "Project settings navigation diagram, not an application screenshot")
 
 This diagram explains the current Settings page split; it is not an application screenshot.
 
@@ -59,7 +61,7 @@ Enter the official site URL and confirm the domain. The Website field is part of
 
 ## 4. Manage competitors
 
-Open **Settings → Brand → Competitors**. Competitors are managed separately from the brand profile.
+Open **Settings → Project → Brands**. Competitors are managed separately from the brand profile.
 
 GEOly uses configured brand names and aliases for text matching in AI answers. To keep comparisons useful:
 
@@ -72,20 +74,20 @@ The competitor list supports comparison inside the available AI-answer data. It 
 
 ## 5. Organization and account permissions
 
-![GEOly account, organization members, and brand settings scope diagram](/images/basic-management/79620c1113.jpg "Organization members and settings scope diagram, not an application screenshot")
+![GEOly account, organization members, and project settings scope diagram](/images/basic-management/79620c1113.jpg "Organization members and settings scope diagram, not an application screenshot")
 
-This diagram shows the settings areas; the controls available to you still depend on your current organization role and workspace.
+This diagram shows the settings areas; the controls available to you still depend on your current organization role and project.
 
-The organization, plan, and account permissions determine which brands, data, and actions are visible to you.
+The organization, plan, and account permissions determine which projects, data, and actions are visible to you.
 
 When collaborating:
 
 - confirm that each member is in the correct organization;
-- check the active brand and data scope before interpreting results;
+- check the active project and data scope before interpreting results;
 - grant only the access needed for the task; and
-- use the controls shown in the current workspace rather than assuming every account has the same management menu.
+- use the controls shown for your current account rather than assuming every account has the same management menu.
 
-If an organization or member-management control is not visible, it may not be available for the current account, plan, or workspace. Changes involving organization access or permissions should be performed by an account that has the relevant authority.
+If an organization or member-management control is not visible, it may not be available for the current account, plan, or project. Changes involving organization access or permissions should be performed by an account that has the relevant authority.
 
 ## 6. MCP and external AI clients
 
@@ -95,16 +97,16 @@ The current MCP entry point is:
 
 **Left navigation → MCP & Tools → MCP**
 
-GEOly MCP uses a remote MCP URL and OAuth. On first use, the AI client opens a browser for authentication; OAuth clients do not need to paste a key. For server integrations, owners/admins can create a resource-scoped, single-brand key under Settings → Developers → API keys. The complete value is shown once and must be stored securely. Select the client in the MCP tab and copy the configuration generated by the current page. The MCP page is the source of truth for the current client configuration.
+GEOly MCP uses a remote MCP URL and OAuth. On first use, the AI client opens a browser for authentication; OAuth clients do not need to paste a key. For server integrations, owners/admins can create a resource-scoped key under Settings → Developers → API keys. Each key is bound to exactly one project. The complete value is shown once and must be stored securely. Select the client in the MCP tab and copy the configuration generated by the current page. The MCP page is the source of truth for the current client configuration.
 
 For client setup, OAuth scopes, and MCP Credits, see the [GEOly MCP Guide](/developers/mcp/introduction).
 
-MCP authorization controls which GEOly resources an external client can read or write. Brand settings controls the current brand profile and matching rules. These are separate permission surfaces.
+MCP authorization controls which GEOly resources an external client can read or write. Project settings control the current project's brand profile and matching rules. These are separate permission surfaces.
 
 ## 7. Recommended first-time setup
 
-1. Sign in and confirm the organization, active brand, and plan scope.
-2. Open **Brand settings** and review Brand Name, Website, and Logo URL.
+1. Sign in and confirm the organization, active project, and plan scope.
+2. Open **Settings → Project → Brand profile** and review Brand Name, Website, and Logo URL.
 3. Add complete Match Terms and save.
 4. Add the competitors you want to track.
 5. Create or review Monitoring Prompts, platforms, and date ranges.

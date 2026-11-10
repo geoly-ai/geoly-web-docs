@@ -3,7 +3,7 @@ title: "Prompts"
 description: "GEOly ships native MCP prompts: ready-to-run reports exposed as slash commands in your AI tool. Each one runs a fixed sequence of tool calls and formats the result for you."
 ---
 
-A prompt is a finished analysis behind one command. Pick it, give it a brand, and your assistant runs the tool calls in a fixed order, applies the same metric definitions as the app, and returns a formatted report. You can keep asking follow-up questions in the same conversation.
+A prompt is a finished analysis behind one command. Pick it, name a project, and your assistant runs the tool calls in a fixed order, applies the same metric definitions as the app, and returns a formatted report. You can keep asking follow-up questions in the same conversation.
 
 ## How to invoke a prompt
 
@@ -20,7 +20,7 @@ Where prompts appear depends on your client.
 If prompts don't show up after connecting, remove and re-add the GEOly server to refresh the list. A prompt only appears when every tool it uses is available on your connection.
 </Tip>
 
-**The `brand` argument.** On a connection to one brand, prompts run on that brand and have no `brand` argument. When you can reach several brands or organizations, pass the brand name or id.
+**The `brand` argument.** On a connection to one project, prompts run on that project and have no `brand` argument. When you can reach several projects or organizations, pass the project name or id (the `brand_id`). A project is named after its own brand.
 
 ## Available prompts
 
@@ -30,7 +30,7 @@ If prompts don't show up after connecting, remove and re-add the GEOly server to
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 
 Use when: you want a Monday-morning snapshot of what changed last week.
 
@@ -44,7 +44,7 @@ Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, `get_brand_b
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 | `threshold_pp` | No | Minimum visibility change, in percentage points, to flag a competitor (default 5) |
 
 Use when: you want to know who is gaining on you and through which sources.
@@ -59,7 +59,7 @@ Calls `get_brand_context`, `get_brand_board`, `get_platform_matrix`, and `get_ci
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 
 Use when: you need to decide which AI platform to focus on.
 
@@ -73,7 +73,7 @@ Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, and `get_pla
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 
 Use when: you want to see which topics are weak on which platform at a glance.
 
@@ -87,7 +87,7 @@ Calls `get_brand_context`, `get_platform_matrix`, and `get_citation_overview`.
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 
 Use when: you plan content or digital PR and want to know which sources AI relies on.
 
@@ -101,7 +101,7 @@ Calls `get_brand_context`, `get_citation_overview`, and `get_domain_detail`.
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 | `campaign_date` | Yes | Launch date, `YYYY-MM-DD` (the business date shown in the app) |
 | `urls` | No | Comma-separated URLs to track. Omit to look at your own domains broadly |
 
@@ -117,7 +117,7 @@ Calls `get_brand_context`, `get_daily_trend`, `get_brand_overview`, `get_url_det
 
 | Argument | Required | Description |
 | - | - | - |
-| `brand` | On multi-brand connections | Brand name or id |
+| `brand` | When you can reach several projects | Project name or id |
 
 Use when: you set up monitoring or want to check that your prompts reflect real customer questions.
 

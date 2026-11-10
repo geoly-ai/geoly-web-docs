@@ -296,7 +296,7 @@ function availabilityOf(name, lang) {
   const { singleOrgSingleBrandRead: single, multiOrgRead: multiOrg } = surface.availability;
   const zh = lang === 'zh';
   if (name === 'list_organizations') return zh ? '仅限覆盖多个组织的连接。' : 'Only on connections that span several organizations.';
-  if (name === 'list_brands') return zh ? '组织里有多个品牌、或连接覆盖多个组织时出现。' : 'When the organization has several brands, or the connection spans several organizations.';
+  if (name === 'list_brands') return zh ? '组织里有多个项目（list_brands 列出的是项目）、或连接覆盖多个组织时出现。' : 'When the organization has several projects (list_brands lists projects), or the connection spans several organizations.';
   if (!multiOrg.includes(name)) {
     return zh
       ? '需要在授权时给对应资源写入权限，且连接只选一个组织（选「全部组织」时不提供写入）。'
@@ -357,18 +357,20 @@ The server only lists tools your connection can use. A missing tool means it is 
 | What decides it | Effect |
 | - | - |
 | Organization scope | Connecting to all organizations adds \`list_organizations\` and turns off every write tool. |
-| Brands | \`list_brands\` appears when there is more than one brand to choose from. |
+| Projects | \`list_brands\` (it lists projects) appears when there is more than one project to choose from. |
 | Read grants | Each resource you leave unchecked during sign-in (brands, prompts, competitors, citations, analytics, audits, sources, public data) hides the tools that read it. |
 | Write grants | Write tools appear only for resources you grant write access to. |
 | Plan | Public industry intelligence needs Grow or above. The three public source tools are free for every plan. |
 
 ## Common parameters
 
-Brand-scoped tools accept these parameters. They are left out of the tables below.
+A project is GEOly's monitoring unit: it tracks one own brand plus its competitors. For historical reasons a project's id is passed as \`brand_id\`, and tools such as \`list_brands\` list projects. Own-monitoring \`brand_id\` is never a \`public_brand.id\`.
+
+Project-scoped tools accept these parameters. They are left out of the tables below.
 
 | Parameter | Type | Required | Description |
 | - | - | - | - |
-| \`brand_id\` | string | No | The brand to query. Omit it to use the brand bound to your connection, or the only brand of your organization. Get ids from \`list_brands\`. |
+| \`brand_id\` | string | No | The project to query, by its id. Omit it to use the project bound to your connection, or the only project of your organization. Get ids from \`list_brands\`, which lists projects. |
 | \`org_id\` | string | No | The organization to query. Needed only when your connection spans several organizations; get ids from \`list_organizations\`. |
 | \`context\` | string | No | One sentence on what you are trying to find out. It is recorded with the call and never changes the result. |
 
@@ -379,7 +381,7 @@ Every tool returns one JSON object as text. A few conventions apply across tools
 - **Windows are echoed.** Tools that take a time range return the exact window they read (\`window\`, with business days in UTC+8). Quote that window, not the one you asked for.
 - **Not ready is not zero.** \`status: "not-ready"\`, \`kpiState: "computing"\` or a \`null\` rate means there is nothing to measure yet. It never means 0%.
 - **Long results are cut, and say so.** When a page does not fit, the response carries \`_truncated: true\` with \`_totalCount\`, \`_shownCount\` and a \`_message\` on how to get the rest.
-- **Errors explain the next step.** An invalid value returns an error that lists the valid ones (for example the brand's countries or topic ids). Errors and timeouts are not charged.
+- **Errors explain the next step.** An invalid value returns an error that lists the valid ones (for example the project's countries or topic ids). Errors and timeouts are not charged.
 - **Credits.** A metered call returns a \`_quota\` receipt with the cost and your remaining balance. MCP clients can also read it from \`_meta["geoly/quota"]\`, and the outcome from \`_meta["geoly/outcome"]\`.
 
 ## Cost
@@ -407,18 +409,20 @@ ${GROUPS.map((g) => `- **${g.zh}**：${g.tools.map((n) => `\`${n}\``).join('、'
 | 取决于 | 影响 |
 | - | - |
 | 组织范围 | 连接「全部组织」时多出 \`list_organizations\`，并关闭所有写入工具。 |
-| 品牌数 | 有多个品牌可选时才出现 \`list_brands\`。 |
+| 项目数 | 有多个项目可选时才出现 \`list_brands\`（它列出的是项目）。 |
 | 读取授权 | 登录授权时没勾选的资源（品牌、提示词、竞品、引用、分析、诊断、信源、公开数据），读取它的工具就不出现。 |
 | 写入授权 | 只有授予了写入权限的资源，才会出现对应的写入工具。 |
 | 套餐 | 公开行业情报需要 Grow 及以上。三个公开信源工具所有套餐都免费。 |
 
 ## 通用参数
 
-品牌维度的工具都接受下面三个参数，下文各工具的参数表不再重复。
+项目（Project）是 GEOly 的监测单元：一个项目监测一个自有品牌及其竞品。由于历史原因，项目 id 通过 \`brand_id\` 参数传递，\`list_brands\` 等工具列出的是项目。自有监测用的 \`brand_id\` 永远不是 \`public_brand.id\`。
+
+项目维度的工具都接受下面三个参数，下文各工具的参数表不再重复。
 
 | 参数 | 类型 | 必填 | 说明 |
 | - | - | - | - |
-| \`brand_id\` | string | 否 | 要查询的品牌。不填时用连接绑定的品牌，或组织里唯一的品牌。品牌 id 用 \`list_brands\` 获取。 |
+| \`brand_id\` | string | 否 | 要查询的项目，传项目 id。不填时用连接绑定的项目，或组织里唯一的项目。项目 id 用 \`list_brands\` 获取（它列出的是项目）。 |
 | \`org_id\` | string | 否 | 要查询的组织。只在连接覆盖多个组织时需要，组织 id 用 \`list_organizations\` 获取。 |
 | \`context\` | string | 否 | 用一句话说明你想弄清楚什么。只随调用记录下来，不影响结果。 |
 
@@ -429,7 +433,7 @@ ${GROUPS.map((g) => `- **${g.zh}**：${g.tools.map((n) => `\`${n}\``).join('、'
 - **回显窗口**：带时间范围的工具会返回实际读取的窗口（\`window\`，业务日按 UTC+8）。引用数字时以它为准。
 - **没准备好不等于 0**：\`status: "not-ready"\`、\`kpiState: "computing"\` 或某个比率为 \`null\`，都表示暂时没有可算的数据，绝不是 0%。
 - **结果太长会截断并注明**：一页放不下时返回 \`_truncated: true\`，附 \`_totalCount\`、\`_shownCount\` 和告诉你怎么取剩余部分的 \`_message\`。
-- **报错会说明下一步**：传了非法值时，报错里会列出合法值（比如品牌已有的国家或 topic id）。报错和超时都不扣费。
+- **报错会说明下一步**：传了非法值时，报错里会列出合法值（比如项目已有的国家或 topic id）。报错和超时都不扣费。
 - **额度**：计费调用会返回 \`_quota\` 回执，含本次费用和剩余额度。MCP 客户端也可以从 \`_meta["geoly/quota"]\` 读到它，从 \`_meta["geoly/outcome"]\` 读到调用结果。
 
 ## 费用

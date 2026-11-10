@@ -18,7 +18,7 @@ Ask your AI assistant about your brand's visibility in AI search and get answers
 - **Check your website**: GEO audit results, agent readiness scans, and AI referral traffic from GA4 or Cloudflare.
 - **Research a market** with public industry data: category leaders, brand momentum, white space, AI search demand, and AI shopping boards.
 - **Run ready-made reports** with seven built-in [prompts](/developers/mcp/prompts), such as the weekly pulse, competitor radar, and campaign tracker.
-- **Manage your setup**: create brands, topics, prompts, and competitors, retag or move prompts, archive prompts, or start a monitoring run. Your client asks you to confirm before every change.
+- **Manage your setup**: create projects, topics, prompts, and competitors, retag or move prompts, archive prompts, or start a monitoring run. Your client asks you to confirm before every change.
 
 ## How it works
 
@@ -61,13 +61,15 @@ Your client opens a GEOly consent page in the browser. Sign in, then choose:
 
 The connection acts as you. It can only reach organizations you belong to and data your role can see in the app.
 
+A project is GEOly's monitoring unit: it tracks one own brand plus its competitors. For historical reasons a project's id is passed as `brand_id`, and tools such as `list_brands` list projects. Own-monitoring `brand_id` is never a `public_brand.id`.
+
 <Note>
 Older read-only `geom_` tokens keep working for existing setups. New connections should use OAuth.
 </Note>
 
 ## Read and write access
 
-Most tools only read data. Eight tools change your setup: `create_brand`, `create_topic`, `create_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `archive_prompt`, `create_competitor`, and `trigger_prompt`.
+Most tools only read data. Eight tools change your setup: `create_brand` (creates a project), `create_topic`, `create_prompt`, `update_prompt_tags`, `move_prompts_to_topic`, `archive_prompt`, `create_competitor`, and `trigger_prompt`.
 
 Every write tool is flagged `readOnlyHint: false`, and the two that replace existing data (`update_prompt_tags`, `move_prompts_to_topic`) are also flagged `destructiveHint: true`, so your client asks you to confirm before the call runs. `trigger_prompt` starts a real monitoring run.
 
@@ -95,7 +97,7 @@ MCP Credits are separate from AI Credits, which pay for AI features inside the G
 
 ## The Agent Skill
 
-The MCP connection decides what your assistant can reach. The GEOly Agent Skill teaches it how to use that well: find the organization and brand first, pick the right tool, and explain each metric the way the app defines it. The skill doesn't add access or credits. [Install it](https://www.geoly.ai/open/skill) alongside the MCP connection.
+The MCP connection decides what your assistant can reach. The GEOly Agent Skill teaches it how to use that well: find the organization and project first, pick the right tool, and explain each metric the way the app defines it. The skill doesn't add access or credits. [Install it](https://www.geoly.ai/open/skill) alongside the MCP connection.
 
 ## Supported clients
 
@@ -112,6 +114,6 @@ See the [setup guide](/developers/mcp/setup).
 
 ## Requirements
 
-- A GEOly account in an organization with at least one brand
+- A GEOly account in an organization with at least one project
 - A paid plan with MCP Credits (Grow or above for public industry intelligence)
 - A client that supports remote MCP
