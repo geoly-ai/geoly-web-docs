@@ -1,0 +1,327 @@
+---
+title: "GEOly Agent API"
+sidebarTitle: "Agent API"
+description: "通过 HTTP 发一个问题，GEOly 托管的 GEO Agent 研究品牌的 AI 可见度数据，以流式或 JSON 返回带出处的答案，并附上一张回执：用了哪些工具、消耗了多少 AI Credits。"
+---
+
+Agent API 是 `geoly run` 背后的 HTTP 接口。发一个问题，GEOly 托管的 GEO Agent 自己挑选数据工具，读取品牌的监测数据（套餐包含时也会用到公开行业数据），返回答案和一张回执：用了哪些工具、走了几步、花了多少。调用方不需要写提示词，也不需要了解 GEOly 的数据结构，拿到的就是答案。
+
+[GEOly CLI](/zh/developers/cli) 是这个接口的官方客户端：`geoly run` 负责发送请求、跟随事件流、安全重试并保存回执。本页说明其下的 HTTP 接口，便于在自己的系统里直接调用。
+
+## 与 CLI、MCP、Data API 的关系
+
+| | 谁来推理 | 适合 |
+| --- | --- | --- |
+| **Agent API**（`POST /api/v1/agent/runs`） | GEOly 托管的 GEO Agent | 通过 HTTP 把完整结论接进自己的系统 |
+| **GEOly CLI**：`geoly run` | 同一个托管 Agent，经由本接口 | 终端、脚本、编码 Agent |
+| **GEOly CLI**：`geoly call`，以及 **[GEOly MCP](/zh/developers/mcp/introduction)** | 调用方自己的模型或 Agent，逐个调用 GEOly 数据工具 | 想拿原始数据、自己推理时 |
+| **[Data API](/zh/developers/data-api)**（`/api/v1` 下的 REST 资源与报表） | 没有推理，就是普通 HTTP | 给自己的脚本、BI、后端拿原始数据 |
+
+它们面对的是同样的组织、品牌和权限。
+
+## 快速开始
+
+```sh
+# 1. 安装 CLI 并登录一次
+curl -fsSL https://geoly.ai/install.sh | sh
+geoly auth login
+
+# 2. 提问：背后就是一次 Agent API 运行
+geoly run "过去 7 天我们在 ChatGPT 上的可见度怎么变的？"
+```
+
+Agent 工作时 stderr 上会显示它的步骤和工具，结束后 stdout 输出一张 JSON 回执。本页其余部分说明 HTTP 接口本身。
+
+## 鉴权
+
+每个请求都带一个 Bearer 令牌。支持两种凭据：
+
+| 凭据 | 从哪里来 | 范围 |
+| --- | --- | --- |
+| **OAuth 访问令牌** | 用 GEOly CLI 登录（`geoly auth login`）。授权同意页与 [GEOly MCP](/zh/developers/mcp/setup) 相同：选择组织，确认读取权限（需要时再勾选写入）。 | 同意页上授予的组织和权限。有效期约 14 天，`geoly auth status` 可查看到期时间，重新登录即可续期。 |
+| **API 密钥** | **Settings → Developers → API keys**，与 [Data API](/zh/developers/data-api) 用的是同一种密钥。 | 一个品牌，按密钥上的读写权限生效。 |
+
+```http
+Authorization: Bearer <访问令牌或 API 密钥>
+```
+
+不接受浏览器登录态的 Cookie。凭据缺失、无效或过期时返回 `401`。
+
+- API 密钥绑定一个品牌，传入其他 `brand_id` 会返回 `403 BRAND_NOT_ALLOWED_FOR_TOKEN`；
+- 密钥所属品牌被删除，或创建密钥的成员离开组织后，密钥随之失效。
+
+## 接口一览
+
+基础地址：`https://app.geoly.ai`
+
+| 方法与路径 | 用途 |
+| --- | --- |
+| `POST /api/v1/agent/runs` | 发起一次运行：一个问题进，一个答案出（流式或 JSON） |
+| `GET /api/v1/agent/runs` | 最近的运行（回执字段，按时间倒序） |
+| `GET /api/v1/agent/runs/{run_id}` | 单次运行，包含问题与完整答案 |
+
+v1 已冻结：请求字段、错误码、回执字段和事件名的含义都不会变。今后只会新增可选字段和新的事件名，请忽略不认识的字段和事件。v1 的每个响应都带响应头 `GEOly-API-Version: 1`。
+
+<Note>
+CLI 调用的是不带版本号的 `/api/agent/runs` 和 `/api/agent/runs/{run_id}`，返回结构与 v1 完全相同，只是不带版本头，并且会一直保留。自己的集成请使用 `/api/v1/...`。
+</Note>
+
+## 发起一次运行
+
+```http
+POST /api/v1/agent/runs
+Authorization: Bearer <token>
+Content-Type: application/json
+Accept: text/event-stream
+Idempotency-Key: weekly-report-2026-11-09
+```
+
+```json
+{
+  "question": "对比过去 30 天我们和前三名竞品的 AI 可见度。",
+  "org_id": "<org_id>",
+  "brand_id": "<brand_id>",
+  "context": "我们在美国卖升降桌。答案控制在 300 字以内。",
+  "max_credits": 300
+}
+```
+
+| 字段 | 是否必填 | 限制 | 说明 |
+| --- | --- | --- | --- |
+| `question` | 是 | 最多 4,000 字符 | 要问的问题或要做的任务 |
+| `org_id` | 可访问多个组织时必填 | | 读谁的数据、扣谁的额度 |
+| `brand_id` | 组织下有多个品牌时必填 | | 这次运行针对哪个品牌 |
+| `context` | 否 | 最多 16,000 字符 | 背景信息、要求或期望的输出格式 |
+| `max_credits` | 否 | 整数，25–2000 | 本次运行的消耗上限。不传时最多可用到组织剩余额度，且不超过 2,000 |
+| `spec` | 否 | 下文「固定格式交付」列出的名称之一 | 要求按服务端规范交付固定格式的结果并校验 |
+| `allow_writes` | 否 | 只认 `true` | 允许 Agent 使用凭据所允许的写入工具。只有字面量 `true` 才生效，其他值一律只读 |
+
+不认识的字段会被忽略。需要 `org_id` 或 `brand_id` 却没传（或传错）时，`400` 报错会按名称列出可选项，例如 `This organization has multiple brands. Pass brand_id explicitly …`。
+
+### 流式（Server-Sent Events，推荐）
+
+请求头带 `Accept: text/event-stream`，响应是如下格式的事件流：
+
+```text
+event: started
+data: {"run_id":"run_…","brand":{"id":"…","name":"…"},"model":"…"}
+
+event: tool
+data: {"name":"get_brand_overview","ok":true,"ms":1830,"args":{"time_range":"30d"},"output_chars":5120}
+
+event: done
+data: {"run_id":"run_…","answer":"…","stopped":"done", …}
+```
+
+| 事件 | 数据 | 含义 |
+| --- | --- | --- |
+| `started` | `run_id`、`brand`、`model` | 运行已开始，请记下 `run_id`。 |
+| `step` | `index` | Agent 开始第 N 步。 |
+| `tool` | `name`、`ok`、`ms`、`args`、`output_chars` | 一个工具执行完：名称、是否成功、耗时、入参预览、输出大小。 |
+| `tools_loaded` | `query`、`names` | Agent 按需检索并加载了更多工具。 |
+| `text` | `delta` | 答案正文的下一段。 |
+| `step_error` | `message` | 某一步遇到上游问题，Agent 会用已有数据继续。 |
+| `heartbeat` | `{}` | 静默期间每 10 秒一次。这不是错误，客户端的空闲超时请设为 30 秒以上。 |
+| `done` | 回执 | 正常结束。 |
+| `error` | `code`、`message` | 运行失败，不收费。 |
+
+流式模式下运行失败以 `error` 事件给出，HTTP 状态码仍是 `200`。
+
+客户端断开后运行会继续跑完，结果照常保存。断开的流无法续接，但随时可以用 `GET /api/v1/agent/runs/{run_id}` 取回结果。
+
+### JSON（同步）
+
+不带 `Accept: text/event-stream` 时，运行结束后一次性返回 JSON 回执。只适合简单问题：这种模式下约 30 秒后 Agent 不再开始新的步骤，而且响应超过约 100 秒可能被网络边缘以网关错误中断。即便如此，运行仍会完成并保存，可以用 `GET /api/v1/agent/runs` 找到它，再按 id 读取。运行失败时返回 `502` 和 `{"error":"RUN_FAILED","message":"…"}`。
+
+### 回执
+
+流式模式下的 `done` 事件，或 JSON 模式的响应体：
+
+```json
+{
+  "run_id": "run_…",
+  "answer": "…Markdown…",
+  "stopped": "done",
+  "stopped_reason": "done",
+  "steps": 3,
+  "tools_used": ["get_brand_overview", "get_brand_board"],
+  "usage": { "input_tokens": 46253, "output_tokens": 1489 },
+  "credits_cost": 54,
+  "credits_remaining": 9946
+}
+```
+
+| 字段 | 怎么读 |
+| --- | --- |
+| `answer` | Markdown 格式的答案，语言跟随提问语言。 |
+| `stopped` | Agent 按自己的判断答完为 `done`，否则为 `max_steps`。 |
+| `stopped_reason` | `done`，或提前结束的原因：`budget`（触到 `max_credits` 或组织剩余额度）、`deadline`（运行时限）、`max_steps`（步数上限）、`salvaged`（上游故障，Agent 用已拿到的数据交卷）。不是 `done` 时答案可能不完整。 |
+| `tools_used` | Agent 调用过的工具，也就是数字的来源。 |
+| `credits_cost` | 本次运行实际消耗，不会超过 `max_credits`。 |
+| `credits_remaining` | 本次之后组织剩余的额度（数字、`"unlimited"`，读取失败时为 `null`）。 |
+| `deliverable` | 仅在传了 `spec` 时出现：`{ spec, version, valid, problems, stopped_reason }`。`valid: false` 时会逐条列出缺什么，答案照常返回。 |
+
+## 取回运行记录
+
+```http
+GET /api/v1/agent/runs?org_id=<org_id>&limit=20
+GET /api/v1/agent/runs/{run_id}
+```
+
+`GET /api/v1/agent/runs` 返回 `{ "runs": [ … ] }`，按时间倒序。每行包含 `run_id`、`status`、`stopped`、`steps`、`credits_cost`、`created_at`、`finished_at`、`question`（前 200 字符）和 `brand_id`。`limit` 为 1–50（默认 20）；可访问多个组织时请传 `org_id`，需要只看一个品牌时传 `brand_id`。API 密钥只能看到所绑定品牌的运行。
+
+`GET /api/v1/agent/runs/{run_id}` 返回保存的运行记录：
+
+```json
+{
+  "run_id": "run_…",
+  "status": "succeeded",
+  "question": "…",
+  "answer": "…",
+  "stopped": "done",
+  "steps": 3,
+  "tools_used": ["…"],
+  "usage": { "input_tokens": 46253, "output_tokens": 1489 },
+  "credits_cost": 54,
+  "max_credits": 2000,
+  "error": null,
+  "created_at": "2026-11-09T08:00:00.000Z",
+  "finished_at": "2026-11-09T08:01:12.000Z"
+}
+```
+
+- `status` 为 `running`、`succeeded` 或 `failed`（CLI 把 `succeeded` 显示为 `done`）；
+- 要等待一次运行，每隔几秒轮询这个接口，直到 `status` 不再是 `running`；
+- 开始 15 分钟后仍标记为 `running` 的运行，会按 `failed` 返回，`error` 为 `"RUN_ABANDONED"`；
+- 凭据无权查看的运行一律返回 `404 RUN_NOT_FOUND`，无论它是否存在。
+
+## 幂等：安全重试
+
+请求头带上 `Idempotency-Key` 即可安全重试：
+
+- 格式：8–128 个字符，取自 `A-Z a-z 0-9 _ - : .`。请求头存在但格式不对（包括空值）时返回 `400 IDEMPOTENCY_KEY_INVALID`；
+- 作用范围：同一组织、同一品牌、同一个键；
+- **原运行仍在进行时**，同一个键的请求总是返回那次运行；
+- **原运行结束后**，同一个键在运行开始后的 10 分钟内会回放原结果，超过 10 分钟再用同一个键会发起新的运行；
+- 回放不会新建运行，也不会再次扣费。无论 `Accept` 是什么，回放都以 JSON 返回，响应体带 `"replayed": true`，响应头带 `Idempotent-Replayed: true`。响应体结构与 `GET /api/v1/agent/runs/{run_id}` 相同；如果其中 `status` 为 `running`，请轮询该接口；
+- 如果一时无法校验这个键，请求会以 `503 IDEMPOTENCY_UNAVAILABLE` 拒绝，而不是冒险重复运行。请用同一个键重试。
+
+键最好能标识这项任务，例如 `weekly-report-<brand>-<date>`。
+
+## 额度
+
+Agent API 的运行消耗组织的 **AI Credits**，与 GEOly 应用内的 [Agent](/zh/agent/overview) 对话和 `geoly run` 共用同一个额度池。运行中 Agent 调用的 GEOly 自有数据工具不会再按 MCP 调用重复计费。
+
+- **给单次运行设上限**：`max_credits`（25–2000），回执里的 `credits_cost` 不会超过它；
+- **查看剩余额度**：每张回执里的 `credits_remaining`、`geoly credits`，或 Agent 的 **Usage**（用量）页（[GEOly Agent](/zh/agent/overview) 页「AI 用量」一节）。API 的用量记在凭据所属的成员名下；
+- 运行失败不收费；
+- 组织剩余额度不足 25 时，运行会以 `402 INSUFFICIENT_CREDITS` 拒绝（响应体包含 `remaining`，可知时还有 `period_end`）。
+
+## 固定格式交付（`spec`）
+
+传了 `spec` 时，Agent 会按服务端保存的规范交付：固定的章节、每个数字都来自工具，结尾附一段机器可读的 JSON。回执的 `deliverable` 字段说明答案是否通过校验。带 `spec` 的流式运行有更长的时限。
+
+| `spec` | 交付物 | 在 `question` 里写什么 |
+| --- | --- | --- |
+| `geo-weekly-brand-health` | 品牌周度健康报告：可见度、提及率、引用率、分平台表现、竞品差距、下一步建议 | 品牌（用 `org_id` / `brand_id` 指定）；可选写明时间段 |
+| `geo-content-brief` | 单个关键词的内容简报：受众、SERP 与 AI 引用调研、大纲、FAQ、AEO 要点 | `primary_keyword`、`domain`；可选 `article_title`、`target_prompt`、`country` |
+| `geo-keyword-research-report` | 关键词研究：搜索量、意图分组、实时 SERP、AI 查询扇出、内容机会 | `topic`；可选 `domain`、`country` |
+| `geo-serp-gap` | 一个页面对比 Google 前 10 名和 AI Overview 引用来源的内容差距 | `url`、`query`；可选 `country` |
+
+把输入写进 `question`，例如 `"url: https://example.com/blog/x, query: best standing desk for small apartments, country: us"`。名称不存在时返回 `400 SPEC_NOT_FOUND: … Available: …`。
+
+## 错误码
+
+错误以 JSON 返回：`{ "error": "<错误码或说明>" }`，有时附带其他字段。
+
+| HTTP | `error` | 含义与处理 |
+| --- | --- | --- |
+| 400 | `INVALID_JSON`、`INVALID_INPUT`、`QUESTION_REQUIRED` | 修正请求体。 |
+| 400 | `MAX_CREDITS_OUT_OF_RANGE (25..2000)` | `max_credits` 必须是 25 到 2000 之间的整数。 |
+| 400 | `IDEMPOTENCY_KEY_INVALID` | 修正 `Idempotency-Key` 请求头。 |
+| 400 | `SPEC_NOT_FOUND: …` | 改用报错里列出的名称。 |
+| 400 | 一句关于 `org_id` / `brand_id` 的说明 | 目标不明确或有误，报错里列出了可选项。 |
+| 401 | `Missing Authorization header`、`Invalid token` 等 | 凭据缺失、无效或过期。用 `geoly auth login` 重新登录，或检查 API 密钥。 |
+| 402 | `INSUFFICIENT_CREDITS` | 本期 AI Credits 已用完（响应体含 `remaining`、`period_end`）。等待重置或升级套餐。 |
+| 402 | `This organization has no active subscription, …` | 组织没有有效订阅。 |
+| 403 | `ORG_SELECTION_REQUIRED`、`BRAND_NOT_ALLOWED_FOR_TOKEN` 等 | 凭据不覆盖这个组织或品牌。重新授权并选择组织，或改用该品牌的密钥。 |
+| 404 | `BRAND_NOT_FOUND`、`RUN_NOT_FOUND` | 不存在，或当前凭据看不到。 |
+| 413 | `QUESTION_TOO_LONG`、`CONTEXT_TOO_LONG` | 超过 4,000 / 16,000 字符。 |
+| 429 | `Rate limit exceeded. …` | 请求过于频繁，退避后重试。 |
+| 502 | `RUN_FAILED` | 仅 JSON 模式：运行失败且未收费，可重试。 |
+| 503 | `BILLING_UNAVAILABLE`、`IDEMPOTENCY_UNAVAILABLE` | 临时问题，稍后重试（带同一个 `Idempotency-Key`）。 |
+
+## 限流与并发
+
+- 每个令牌或密钥有每分钟的请求上限（目前为 120 次；凭据能访问的组织中有 Enterprise 套餐时为 300 次），与同一凭据的 GEOly MCP 调用共享。超出返回 `429`，请退避后再试；
+- 并发运行数没有单独上限。每次运行开始时会按自身预算预留额度，同时跑多次运行会分别占用组织的额度。
+
+## 示例：Python
+
+```python
+import json
+import os
+
+import requests
+
+TOKEN = os.environ["GEOLY_TOKEN"]  # OAuth 访问令牌或 API 密钥
+
+resp = requests.post(
+    "https://app.geoly.ai/api/v1/agent/runs",
+    headers={
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream",
+        "Idempotency-Key": "weekly-review-2026-11-09",
+    },
+    json={"question": "总结一下我们本周的 AI 可见度。", "max_credits": 300},
+    stream=True,
+    timeout=(10, 60),  # 连接超时、空闲读取超时（心跳每 10 秒一次）
+)
+resp.raise_for_status()
+
+if resp.headers.get("Content-Type", "").startswith("application/json"):
+    print(resp.json())  # 幂等回放的早先运行
+else:
+    event = None
+    for line in resp.iter_lines(decode_unicode=True):
+        if line.startswith("event:"):
+            event = line[len("event:"):].strip()
+        elif line.startswith("data:") and event in ("done", "error"):
+            payload = json.loads(line[len("data:"):])
+            print(event, payload.get("stopped_reason"), payload.get("answer") or payload.get("message"))
+```
+
+## 示例：用 curl 调 JSON 模式
+
+```sh
+curl https://app.geoly.ai/api/v1/agent/runs \
+  -H "Authorization: Bearer $GEOLY_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"question":"本月我们在 Perplexity 上的提及率是多少？","max_credits":100}'
+```
+
+## 集成建议
+
+1. **优先用流式。** 只有确定几秒内能答完的问题才用 JSON 模式。
+2. **把 `heartbeat` 当作正常情况**，空闲超时设为 30 秒以上。
+3. **保存 `run_id`。** 断开和超时都不会丢失答案，可以按 id 取回。
+4. **使用答案前先看 `stopped_reason`。** 自动化任务里不是 `done` 时，重跑或调高 `max_credits`。
+5. **一次问清楚。** 时间段、平台和输出格式写进 `question`，背景写进 `context`。
+6. **可能重试的任务一律带 `Idempotency-Key`。**
+
+## 限制与边界
+
+- **范围跟随凭据。** 接口只能访问令牌或密钥授予的组织、品牌和权限。
+- **默认只读。** 只有传 `allow_writes: true`，并且对该资源有写入权限时才会用写入工具：OAuth 需要在单组织授权里勾选写入，API 密钥需要在创建时带写入权限。按需触发监测（`trigger_prompt`）永远不对托管 Agent 开放。
+- **套餐要求。** 需要有效订阅。公开行业情报只在组织套餐包含时使用（Grow 及以上）。
+- **单次运行有上限。** 每次最多 2,000 额度、20 步，并有时限（带 `spec` 的运行更长）。提前结束会写在 `stopped_reason` 里。
+- **模型固定。** 接口使用 GEOly 选定的模型，不能自带模型。
+- **运行会被保存**，在凭据的范围内可以通过 `GET /api/v1/agent/runs` 读回。
+
+## 相关页面
+
+- [GEOly CLI](/zh/developers/cli)：在终端或编码 Agent 里调用本接口最简单的方式。
+- [GEOly MCP](/zh/developers/mcp/introduction)：在自己的 AI 客户端里调用 GEOly 数据工具。
+- [Data API](/zh/developers/data-api)：通过普通 HTTP 读取监测资源与报表，不经过 Agent。
+- [GEOly Agent](/zh/agent/overview)：同一个 Agent，在 GEOly 应用里使用。

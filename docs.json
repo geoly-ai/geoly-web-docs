@@ -52,6 +52,22 @@
                 ]
               },
               {
+                "group": "Actions",
+                "icon": "zap",
+                "pages": [
+                  "actions/overview"
+                ]
+              },
+              {
+                "group": "Agent",
+                "icon": "bot",
+                "pages": [
+                  "agent/overview",
+                  "agent/skills",
+                  "agent/connectors"
+                ]
+              },
+              {
                 "group": "Shopify app",
                 "icon": "shopping-bag",
                 "pages": [
@@ -117,7 +133,8 @@
                 "group": "Get started",
                 "icon": "book-open",
                 "pages": [
-                  "developers/data-api"
+                  "developers/data-api",
+                  "developers/agent-api"
                 ]
               },
               {
@@ -203,6 +220,22 @@
                 ]
               },
               {
+                "group": "行动",
+                "icon": "zap",
+                "pages": [
+                  "zh/actions/overview"
+                ]
+              },
+              {
+                "group": "Agent",
+                "icon": "bot",
+                "pages": [
+                  "zh/agent/overview",
+                  "zh/agent/skills",
+                  "zh/agent/connectors"
+                ]
+              },
+              {
                 "group": "Shopify 应用",
                 "icon": "shopping-bag",
                 "pages": [
@@ -276,7 +309,8 @@
                 "icon": "book-open",
                 "pages": [
                   "zh/get-started/register-account",
-                  "zh/developers/data-api"
+                  "zh/developers/data-api",
+                  "zh/developers/agent-api"
                 ]
               },
               {
@@ -335,6 +369,10 @@
       {
         "label": "Pricing",
         "href": "https://www.geoly.ai/pricing"
+      },
+      {
+        "label": "Changelog",
+        "href": "https://www.geoly.ai/changelog"
       }
     ],
     "primary": {

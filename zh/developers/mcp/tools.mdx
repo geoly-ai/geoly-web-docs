@@ -3,9 +3,9 @@ title: "工具参考"
 description: "GEOly MCP 服务器提供的全部工具：参数、费用，以及每个工具返回什么。"
 ---
 
-{/* 由 scripts/gen-mcp-tools.mjs 根据 scripts/mcp-surface.json（导出于 2026-11-06）生成，不要手改。 */}
+{/* 由 scripts/gen-mcp-tools.mjs 根据 scripts/mcp-surface.json（导出于 2026-11-10）生成，不要手改。 */}
 
-GEOly MCP 服务器共提供 56 个工具：**48 个读取工具**、**8 个写入工具**。单个连接最多能看到其中 55 个（只读并覆盖全部组织的连接能看到 48 个）。
+GEOly MCP 服务器共提供 58 个工具：**50 个读取工具**、**8 个写入工具**。单个连接最多能看到其中 57 个（只读并覆盖全部组织的连接能看到 50 个）。
 
 AI 助手会根据你的问题自己挑工具，你不需要点名调用。这一页列出有哪些工具、每个工具返回什么。工具名、参数名和字段名保持英文，与客户端里看到的一致；参数说明直接取自工具本身。
 
@@ -15,7 +15,7 @@ AI 助手会根据你的问题自己挑工具，你不需要点名调用。这�
 - **引用与信源**：`get_citation_overview`、`get_domain_detail`、`get_url_detail`
 - **竞品与 AI 评价**：`get_competitor_list`、`get_competitor_cooccurrence`、`get_verdict`、`get_sentiment_dashboard`
 - **AI 购物**：`get_shopping_performance`
-- **你的网站：诊断、Agent 就绪度、AI 流量**：`get_audit_list`、`get_audit_detail`、`get_agent_ready_scans`、`get_traffic_data`
+- **品牌网站：修站行动、诊断、Agent 就绪度、AI 流量**：`list_actions`、`get_action`、`get_audit_list`、`get_audit_detail`、`get_agent_ready_scans`、`get_traffic_data`
 - **写入工具**：`create_brand`、`create_topic`、`create_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`archive_prompt`、`create_competitor`、`trigger_prompt`
 - **公开信源情报（免费）**：`get_public_sources_overview`、`get_public_source_domain_detail`、`get_public_source_brand_conduit`
 - **公开行业情报（Grow 及以上）**：`search_public_entities`、`list_public_topics`、`get_public_coverage`、`get_public_topic`、`get_public_topic_prompt_detail`、`get_public_topic_record_detail`、`get_public_brand`、`get_public_category`、`get_category_whitespace`、`get_category_brand_momentum`、`get_public_search_queries`、`list_public_shopping_products`、`get_public_shopping_product_detail`
@@ -768,11 +768,60 @@ Shared: time_range (7d | 30d default | 90d | custom ≤90 days), start_date / en
 
 ***
 
-# 你的网站：诊断、Agent 就绪度、AI 流量
+# 品牌网站：修站行动、诊断、Agent 就绪度、AI 流量
+
+## list_actions
+
+**List Actions.** The brand's site-fix actions, the same set and order as the Actions page (/actions): what to fix on the brand's own site, by severity. Each row: id, status, goal, type, title, severity, affectedPages, citedByAi (AI citations of those pages, last 30 days), and resolved / recurred when they apply.
+
+**读写:** 只读 · **费用:** free — your own monitoring data (already covered by your subscription). · **超时:** 15s
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+| - | - | - | - |
+| `statuses` | string[] | 否 | Only these statuses. Omit for all, like the page's default "All statuses". 可选值: `new`, `planned`, `in_progress`, `done`, `declined`, `expired`. |
+| `include_recurred` | boolean | 否 | With statuses: also return done actions whose problem came back (they stay done; recurred.at is set). Plain done actions stay out. |
+| `goals` | string[] | 否 | Only these goals. Today every action is fix_site. |
+| `types` | string[] | 否 | Only these action types, e.g. site.single_h1. |
+| `limit` | integer | 否 | Rows to return, 1..500. Default 100. 默认: `100`. 1–500. |
+| `offset` | integer | 否 | Rows to skip. Default 0. Use nextOffset from the previous call. 默认: `0`. 0–9007199254740991. |
+
+### 说明
+
+- resolved means the latest check no longer found it (reason: recheck = pages rechecked clean; checker_update = our check changed; out_of_scope = pages are outside what we read). Treat a resolved row as not an open problem.
+- readState says whether the list is complete: progress means the site is still being read and more actions may appear; blocked means the latest read reached no pages and the list shows the previous result.
+- An empty list is not "no problems" unless readState.emptyState.kind is no_issues. filteredOut=true means the brand has actions but none match your filters.
+
+Fields of one action, its steps, evidence and all affected pages: get_action.
+
+***
+
+## get_action
+
+**Get Action.** One site-fix action in full, by id from list_actions: why it matters, the fix, how many pages were checked, and sample pages. Everything list_actions returns is here too.
+
+**读写:** 只读 · **费用:** free — your own monitoring data (already covered by your subscription). · **超时:** 15s
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+| - | - | - | - |
+| `action_id` | string | 是 | The action id, copied verbatim from list_actions. 1–64 个字符. |
+| `fields` | string[] | 否 | Extra fields to include. Default none. 可选值: `steps`, `evidence`, `affected_pages`, `page_citations`. |
+| `affected_pages_limit` | integer | 否 | Max URLs when fields includes affected_pages, 1..500. Default 100. 默认: `100`. 1–500. |
+
+### 说明
+
+Extra fields (ask only when you need them): steps (what to do and which are checked off); evidence (the page, fetch time, HTTP status and an HTML snippet showing the problem, up to 25); affected_pages (all affected URLs, capped by affected_pages_limit); page_citations (AI citations per sample page).
+
+An id this brand has no visible action for is an error.
+
+***
 
 ## get_audit_list
 
-**Get Audit List.** List the brand’s GEO site audits (AI-readiness diagnostics) — paginated history, same rows / order (newest first) as the /audit page. Each item: id, domain, url, auditMode (single = one URL, site = sampled pages per page type), status, overall score+grade, accessibility/structuredData/contentStructure sub-scores, pagesScanned, criticalCount, warningCount, createdAt. Field availability depends on auditMode — site: the three sub-scores are always null (site audits never compute them; the page shows "--"); single: accessibilityScore is a D1/D2 weighted blend (12:8), structuredDataScore = D3, contentStructureScore = D8, and criticalCount / warningCount are 0 = NOT computed (single audits never write them — use get_audit_detail.headline). status ∈ pending | running | completed | failed; pending/running audits are still being scanned — poll again later (the page auto-refreshes), scores are null until completed. Drill in with get_audit_detail using items[].id.
+**Get Audit List.** List the brand’s GEO site audits (AI-readiness diagnostics) — paginated history, same rows / order (newest first) as the /audit page. Audits are separate from site-fix actions: to read an action use list_actions / get_action; an empty audit list says nothing about an action. Each item: id, domain, url, auditMode (single = one URL, site = sampled pages per page type), status, overall score+grade, accessibility/structuredData/contentStructure sub-scores, pagesScanned, criticalCount, warningCount, createdAt. Field availability depends on auditMode — site: the three sub-scores are always null (site audits never compute them; the page shows "--"); single: accessibilityScore is a D1/D2 weighted blend (12:8), structuredDataScore = D3, contentStructureScore = D8, and criticalCount / warningCount are 0 = NOT computed (single audits never write them — use get_audit_detail.headline). status ∈ pending | running | completed | failed; pending/running audits are still being scanned — poll again later (the page auto-refreshes), scores are null until completed. Drill in with get_audit_detail using items[].id.
 
 **读写:** 只读 · **费用:** free — your own monitoring data (already covered by your subscription). · **超时:** 15s
 

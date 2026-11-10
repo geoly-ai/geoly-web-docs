@@ -1,5 +1,5 @@
 {
- "exportedAt": "2026-11-06",
+ "exportedAt": "2026-11-10",
  "tools": [
   {
    "name": "list_brands",
@@ -1344,7 +1344,7 @@
   {
    "name": "get_audit_list",
    "title": "Get Audit List",
-   "description": "List the brand’s GEO site audits (AI-readiness diagnostics) — paginated history, same rows / order (newest first) as the /audit page. Each item: id, domain, url, auditMode (single = one URL, site = sampled pages per page type), status, overall score+grade, accessibility/structuredData/contentStructure sub-scores, pagesScanned, criticalCount, warningCount, createdAt. Field availability depends on auditMode — site: the three sub-scores are always null (site audits never compute them; the page shows \"--\"); single: accessibilityScore is a D1/D2 weighted blend (12:8), structuredDataScore = D3, contentStructureScore = D8, and criticalCount / warningCount are 0 = NOT computed (single audits never write them — use get_audit_detail.headline). status ∈ pending | running | completed | failed; pending/running audits are still being scanned — poll again later (the page auto-refreshes), scores are null until completed. Drill in with get_audit_detail using items[].id.\nCost: free — your own monitoring data (already covered by your subscription).",
+   "description": "List the brand’s GEO site audits (AI-readiness diagnostics) — paginated history, same rows / order (newest first) as the /audit page. Audits are separate from site-fix actions: to read an action use list_actions / get_action; an empty audit list says nothing about an action. Each item: id, domain, url, auditMode (single = one URL, site = sampled pages per page type), status, overall score+grade, accessibility/structuredData/contentStructure sub-scores, pagesScanned, criticalCount, warningCount, createdAt. Field availability depends on auditMode — site: the three sub-scores are always null (site audits never compute them; the page shows \"--\"); single: accessibilityScore is a D1/D2 weighted blend (12:8), structuredDataScore = D3, contentStructureScore = D8, and criticalCount / warningCount are 0 = NOT computed (single audits never write them — use get_audit_detail.headline). status ∈ pending | running | completed | failed; pending/running audits are still being scanned — poll again later (the page auto-refreshes), scores are null until completed. Drill in with get_audit_detail using items[].id.\nCost: free — your own monitoring data (already covered by your subscription).",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -1458,6 +1458,156 @@
     },
     "required": [
      "audit_id"
+    ],
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "_meta": {
+    "geoly/timeoutMs": 15000
+   }
+  },
+  {
+   "name": "list_actions",
+   "title": "List Actions",
+   "description": "The brand's site-fix actions, the same set and order as the Actions page (/actions): what to fix on the brand's own site, by severity. Each row: id, status, goal, type, title, severity, affectedPages, citedByAi (AI citations of those pages, last 30 days), and resolved / recurred when they apply.\n- resolved means the latest check no longer found it (reason: recheck = pages rechecked clean; checker_update = our check changed; out_of_scope = pages are outside what we read). Treat a resolved row as not an open problem.\n- readState says whether the list is complete: progress means the site is still being read and more actions may appear; blocked means the latest read reached no pages and the list shows the previous result.\n- An empty list is not \"no problems\" unless readState.emptyState.kind is no_issues. filteredOut=true means the brand has actions but none match your filters.\nFields of one action, its steps, evidence and all affected pages: get_action.\nCost: free — your own monitoring data (already covered by your subscription).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "statuses": {
+      "description": "Only these statuses. Omit for all, like the page's default \"All statuses\".",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "new",
+        "planned",
+        "in_progress",
+        "done",
+        "declined",
+        "expired"
+       ]
+      }
+     },
+     "include_recurred": {
+      "description": "With statuses: also return done actions whose problem came back (they stay done; recurred.at is set). Plain done actions stay out.",
+      "type": "boolean"
+     },
+     "goals": {
+      "description": "Only these goals. Today every action is fix_site.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "types": {
+      "description": "Only these action types, e.g. site.single_h1.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "limit": {
+      "description": "Rows to return, 1..500. Default 100.",
+      "default": 100,
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500
+     },
+     "offset": {
+      "description": "Rows to skip. Default 0. Use nextOffset from the previous call.",
+      "default": 0,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "org_id": {
+      "description": "Organization ID to query (from list_organizations). Required only when this token spans multiple organizations; omit if you have just one organization (it is used automatically).",
+      "type": "string"
+     },
+     "brand_id": {
+      "description": "Brand ID to query. Optional: omit to use the default brand bound to this token, or — if your organization has exactly one brand — that brand. Call list_brands to discover brand IDs in your organization.",
+      "type": "string"
+     },
+     "context": {
+      "description": "Describe the user's underlying goal in one sentence — not the tool you are calling. Always pass it; it is only recorded and never changes the result.",
+      "type": "string"
+     }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   },
+   "_meta": {
+    "geoly/timeoutMs": 15000
+   }
+  },
+  {
+   "name": "get_action",
+   "title": "Get Action",
+   "description": "One site-fix action in full, by id from list_actions: why it matters, the fix, how many pages were checked, and sample pages. Everything list_actions returns is here too.\nExtra fields (ask only when you need them): steps (what to do and which are checked off); evidence (the page, fetch time, HTTP status and an HTML snippet showing the problem, up to 25); affected_pages (all affected URLs, capped by affected_pages_limit); page_citations (AI citations per sample page).\nAn id this brand has no visible action for is an error.\nCost: free — your own monitoring data (already covered by your subscription).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "action_id": {
+      "description": "The action id, copied verbatim from list_actions.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+     },
+     "fields": {
+      "description": "Extra fields to include. Default none.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "steps",
+        "evidence",
+        "affected_pages",
+        "page_citations"
+       ]
+      }
+     },
+     "affected_pages_limit": {
+      "description": "Max URLs when fields includes affected_pages, 1..500. Default 100.",
+      "default": 100,
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500
+     },
+     "org_id": {
+      "description": "Organization ID to query (from list_organizations). Required only when this token spans multiple organizations; omit if you have just one organization (it is used automatically).",
+      "type": "string"
+     },
+     "brand_id": {
+      "description": "Brand ID to query. Optional: omit to use the default brand bound to this token, or — if your organization has exactly one brand — that brand. Call list_brands to discover brand IDs in your organization.",
+      "type": "string"
+     },
+     "context": {
+      "description": "Describe the user's underlying goal in one sentence — not the tool you are calling. Always pass it; it is only recorded and never changes the result.",
+      "type": "string"
+     }
+    },
+    "required": [
+     "action_id"
     ],
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false
@@ -4707,6 +4857,8 @@
    "get_brand_search_queries",
    "get_audit_list",
    "get_audit_detail",
+   "list_actions",
+   "get_action",
    "list_prompt_records",
    "list_brand_answers",
    "get_prompt_record_detail",
@@ -4757,6 +4909,8 @@
    "get_brand_search_queries",
    "get_audit_list",
    "get_audit_detail",
+   "list_actions",
+   "get_action",
    "list_prompt_records",
    "list_brand_answers",
    "get_prompt_record_detail",
@@ -4806,6 +4960,8 @@
    "get_brand_search_queries",
    "get_audit_list",
    "get_audit_detail",
+   "list_actions",
+   "get_action",
    "list_prompt_records",
    "list_brand_answers",
    "get_prompt_record_detail",
