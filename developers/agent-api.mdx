@@ -1,0 +1,327 @@
+---
+title: "GEOly Agent API"
+sidebarTitle: "Agent API"
+description: "Send one question over HTTP. GEOly's hosted GEO agent researches your AI visibility data and returns a sourced answer, streamed or as JSON, with a receipt of the tools it used and the AI Credits it spent."
+---
+
+The Agent API is the HTTP endpoint behind `geoly run`. You send one question; GEOly's hosted GEO agent chooses the data tools, reads your monitoring data (and public industry data when your plan includes it), and returns an answer with a receipt: which tools it used, how many steps it took, and what it cost. You don't write prompts or learn GEOly's data model. You get the answer.
+
+The [GEOly CLI](/developers/cli) is the official client of this API: `geoly run` sends the request, follows the stream, retries safely, and saves the receipt. This page documents the HTTP interface underneath, so you can call it from your own systems.
+
+## How it relates to the CLI, MCP, and the Data API
+
+| | What runs the reasoning | Best for |
+| --- | --- | --- |
+| **Agent API** (`POST /api/v1/agent/runs`) | GEOly's hosted GEO agent | Getting finished answers into your own systems over HTTP |
+| **GEOly CLI**: `geoly run` | The same hosted agent, through this API | Terminals, scripts, and coding agents |
+| **GEOly CLI**: `geoly call`, and **[GEOly MCP](/developers/mcp/introduction)** | Your own model or agent, calling GEOly data tools one by one | Raw data with your own reasoning |
+| **[Data API](/developers/data-api)** (REST resources and reports under `/api/v1`) | Nobody: plain HTTP | Raw data for your own scripts, BI, and backends |
+
+All of them work on the same organizations, brands, and permissions.
+
+## Quick start
+
+```sh
+# 1. Install the CLI and sign in once
+curl -fsSL https://geoly.ai/install.sh | sh
+geoly auth login
+
+# 2. Ask a question. Under the hood this is one Agent API run.
+geoly run "How did our visibility on ChatGPT change over the last 7 days?"
+```
+
+You see the agent's steps and tools on stderr while it works, and one JSON receipt on stdout when it finishes. The rest of this page describes the HTTP interface itself.
+
+## Authentication
+
+Send a Bearer token with every request. Two kinds of credentials work:
+
+| Credential | Where it comes from | Scope |
+| --- | --- | --- |
+| **OAuth access token** | Sign in with the GEOly CLI (`geoly auth login`). The consent screen is the same as for [GEOly MCP](/developers/mcp/setup): you choose the organization and approve read (and, if you need it, write) permissions. | The organizations and permissions you approved. Valid for about 14 days; `geoly auth status` shows when it expires, and signing in again renews it. |
+| **API key** | **Settings → Developers → API keys**, the same keys as the [Data API](/developers/data-api). | One brand. The key's read and write permissions apply. |
+
+```http
+Authorization: Bearer <access_token or API key>
+```
+
+Browser session cookies are not accepted. A missing, invalid, or expired credential returns `401`.
+
+- An API key is bound to one brand. Passing a different `brand_id` returns `403 BRAND_NOT_ALLOWED_FOR_TOKEN`.
+- A key stops working when its brand is deleted or when the member who created it leaves the organization.
+
+## Endpoints
+
+Base URL: `https://app.geoly.ai`
+
+| Method and path | Purpose |
+| --- | --- |
+| `POST /api/v1/agent/runs` | Start a run: one question in, one answer out (streamed or JSON) |
+| `GET /api/v1/agent/runs` | Recent runs (receipt fields, newest first) |
+| `GET /api/v1/agent/runs/{run_id}` | One run, including the question and the full answer |
+
+Version 1 is frozen: request fields, error codes, receipt fields, and stream event names keep their meaning. New optional fields and new event names can be added, so ignore fields and events you don't know. Every v1 response carries the header `GEOly-API-Version: 1`.
+
+<Note>
+The CLI calls the unversioned `/api/agent/runs` and `/api/agent/runs/{run_id}`. They return exactly the same shapes as v1, without the version header, and stay available. Use `/api/v1/...` in your own integrations.
+</Note>
+
+## Start a run
+
+```http
+POST /api/v1/agent/runs
+Authorization: Bearer <token>
+Content-Type: application/json
+Accept: text/event-stream
+Idempotency-Key: weekly-report-2026-11-09
+```
+
+```json
+{
+  "question": "Compare our AI visibility with our top three competitors over the last 30 days.",
+  "org_id": "<org_id>",
+  "brand_id": "<brand_id>",
+  "context": "We sell standing desks in the US. Keep the answer under 300 words.",
+  "max_credits": 300
+}
+```
+
+| Field | Required | Limits | Meaning |
+| --- | --- | --- | --- |
+| `question` | Yes | Up to 4,000 characters | The question or task |
+| `org_id` | When your access spans several organizations | | Whose data to read and whose credits to use |
+| `brand_id` | When the organization has several brands | | Which brand the run is about |
+| `context` | No | Up to 16,000 characters | Background, requirements, or output format for the agent |
+| `max_credits` | No | Integer, 25–2000 | Hard ceiling for this run. Without it, the run can use up to what the organization has left, at most 2,000 |
+| `spec` | No | One of the names [below](#fixed-format-deliverables-spec) | Ask for a fixed-format deliverable checked by the server |
+| `allow_writes` | No | `true` only | Let the agent use the write tools your credential allows. Anything other than the literal `true` means read-only |
+
+Unknown fields are ignored. When `org_id` or `brand_id` is needed and missing, or wrong, the `400` error lists the valid options by name, for example `This organization has multiple brands. Pass brand_id explicitly …`.
+
+### Streamed (Server-Sent Events), recommended
+
+Send `Accept: text/event-stream`. The response is a stream of frames:
+
+```text
+event: started
+data: {"run_id":"run_…","brand":{"id":"…","name":"…"},"model":"…"}
+
+event: tool
+data: {"name":"get_brand_overview","ok":true,"ms":1830,"args":{"time_range":"30d"},"output_chars":5120}
+
+event: done
+data: {"run_id":"run_…","answer":"…","stopped":"done", …}
+```
+
+| Event | Data | Meaning |
+| --- | --- | --- |
+| `started` | `run_id`, `brand`, `model` | The run began. Keep the `run_id`. |
+| `step` | `index` | The agent started step N. |
+| `tool` | `name`, `ok`, `ms`, `args`, `output_chars` | A tool finished: name, success, duration, argument preview, output size. |
+| `tools_loaded` | `query`, `names` | The agent searched for and loaded more tools. |
+| `text` | `delta` | The next piece of the answer text. |
+| `step_error` | `message` | A step hit an upstream problem; the agent continues with what it has. |
+| `heartbeat` | `{}` | Sent every 10 seconds of silence. Not an error: set your client's idle timeout to 30 seconds or more. |
+| `done` | The receipt | Finished. |
+| `error` | `code`, `message` | The run failed. It is not charged. |
+
+In streamed mode, a failed run arrives as an `error` event; the HTTP status is still `200`.
+
+A run keeps going if your client disconnects, and its result is stored. You can't reattach to the stream, but you can always read the result with `GET /api/v1/agent/runs/{run_id}`.
+
+### JSON (synchronous)
+
+Without `Accept: text/event-stream`, the response is one JSON receipt when the run finishes. Use this only for short questions: in this mode the agent stops starting new steps after about 30 seconds, and a response that takes longer than about 100 seconds can be cut off by the network edge with a gateway error. The run still completes and is stored; find it with `GET /api/v1/agent/runs` and read it by id. A failed run returns `502` with `{"error":"RUN_FAILED","message":"…"}`.
+
+### The receipt
+
+The `done` event (streamed) or the response body (JSON):
+
+```json
+{
+  "run_id": "run_…",
+  "answer": "…Markdown…",
+  "stopped": "done",
+  "stopped_reason": "done",
+  "steps": 3,
+  "tools_used": ["get_brand_overview", "get_brand_board"],
+  "usage": { "input_tokens": 46253, "output_tokens": 1489 },
+  "credits_cost": 54,
+  "credits_remaining": 9946
+}
+```
+
+| Field | How to read it |
+| --- | --- |
+| `answer` | The answer, in Markdown. It follows the language of the question. |
+| `stopped` | `done` when the agent finished on its own terms, otherwise `max_steps`. |
+| `stopped_reason` | `done`, or why it stopped early: `budget` (reached `max_credits` or the organization's remaining credits), `deadline` (the run's time limit), `max_steps` (step limit), `salvaged` (an upstream failure; the agent answered with the data it already had). Anything but `done` means the answer may be partial. |
+| `tools_used` | The tools the agent called: where the numbers came from. |
+| `credits_cost` | What this run charged. Never more than `max_credits`. |
+| `credits_remaining` | Credits left for the organization afterwards (a number, `"unlimited"`, or `null` if it could not be read). |
+| `deliverable` | Only with `spec`: `{ spec, version, valid, problems, stopped_reason }`. `valid: false` lists what is missing; the answer is returned either way. |
+
+## Read runs back
+
+```http
+GET /api/v1/agent/runs?org_id=<org_id>&limit=20
+GET /api/v1/agent/runs/{run_id}
+```
+
+`GET /api/v1/agent/runs` returns `{ "runs": [ … ] }`, newest first. Each row has `run_id`, `status`, `stopped`, `steps`, `credits_cost`, `created_at`, `finished_at`, `question` (first 200 characters), and `brand_id`. `limit` is 1–50 (default 20); pass `org_id` when your access spans several organizations, and `brand_id` to narrow to one brand. An API key only sees its own brand's runs.
+
+`GET /api/v1/agent/runs/{run_id}` returns the stored run:
+
+```json
+{
+  "run_id": "run_…",
+  "status": "succeeded",
+  "question": "…",
+  "answer": "…",
+  "stopped": "done",
+  "steps": 3,
+  "tools_used": ["…"],
+  "usage": { "input_tokens": 46253, "output_tokens": 1489 },
+  "credits_cost": 54,
+  "max_credits": 2000,
+  "error": null,
+  "created_at": "2026-11-09T08:00:00.000Z",
+  "finished_at": "2026-11-09T08:01:12.000Z"
+}
+```
+
+- `status` is `running`, `succeeded`, or `failed` (the CLI shows `succeeded` as `done`).
+- To wait for a run, poll this endpoint every few seconds until `status` is no longer `running`.
+- A run still marked `running` 15 minutes after it started is reported as `failed` with `error: "RUN_ABANDONED"`.
+- A run your credential can't see returns `404 RUN_NOT_FOUND`, whether or not it exists.
+
+## Idempotency: safe retries
+
+Send an `Idempotency-Key` header to make retries safe:
+
+- Format: 8–128 characters of `A-Z a-z 0-9 _ - : .`. A header that is present but malformed (including empty) is rejected with `400 IDEMPOTENCY_KEY_INVALID`.
+- Scope: the same organization, brand, and key.
+- **While the original run is still running**, a request with the same key always returns that run.
+- **After it finishes**, the same key replays it for 10 minutes from when it started; after that, the same key starts a new run.
+- A replay doesn't start or charge a new run. It is returned as JSON, whatever you sent in `Accept`, with `"replayed": true` in the body and the response header `Idempotent-Replayed: true`. The body has the same shape as `GET /api/v1/agent/runs/{run_id}`; if its `status` is `running`, poll that endpoint.
+- If the key can't be checked for a moment, the request is refused with `503 IDEMPOTENCY_UNAVAILABLE` rather than risking a double run. Retry with the same key.
+
+Choose a key that identifies the job, such as `weekly-report-<brand>-<date>`.
+
+## Credits
+
+Agent API runs use your organization's **AI Credits**, the same pool as in-app [Agent](/agent/overview) chats and `geoly run`. GEOly's own data tools that the agent calls inside a run are not billed again as MCP calls.
+
+- **Cap a run** with `max_credits` (25–2000). `credits_cost` in the receipt never exceeds it.
+- **See what is left** in every receipt (`credits_remaining`), with `geoly credits`, or on the Agent [**Usage**](/agent/overview#ai-usage) page, which lists API usage under the member who owns the credential.
+- A run that fails is not charged.
+- If the organization has fewer than 25 credits left, the run is refused with `402 INSUFFICIENT_CREDITS` (the body includes `remaining` and, when known, `period_end`).
+
+## Fixed-format deliverables (`spec`)
+
+With `spec`, the agent follows a specification kept on the server: fixed sections, every number from a tool, and a machine-readable JSON block at the end. The receipt's `deliverable` field reports whether the answer passed the checks. Streamed runs with a spec get a longer time limit.
+
+| `spec` | Deliverable | Put in `question` |
+| --- | --- | --- |
+| `geo-weekly-brand-health` | Weekly brand health: visibility, mention rate, citation rate, by platform, competitor gaps, next steps | Brand (via `org_id` / `brand_id`); optionally the period |
+| `geo-content-brief` | A content brief for one keyword: audience, SERP and AI citation research, outline, FAQ, AEO notes | `primary_keyword`, `domain`; optionally `article_title`, `target_prompt`, `country` |
+| `geo-keyword-research-report` | Keyword research: volumes, intent clusters, live SERP, AI query fan-out, content opportunities | `topic`; optionally `domain`, `country` |
+| `geo-serp-gap` | A page against Google's top 10 and AI Overview sources: content gaps | `url`, `query`; optionally `country` |
+
+Write the inputs into `question`, for example `"url: https://example.com/blog/x, query: best standing desk for small apartments, country: us"`. An unknown name returns `400 SPEC_NOT_FOUND: … Available: …`.
+
+## Errors
+
+Errors are JSON: `{ "error": "<code or message>" }`, sometimes with extra fields.
+
+| HTTP | `error` | Meaning and what to do |
+| --- | --- | --- |
+| 400 | `INVALID_JSON`, `INVALID_INPUT`, `QUESTION_REQUIRED` | Fix the request body. |
+| 400 | `MAX_CREDITS_OUT_OF_RANGE (25..2000)` | `max_credits` must be an integer from 25 to 2000. |
+| 400 | `IDEMPOTENCY_KEY_INVALID` | Fix the `Idempotency-Key` header. |
+| 400 | `SPEC_NOT_FOUND: …` | Use one of the listed spec names. |
+| 400 | A sentence about `org_id` / `brand_id` | Ambiguous or wrong target; the message lists the options. |
+| 401 | `Missing Authorization header`, `Invalid token`, … | Missing, invalid, or expired credential. Sign in again with `geoly auth login`, or check the API key. |
+| 402 | `INSUFFICIENT_CREDITS` | AI Credits for this period are used up (body: `remaining`, `period_end`). Wait for the reset or upgrade the plan. |
+| 402 | `This organization has no active subscription, …` | The organization has no active subscription. |
+| 403 | `ORG_SELECTION_REQUIRED`, `BRAND_NOT_ALLOWED_FOR_TOKEN`, … | The credential doesn't cover this organization or brand. Re-authorize and choose the organization, or use a key for that brand. |
+| 404 | `BRAND_NOT_FOUND`, `RUN_NOT_FOUND` | Not found, or not visible to this credential. |
+| 413 | `QUESTION_TOO_LONG`, `CONTEXT_TOO_LONG` | Over 4,000 / 16,000 characters. |
+| 429 | `Rate limit exceeded. …` | Too many requests; back off and retry. |
+| 502 | `RUN_FAILED` | JSON mode only: the run failed and was not charged. Retry. |
+| 503 | `BILLING_UNAVAILABLE`, `IDEMPOTENCY_UNAVAILABLE` | Temporary. Retry shortly (with the same `Idempotency-Key`). |
+
+## Rate limits and concurrency
+
+- Requests count toward a per-minute limit for each token or key (currently 120, or 300 when an organization the credential can reach is on Enterprise), shared with GEOly MCP calls made with the same credential. Over the limit you get `429`; back off before retrying.
+- There is no separate cap on concurrent runs. Each run reserves up to its own budget when it starts, so several runs at once each draw on the organization's credits.
+
+## Example: Python
+
+```python
+import json
+import os
+
+import requests
+
+TOKEN = os.environ["GEOLY_TOKEN"]  # OAuth access token or API key
+
+resp = requests.post(
+    "https://app.geoly.ai/api/v1/agent/runs",
+    headers={
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream",
+        "Idempotency-Key": "weekly-review-2026-11-09",
+    },
+    json={"question": "Summarize our AI visibility this week.", "max_credits": 300},
+    stream=True,
+    timeout=(10, 60),  # connect timeout, idle read timeout (heartbeats arrive every 10 s)
+)
+resp.raise_for_status()
+
+if resp.headers.get("Content-Type", "").startswith("application/json"):
+    print(resp.json())  # an idempotent replay of an earlier run
+else:
+    event = None
+    for line in resp.iter_lines(decode_unicode=True):
+        if line.startswith("event:"):
+            event = line[len("event:"):].strip()
+        elif line.startswith("data:") and event in ("done", "error"):
+            payload = json.loads(line[len("data:"):])
+            print(event, payload.get("stopped_reason"), payload.get("answer") or payload.get("message"))
+```
+
+## Example: JSON mode with curl
+
+```sh
+curl https://app.geoly.ai/api/v1/agent/runs \
+  -H "Authorization: Bearer $GEOLY_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What is our mention rate on Perplexity this month?","max_credits":100}'
+```
+
+## Integration tips
+
+1. **Prefer streaming.** Use JSON mode only for questions you know finish within seconds.
+2. **Treat `heartbeat` as normal** and set the idle timeout to 30 seconds or more.
+3. **Keep the `run_id`.** Disconnects and timeouts don't lose the answer; read it back by id.
+4. **Check `stopped_reason` before using the answer.** In automated jobs, rerun or raise `max_credits` when it is not `done`.
+5. **Ask once, precisely.** Put the period, platforms, and output format in `question`, and background in `context`.
+6. **Always send an `Idempotency-Key`** from jobs that may retry.
+
+## Limits and boundaries
+
+- **Scope follows the credential.** The API reaches only the organizations, brands, and permissions the token or key grants.
+- **Read-only by default.** Write tools are used only with `allow_writes: true` and write permission for that resource: a Write grant on a single-organization OAuth consent, or an API key created with write permission. Running monitoring on demand (`trigger_prompt`) is never available to the hosted agent.
+- **Plans.** An active subscription is required. Public industry intelligence is used only when the organization's plan includes it (Grow and above).
+- **Bounded runs.** At most 2,000 credits and 20 steps per run, with a time limit (longer for `spec` runs). An early stop is reported in `stopped_reason`.
+- **Fixed model.** The API uses the model GEOly selects; you can't bring your own.
+- **Runs are stored** and can be read back through `GET /api/v1/agent/runs` within your credential's scope.
+
+## Related
+
+- [GEOly CLI](/developers/cli): the easiest way to call this API from a terminal or a coding agent.
+- [GEOly MCP](/developers/mcp/introduction): call GEOly data tools from your own AI client.
+- [Data API](/developers/data-api): monitoring resources and reports over plain HTTP, without an agent.
+- [GEOly Agent](/agent/overview): the same agent, in the GEOly app.
