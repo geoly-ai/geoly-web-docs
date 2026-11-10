@@ -18,7 +18,7 @@ Your available data and actions depend on:
 - your account permissions; and
 - the plan and data scope available to that workspace.
 
-Switching brands changes the scope used by Prompts, Performance and Sources, and brand settings. It does not merge data between brands.
+Switching brands changes the scope used by the Workspace pages and the brand settings. It does not merge data between brands.
 
 ## 2. Switch brands and open Brand settings
 
@@ -27,46 +27,49 @@ Use the brand menu in the left navigation to:
 - view the active brand;
 - switch to another authorized brand;
 - choose **Add Brand** when your account has permission to create another brand; and
-- open **Brand settings** for the current brand.
+- choose **Manage brands** to open the brand settings for the current brand.
 
 After switching, confirm the brand name shown in the product before creating Prompts, competitors, or monitoring tasks.
 
-## 3. Configure brand information and matching rules
+## 3. Configure the brand profile
 
-The current **Brand settings** page includes:
+Open **Settings → Brand → Brand profile**. The page includes:
 
 - **Brand Name:** the name shown in GEOly.
-- **Match Terms:** brand names, aliases, product names, and spelling variants used to detect mentions in AI answers. Separate multiple terms with commas.
 - **Website:** the official brand website URL.
-- **Logo URL:** optional; if empty, GEOly can use the website favicon.
-- **Competitors:** configured through the separate Settings → Brand → Competitors page.
+- **Industry:** the industry the brand belongs to.
+- **Brand description:** one or two sentences on what the brand sells and who it is for. Prompt suggestions use this description.
+- **Logo URL:** optional; if empty, GEOly uses the website favicon.
 
-![Current GEOly brand information and separate Competitors page navigation diagram](/images/basic-management/c1f1fe8b9f.jpg "Brand settings navigation diagram, not an application screenshot")
+The names that GEOly uses to recognize brands in AI answers are not on this page. They are managed as **Tracked names** on **Settings → Brand → Brands**.
 
-This diagram explains the current Settings page split; it is not an application screenshot.
-
-### How to write Match Terms
+### How to choose tracked names
 
 Include the official brand name, common spelling or capitalization variants, important product lines, and common short names.
 
-Example: dji, DJI, Osmo, Mavic.
+Example: Acme, ACME, Acme Drones.
 
-Avoid generic words that are not unique to your brand. Overly broad Match Terms can increase false matches. Save the settings, then review later Monitoring results to confirm that brand detection is accurate.
+Avoid generic words that are not unique to the brand. Overly broad tracked names can increase false matches. Save the changes, then review later monitoring results to confirm that brand detection is accurate.
 
 ### How to set the Website
 
 Enter the official site URL and confirm the domain. The Website field is part of the brand profile; it does not prove that every AI answer cites the site or that the site receives recommendation traffic.
 
-## 4. Manage competitors
+## 4. Manage the brands you track
 
-Open **Settings → Brand → Competitors**. Competitors are managed separately from the brand profile.
+Open **Settings → Brand → Brands**. The list shows your own brand (marked **You**) and the competitors you track, with their **Display name**, **Tracked names**, **Website**, and **Mentions (30d)**.
 
-GEOly uses configured brand names and aliases for text matching in AI answers. To keep comparisons useful:
+![GEOly Settings → Brand → Brands with tracked brands, tracked names, websites, 30-day mentions, and Discovered brands](/images/app-2026-11/brands.jpg "GEOly Brands settings")
+
+- Click **Add brand** to track a competitor, then enter its tracked names and website.
+- **Discovered brands** suggests brands that often appear in your AI answers. Add a suggestion to the list, or stop GEOly from suggesting it.
+- Use a brand's **⋯** menu to **Edit** its names or website, or **Stop tracking** brands that are no longer relevant.
+
+GEOly matches the tracked names in AI answers. To keep comparisons useful:
 
 - add brands that are genuinely relevant to your market;
-- use stable, recognizable names;
-- add common aliases when needed; and
-- remove competitors that are no longer relevant.
+- use stable, recognizable names; and
+- add common alternative names when needed.
 
 The competitor list supports comparison inside the available AI-answer data. It is not an automatic discovery of the entire market and should not be treated as a complete market ranking.
 
@@ -89,34 +92,34 @@ If an organization or member-management control is not visible, it may not be av
 
 ## 6. MCP and external AI clients
 
-![Current GEOly MCP and Tools page with OAuth client setup and authorized apps](/images/basic-management/8fca020a98.jpg "GEOly MCP and Tools page")
+![GEOly Settings → Developers → MCP with the OAuth connection steps](/images/app-2026-11/mcp.jpg "GEOly MCP settings")
 
 The current MCP entry point is:
 
-**Left navigation → MCP & Tools → MCP**
+**Settings → Developers → MCP**
 
-GEOly MCP uses a remote MCP URL and OAuth. On first use, the AI client opens a browser for authentication; OAuth clients do not need to paste a key. For server integrations, owners/admins can create a resource-scoped, single-brand key under Settings → Developers → API keys. The complete value is shown once and must be stored securely. Select the client in the MCP tab and copy the configuration generated by the current page. The MCP page is the source of truth for the current client configuration.
+GEOly MCP uses a remote MCP URL and OAuth. On first use, the AI client opens a browser for authentication; OAuth clients do not need to paste a key. For server integrations, owners/admins can create a resource-scoped, single-brand key under Settings → Developers → API keys. The complete value is shown once and must be stored securely. Choose your client on that page and copy the command or configuration it generates. The MCP page is the source of truth for the current client configuration.
 
 For client setup, OAuth scopes, and MCP Credits, see the [GEOly MCP Guide](/developers/mcp/introduction).
 
-MCP authorization controls which GEOly resources an external client can read or write. Brand settings controls the current brand profile and matching rules. These are separate permission surfaces.
+MCP authorization controls which GEOly resources an external client can read or write. The brand settings control the current brand profile and the names used to recognize brands. These are separate permission surfaces.
 
 ## 7. Recommended first-time setup
 
 1. Sign in and confirm the organization, active brand, and plan scope.
-2. Open **Brand settings** and review Brand Name, Website, and Logo URL.
-3. Add complete Match Terms and save.
-4. Add the competitors you want to track.
+2. Open **Settings → Brand → Brand profile** and review Brand Name, Website, Industry, Brand description, and Logo URL.
+3. Open **Settings → Brand → Brands** and check the tracked names.
+4. Add the competitors you want to track, or add them from **Discovered brands**.
 5. Create or review Monitoring Prompts, platforms, and date ranges.
 6. Run a read-only check to confirm brand detection and result scope.
-7. If you need an external AI client, open **MCP & Tools → MCP** and complete OAuth.
+7. If you need an external AI client, open **Settings → Developers → MCP** and complete OAuth.
 
 ## 8. Common issues and data boundaries
 
-- A brand may be missing because a Match Term is incomplete, the spelling differs, coverage is limited, or the query scope is different.
+- A brand may be missing because a tracked name is missing, the spelling differs, coverage is limited, or the query scope is different.
 - A competitor may be absent because of name matching, platform, language, date range, or sample coverage; absence does not prove that the competitor does not exist.
 - AIGVR, Mention Rate, and Citation Rate are monitored-brand signals. Do not mix them with public-industry SoM, AI traffic estimates, or estimated revenue.
-- Updating brand information, Match Terms, or competitors does not by itself prove a change in ranking, traffic, conversion, or revenue.
+- Updating brand information, tracked names, or competitors does not by itself prove a change in ranking, traffic, conversion, or revenue.
 - Review original AI answers, official website information, and first-party business data before making an important decision.
 
-After the initial setup, run a read-only Monitoring check and adjust Match Terms, competitor names, or Prompt scope based on the observed results.
+After the initial setup, run a read-only Monitoring check and adjust tracked names, the brands you track, or Prompt scope based on the observed results.

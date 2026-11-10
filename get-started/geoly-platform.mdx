@@ -33,23 +33,27 @@ Two terms used in this guide:
 
 ## Find the right screen
 
+The icon rail on the far left switches between spaces: **Workspace** (your brand's monitoring pages), **Agent**, **Actions**, **Explore** (public data), and **Settings**. The sidebar next to it lists the pages of the current space. In the Workspace, pages are grouped under **Home**, **Brand**, **Prompts**, **Sources**, **Results**, **My website**, **Agent analytics**, and **Shopping**.
+
+![GEOly Workspace with the icon rail, the Workspace sidebar, and Home → Overview](/images/app-2026-11/overview.jpg "GEOly Workspace")
+
 | If you want to… | Start here | What you will learn |
 | --- | --- | --- |
-| Research a market, category, Topic, or product | **Public → Explore** | What appears in GEOly's public dataset |
-| See how your brand appears in monitored AI answers | **Performance → Overview** | Visibility and mention signals for your selected scope |
-| Read the actual AI answers | **Performance → AI Answers** | What the AI said, which brands it mentioned, and how it described them |
+| Research a market, category, Topic, or product | **Explore** in the icon rail | What appears in GEOly's public dataset |
+| See how your brand appears in monitored AI answers | **Home → Overview** | Visibility and mention signals for your selected scope |
+| Read the actual AI answers | **Results → AI Answers** | What the AI said, which brands it mentioned, and which sources it used |
 | Check which pages AI used | **Sources → Citations** | Which domains and pages appeared in the monitored answers |
-| Add or manage questions | **Monitoring → Prompts** | Which questions GEOly will run for your brand |
+| Add or manage questions | **Prompts → All prompts** | Which questions GEOly will run for your brand |
 | Compare brands within a Topic | Open a Topic from **Explore** | The competitive signals available for that Topic |
-| Connect a supported client or manage access | **MCP & Tools** or **Settings** | Available integrations and workspace settings |
+| Connect an MCP client or manage access | **Settings**, for example **Settings → Developers → MCP** | Available integrations and workspace settings |
 
-Public research and monitored brand results are different types of data. **Explore** uses GEOly's public or industry dataset. **Monitoring**, **Performance**, and **Sources** use the selected brand's Prompts and completed records.
+Public research and monitored brand results are different types of data. **Explore** uses GEOly's public dataset. The Workspace pages use the selected brand's Prompts and completed records.
 
 ## 1. Explore public data
 
-Open **Public → Explore** when you want to research a market before creating Prompts or compare what is visible across categories, Topics, brands, and products.
+Open **Explore** from the icon rail when you want to research a market before creating Prompts or compare what is visible across categories, Topics, brands, and products.
 
-You can use the tabs available in Explore to:
+You can use the pages in the Explore sidebar (**Explore**, **Sources**, **Fanouts**, **Shopping**, and **Ads**) to:
 
 - Browse categories, Topics, brands, and products.
 - Inspect public sources and pages cited by AI.
@@ -58,8 +62,6 @@ You can use the tabs available in Explore to:
 - Review available public AI-ad observations.
 
 Select the country or language and AI platform before searching. The same Topic can look different when the scope changes.
-
-![GEOly Explore showing public categories, Topics, brands, and modeled monthly AI traffic](/images/geoly-platform/current-explore.png "GEOly Explore")
 
 ### What Explore can and cannot tell you
 
@@ -71,23 +73,22 @@ Numbers such as modeled monthly AI traffic are estimates. Use them to compare op
 
 A **Prompt** is a natural-language question that GEOly sends to an AI platform for monitoring. Good Prompts sound like real questions a customer might ask, such as a product comparison, recommendation request, or use-case question.
 
-Open **Monitoring → Prompts** to:
+Open **Prompts → All prompts** to:
 
 - Add a new question.
 - Import or organize questions when those actions are available.
-- Filter by status, Topic, or tags.
-- Run the configured monitoring set with **Run All**.
+- Switch between the **Active** and **Archived** tabs, and filter by Topic or tags.
 - Check whether records have been completed.
 
-The tracking table may show visibility, average visibility level, citation, records, country, status, and tracking state.
+Active Prompts run every day. The list shows each Prompt's Visibility, Mention rate, Citation, the tracked Competitors that appeared, its Type (Branded or Non-branded), and its Tags.
 
-![GEOly Prompts monitoring table showing filters, visibility, citation, records, country, status, and tracking](/images/geoly-platform/current-monitoring.png "GEOly Prompts monitoring")
+![GEOly Prompts → All prompts list with topics, visibility, mention rate, citation, competitors, type, and tags](/images/app-2026-11/prompts.jpg "GEOly Prompts list")
 
 Saving a Prompt does not create a completed answer immediately. Wait until records are available before reading its metrics. If a result is missing, check the date range, platform, country, language, Prompt status, and record availability before drawing a conclusion.
 
 ## 3. Review your brand overview
 
-Open **Performance → Overview** after your Prompts have completed. This page gives you a summary of how your selected brand appeared in the selected monitoring scope.
+Open **Home → Overview** after your Prompts have completed. This page gives you a summary of how your selected brand appeared in the selected monitoring scope.
 
 Before comparing two results, keep these settings the same:
 
@@ -98,34 +99,33 @@ Before comparing two results, keep these settings the same:
 - Prompt set
 - Number of completed answers
 
-The overview may include:
+The top of the page shows your rank in AI visibility and five KPIs:
 
-- **Prompts:** how many questions are included in the selected monitoring set.
-- **Visibility (AIGVR):** the visibility metric shown for the selected scope.
-- **Mention Rate:** how often the brand was mentioned in completed answers.
-- **Visibility Level:** the average visibility signal shown for the selected scope.
-- **Mentions:** the number of detected brand mentions.
-- **Share of Voice:** the brand's share of mentions among the selected brand set.
+- **Visibility (AIGVR):** a composite score of position, mention count, and whether the answer cites your site, averaged over the completed answers in the window.
+- **Mention rate:** the share of completed AI answers that mention the brand.
+- **Share of voice (SoV):** the brand's share of mentions among all brands that came up.
+- **Strongest platform** and **Weakest platform:** the platforms where the brand is most and least visible in the window.
 
-![GEOly Overview showing AIGVR, Mention Rate, Visibility Level, Mentions, Visibility Score, and Share of Voice](/images/geoly-platform/current-overview.png "GEOly Overview")
+Below the KPIs, **Visibility** shows a trend line and a **Brand ranking** of you and the brands you track. Further down are **Your plan**, **Citation sources**, and **How AI answers your questions**.
+
+![GEOly Overview visibility trend, brand ranking, and Your plan](/images/app-2026-11/overview-visibility.jpg "GEOly Overview")
 
 Read these as signals from the selected GEOly dataset. They do not directly equal website traffic, sales, conversion rate, market share, or revenue. A higher visibility signal can tell you what happened in the monitored answers; it does not by itself explain why it happened.
 
 ## 4. Read the original AI answers
 
-Open **Performance → AI Answers** when you need to see the evidence behind a summary number.
+Open **Results → AI Answers** when you need to see the evidence behind a summary number.
 
 Depending on the available data, an answer record can show:
 
-- When the answer was generated
-- Whether your brand was mentioned
-- The brand's mention rank
-- Visibility level
-- Sentiment
-- Other mentioned brands
+- The AI platform and the date
+- The Prompt and a summary of the answer
+- You and the tracked brands it mentioned
+- The sources it cited
+- Features seen in the answer, such as web search or shopping cards
 - The original response text
 
-![GEOly AI Answers showing executions, citations, mention rank, visibility level, sentiment, and response text](/images/geoly-platform/current-ai-answers.png "GEOly AI Answers")
+![GEOly Results → AI Answers with answer counts, mentions, web search, average citations, and the answer list](/images/app-2026-11/answers.jpg "GEOly AI Answers")
 
 Start with the original response instead of relying only on a score. Ask:
 
@@ -148,7 +148,7 @@ Use this view to ask:
 - Which topics cite competitors instead?
 - Is the cited page accurate, current, and useful?
 
-![GEOly Citations showing top cited pages, citation counts, average position, and brand source](/images/geoly-platform/current-citations-pages.png "GEOly Citations")
+![GEOly Sources → Citations with weekly citations for the top domains, domain changes, and source types](/images/app-2026-11/citations.jpg "GEOly Citations")
 
 A citation is evidence of what appeared in an answer. It is not proof that the source is endorsed, accurate, receives high traffic, or caused a conversion. Open the original answer and the source page before changing content.
 
@@ -174,21 +174,21 @@ These are directional signals, not guaranteed traffic, revenue, rankings, or mar
 
 GEOly can show shopping results in two different places:
 
-- **Public → Explore → AI Shopping** studies products observed in the public dataset.
-- **Performance → AI Shopping** uses the selected brand's monitored Prompts and completed records.
+- **Explore → Shopping** studies products observed in the public dataset.
+- **Shopping → Shopping** in the Workspace uses the selected brand's monitored Prompts and completed records.
 
 Do not compare these two views as if they measured the same population or used the same data source.
 
 ## 7. Use tools and manage your workspace
 
-Open **MCP & Tools** to connect supported clients and use the GEOly tools available to your organization.
+To connect an MCP client such as Claude, Cursor, or Codex, open **Settings → Developers → MCP**. The site tools are in the Workspace sidebar under **Agent analytics**: **Agent Readiness Check**, **GEO Audit**, and **AI Site Explorer**.
 
-Open **Settings** to manage the workspace areas available to your account, such as:
+Open **Settings** to manage the areas available to your account, such as:
 
-- Brand and organization details
-- Account access and members
-- Competitors
-- Developer or integration settings
+- Your profile and security (**Account**)
+- The brand profile and the brands you track (**Brand → Brand profile** and **Brand → Brands**)
+- Billing, members, and organization details (**Organization**)
+- API keys and MCP (**Developers**)
 
 The available actions depend on your organization and permissions. If you cannot find a screen or action, check your account access and the current workspace before assuming that the feature is unavailable.
 
@@ -196,11 +196,11 @@ The available actions depend on your organization and permissions. If you cannot
 
 Suppose you want to know whether AI recommends your brand for a product category:
 
-1. Use **Public → Explore** to understand the category and identify common Topics.
-2. Turn a customer-style question into a Prompt in **Monitoring → Prompts**.
+1. Use **Explore** to understand the category and identify common Topics.
+2. Turn a customer-style question into a Prompt in **Prompts → All prompts**.
 3. Wait for completed records.
-4. Review **Performance → Overview** to see the summary signal.
-5. Open **Performance → AI Answers** to read what the AI actually said.
+4. Review **Home → Overview** to see the summary signal.
+5. Open **Results → AI Answers** to read what the AI actually said.
 6. Open **Sources → Citations** to see which pages supported the answer.
 7. Improve the relevant content, then rerun the same Prompt and compare the same scope.
 
