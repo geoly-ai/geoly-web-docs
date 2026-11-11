@@ -89,9 +89,16 @@ const GROUPS = [
   },
   {
     key: 'website',
-    en: 'Your website: audits, agent readiness, AI traffic',
-    zh: '你的网站：诊断、Agent 就绪度、AI 流量',
-    tools: ['get_audit_list', 'get_audit_detail', 'get_agent_ready_scans', 'get_traffic_data'],
+    en: 'Your website: audits, site-fix actions, agent readiness, AI traffic',
+    zh: '你的网站：诊断、修复行动、Agent 就绪度、AI 流量',
+    tools: [
+      'get_audit_list',
+      'get_audit_detail',
+      'list_actions',
+      'get_action',
+      'get_agent_ready_scans',
+      'get_traffic_data',
+    ],
   },
   {
     key: 'write',
