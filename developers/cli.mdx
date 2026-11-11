@@ -16,7 +16,7 @@ Please set up the GEOly CLI and use it to answer a question about my brand's AI 
    - macOS / Linux: curl -fsSL https://geoly.ai/install.sh | sh
    - Windows PowerShell: irm https://geoly.ai/install.ps1 | iex
 2. Run `geoly init`. It installs the GEOly skill and signs me in. If it prints a sign-in URL, show it to me and wait until I have approved in the browser. On a machine without a browser, run `geoly auth login --remote`, give me the URL, and when I paste the code back, run `geoly auth login --code <code>`.
-3. Run `geoly whoami` and `geoly call get_brand_context`, and tell me which organization and brand you are connected to.
+3. Run `geoly whoami` and `geoly call get_brand_context`, and tell me which organization and project you are connected to.
 4. Run `geoly tools --json` to see which tools are available, then answer my question with `geoly run "<question>"` (or `geoly call <tool>` when I ask for specific data).
 
 My question: How did our visibility in ChatGPT and Perplexity change over the last 30 days, and what drove it?
@@ -89,7 +89,7 @@ geoly init
 
 `geoly init` does two things:
 
-1. **Installs the GEOly Agent Skill into the agent hosts it finds on this machine.** It looks for `~/.claude`, `~/.codex`, and `~/.cursor` and writes the skill to `~/.claude/skills/geoly-mcp/`, `~/.codex/skills/geoly-mcp/`, and `~/.cursor/skills/geoly-mcp/` respectively. The skill is fetched from app.geoly.ai so it matches the live server (a copy embedded in the CLI is used if that is unreachable). It teaches the agent when to use `geoly run` versus `geoly call`, how to resolve the organization and brand first, and how to read GEOly metrics correctly. It changes no other configuration and grants no permissions.
+1. **Installs the GEOly Agent Skill into the agent hosts it finds on this machine.** It looks for `~/.claude`, `~/.codex`, and `~/.cursor` and writes the skill to `~/.claude/skills/geoly-mcp/`, `~/.codex/skills/geoly-mcp/`, and `~/.cursor/skills/geoly-mcp/` respectively. The skill is fetched from app.geoly.ai so it matches the live server (a copy embedded in the CLI is used if that is unreachable). It teaches the agent when to use `geoly run` versus `geoly call`, how to resolve the organization and project first, and how to read GEOly metrics correctly. It changes no other configuration and grants no permissions.
 2. **Signs you in** (see Step 3). On a machine without a browser it starts the paste-code sign-in and tells you the command that finishes it.
 
 Variants:
@@ -99,7 +99,7 @@ geoly init --agent codex     # only one host: claude-code | codex | cursor
 geoly init --no-login        # install the skill only (dotfiles, CI images)
 ```
 
-Add `.geoly/` to your project's `.gitignore`: `geoly run` writes receipts there.
+Add `.geoly/` to your repository's `.gitignore`: `geoly run` writes receipts there.
 
 ### Step 3 — Authorize once
 
@@ -185,7 +185,7 @@ geoly whoami         # which account, organization, mode, and tools?
 geoly auth logout    # delete this profile's stored credentials
 ```
 
-`geoly auth status` prints `mode`, `authorized`, `profile`, `endpoint`, `expiresAt`, and `scope`. `geoly whoami` asks the server and prints the auth mode, the organization in use, token expiry, `mode` (`single`, `multi-brand`, or `multi-org`), `toolCount`, whether public industry tools are enabled, and `writeTools` — the write tools your consent actually granted.
+`geoly auth status` prints `mode`, `authorized`, `profile`, `endpoint`, `expiresAt`, and `scope`. `geoly whoami` asks the server and prints the auth mode, the organization in use, token expiry, `mode` (`single`, `multi-brand`, or `multi-org`; `multi-brand` means the organization has several projects), `toolCount`, whether public industry tools are enabled, and `writeTools` — the write tools your consent actually granted.
 
 The access token lasts about 14 days; after that the next command signs you in again.
 
@@ -195,13 +195,15 @@ The access token lasts about 14 days; after that the next command signs you in a
 | `~/.geoly/settings-<profile>.json` | The organization you last picked in an interactive session |
 | `./.geoly/runs/<run_id>.json` | Receipts from `geoly run`, in the current directory |
 
-**Organizations and brands.** Choosing one organization gives read access plus write for the resources you ticked; choosing all organizations is read-only. The tools you see also depend on your plan and role — a missing tool does not mean sign-in failed.
+**Organizations and projects.** Choosing one organization gives read access plus write for the resources you ticked; choosing all organizations is read-only. The tools you see also depend on your plan and role — a missing tool does not mean sign-in failed.
+
+A project is GEOly's monitoring unit: it tracks one own brand plus its competitors. For historical reasons a project's id is passed as `brand_id`, and tools such as `list_brands` list projects. Own-monitoring `brand_id` is never a `public_brand.id`.
 
 ```sh
 geoly call list_organizations                  # when your access spans several organizations
-geoly call list_brands                         # when an organization has several brands
-geoly call get_brand_overview --org <org_id> --brand_id <brand_id>
-geoly run "…" --org <org_id> --brand <brand_id>
+geoly call list_brands                         # lists projects, when an organization has several
+geoly call get_brand_overview --org <org_id> --brand_id <project_id>
+geoly run "…" --org <org_id> --brand <project_id>
 ```
 
 - `--org <org_id>` works on every command and narrows it to one organization.
@@ -231,8 +233,8 @@ Use the `geoly` CLI for questions about our brand's visibility in AI answers
 - A specific data pull: discover with `geoly tools --json`, read parameters with
   `geoly schema <tool>`, then `geoly call <tool> --<param> <value>`.
   Parameter names are used verbatim (underscores); unknown parameters are rejected.
-- Start a session with `geoly call get_brand_context` (free) to learn the brand,
-  plan, platforms, topics, and competitors.
+- Start a session with `geoly call get_brand_context` (free) to learn the project
+  (its own brand), plan, platforms, topics, and competitors.
 - stdout is JSON data; stderr is progress and errors. Add `--error-format json`
   to get errors as JSON.
 - Exit codes: 0 ok, 1 tool error, 2 fix the command, 3 sign in (`geoly auth login`),
@@ -253,8 +255,8 @@ Tools are grouped below by the question they answer. The complete, current list 
 
 | Tool | Answers |
 | --- | --- |
-| `get_brand_context` | Free, once per session: your brand, organization and plan, entitled platforms, topics, tracked competitors, data window, remaining credits. |
-| `list_organizations` / `list_brands` | Which organizations and brands you can reach (shown only for multi-organization or multi-brand access). |
+| `get_brand_context` | Free, once per session: your project and its brand, organization and plan, entitled platforms, topics, tracked competitors, data window, remaining credits. |
+| `list_organizations` / `list_brands` | Which organizations and projects you can reach; `list_brands` lists projects (shown only when you can reach several organizations or projects). |
 
 ### Brand visibility and trends
 
@@ -431,7 +433,7 @@ Individual flags override the same fields in `--data` / `--input`. A tool parame
 
 | Flag | What it does |
 | --- | --- |
-| `--brand <id>` | The brand to run against (needed when the organization has several) |
+| `--brand <id>` | The project to run against, by its id (the `brand_id`); needed when the organization has several |
 | `--context <text>` / `--context @file` | Extra background; `@file` reads a UTF-8 (or UTF-16 with BOM) text file |
 | `--spec <name>` | A fixed-format deliverable defined on the server: `geo-weekly-brand-health`, `geo-content-brief`, `geo-keyword-research-report`, `geo-serp-gap` |
 | `--max-credits <n>` | Hard ceiling for this run, 25–2000 credits |
@@ -483,7 +485,7 @@ geoly run run_…          # print a run's current state
 geoly runs list          # recent runs for the organization (--limit 1–50, default 20)
 ```
 
-**Retries never pay twice.** Each `geoly run` sends an idempotency key derived from the organization, brand, spec, question, context, `--max-credits`, and `--allow-writes`. Repeating the exact same command within 10 minutes replays the existing run (stderr says `replayed run …`) instead of starting and charging a new one; changing any of those inputs starts a new run. Scripts can set their own key with `--idempotency-key` (8–128 characters of `A-Z a-z 0-9 _ - : .`).
+**Retries never pay twice.** Each `geoly run` sends an idempotency key derived from the organization, project, spec, question, context, `--max-credits`, and `--allow-writes`. Repeating the exact same command within 10 minutes replays the existing run (stderr says `replayed run …`) instead of starting and charging a new one; changing any of those inputs starts a new run. Scripts can set their own key with `--idempotency-key` (8–128 characters of `A-Z a-z 0-9 _ - : .`).
 
 **Receipts on disk.** Every finished run is written to `./.geoly/runs/<run_id>.json` in the current directory, so your agent can read a long answer from the file instead of asking again. `-o <file>` picks the path (stdout then prints only `status`, `run_id`, `saved_to`).
 
@@ -512,11 +514,11 @@ error[usage_error]: --time-range is not a parameter of get_brand_overview
   hint: Did you mean --time_range? Declared parameters: --time_range, --start_date, …
 ```
 
-The server applies the same rule to every call and names the accepted arguments, for example `Unknown argument(s) nope for get_prompt_list. Accepted: …`. `org_id` and `brand_id` are accepted everywhere. Use the name from the message, or `geoly schema <tool>`; names use underscores.
+The server applies the same rule to every call and names the accepted arguments, for example `Unknown argument(s) nope for get_prompt_list. Accepted: …`. `org_id` and `brand_id` (the project id) are accepted everywhere. Use the name from the message, or `geoly schema <tool>`; names use underscores.
 
 **`Unknown tool "…"`.** Not available to this account, plan, or grant, or misspelled — the hint suggests the closest names. Try `geoly tools --refresh`.
 
-**"spans multiple organizations" or a brand is required.** Add `--org <org_id>` and, for brand tools, `--brand_id <id>` (`--brand <id>` for `geoly run`). `geoly call list_organizations` / `list_brands` show the options.
+**"spans multiple organizations" or a project is required.** Add `--org <org_id>` and, for project-scoped tools, `--brand_id <project_id>` (`--brand <project_id>` for `geoly run`). `geoly call list_organizations` / `list_brands` show the options.
 
 **`subscription_required` (exit 5) vs `quota_exhausted` (exit 7).** Both are HTTP 402: the first means no active plan, the second means this period's credits are used up. The hint links to billing and shows the reset date.
 

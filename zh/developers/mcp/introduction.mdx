@@ -18,7 +18,7 @@ description: "把 Claude、Cursor、Codex 等 MCP 客户端接到你的 GEOly �
 - **检查你的网站**：GEO 诊断结果、Agent 就绪度扫描，以及来自 GA4 或 Cloudflare 的 AI 引荐流量。
 - **研究市场**：用公开行业数据看品类领先者、品牌势头、空白机会、AI 搜索需求和 AI 购物榜。
 - **一键出报告**：7 个内置[斜杠命令](/zh/developers/mcp/prompts)，比如周报、竞品雷达、活动追踪。
-- **管理监控配置**：新建品牌、topic、提示词和竞品，给提示词改标签或换 topic、归档提示词，或立即跑一次监控。每次改动前客户端都会先请你确认。
+- **管理监控配置**：新建项目、topic、提示词和竞品，给提示词改标签或换 topic、归档提示词，或立即跑一次监控。每次改动前客户端都会先请你确认。
 
 ## 怎么用
 
@@ -44,7 +44,7 @@ description: "把 Claude、Cursor、Codex 等 MCP 客户端接到你的 GEOly �
 
 客户端可能会要求填写下面这些信息：
 
-| 项目 | 值 |
+| 参数 | 值 |
 | - | - |
 | **服务器地址** | `https://app.geoly.ai/api/mcp/v1` |
 | **传输方式** | Streamable HTTP |
@@ -61,13 +61,15 @@ description: "把 Claude、Cursor、Codex 等 MCP 客户端接到你的 GEOly �
 
 连接以你的身份访问数据：只能访问你所属的组织，以及你的角色在后台本来就能看到的数据。
 
+项目（Project）是 GEOly 的监测单元：一个项目监测一个自有品牌及其竞品。由于历史原因，项目 id 通过 `brand_id` 参数传递，`list_brands` 等工具列出的是项目。自有监测用的 `brand_id` 永远不是 `public_brand.id`。
+
 <Note>
 已有的只读 `geom_` 令牌仍然可用。新连接请使用 OAuth。
 </Note>
 
 ## 读写权限
 
-大部分工具只读取数据。会改动配置的有 8 个：`create_brand`、`create_topic`、`create_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`archive_prompt`、`create_competitor` 和 `trigger_prompt`。
+大部分工具只读取数据。会改动配置的有 8 个：`create_brand`（新建项目）、`create_topic`、`create_prompt`、`update_prompt_tags`、`move_prompts_to_topic`、`archive_prompt`、`create_competitor` 和 `trigger_prompt`。
 
 所有写入工具都标记了 `readOnlyHint: false`，会替换已有数据的两个（`update_prompt_tags`、`move_prompts_to_topic`）还标记了 `destructiveHint: true`，客户端会在执行前请你确认。`trigger_prompt` 会真的发起一次监控。
 
@@ -95,7 +97,7 @@ MCP 额度和 AI 额度（AI Credits）是两套独立的额度，后者用于 G
 
 ## Agent Skill
 
-MCP 连接决定 AI 助手能访问什么，GEOly Agent Skill 则教它怎么用好：先确认组织和品牌、选对工具、按后台的口径解释每个指标。技能不会增加权限或额度。建议和 MCP 一起[安装技能](https://www.geoly.ai/zh/open/skill)。
+MCP 连接决定 AI 助手能访问什么，GEOly Agent Skill 则教它怎么用好：先确认组织和项目、选对工具、按后台的口径解释每个指标。技能不会增加权限或额度。建议和 MCP 一起[安装技能](https://www.geoly.ai/zh/open/skill)。
 
 ## 支持的客户端
 
@@ -112,6 +114,6 @@ MCP 连接决定 AI 助手能访问什么，GEOly Agent Skill 则教它怎么用
 
 ## 前提条件
 
-- 一个 GEOly 账号，所在组织至少有一个品牌
+- 一个 GEOly 账号，所在组织至少有一个项目
 - 带 MCP 额度的付费套餐（公开行业情报需要 Grow 及以上）
 - 支持远程 MCP 的客户端
