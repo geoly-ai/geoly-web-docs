@@ -178,7 +178,8 @@
                 "pages": [
                   "zh/index",
                   "zh/get-started/geoly-platform",
-                  "zh/get-started/geoly-operation-manual"
+                  "zh/get-started/geoly-operation-manual",
+                  "zh/get-started/register-account"
                 ]
               },
               {
@@ -275,7 +276,6 @@
                 "group": "开始使用",
                 "icon": "book-open",
                 "pages": [
-                  "zh/get-started/register-account",
                   "zh/developers/data-api"
                 ]
               },
