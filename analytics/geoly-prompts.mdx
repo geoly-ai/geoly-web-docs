@@ -147,9 +147,9 @@ Before importing, use the preview to check empty text, country codes, Topic matc
 
 The figures below are the default limits shown on the [current pricing page](https://www.geoly.ai/pricing). Prices, available platforms, organization overrides, and add-on benefits can change; use the **current pricing page and account page** as the source of truth.
 
-| Plan | Prompt total | AI platforms | Responses/month | AI Credits/month | MCP Credits/month | Data retention |
+| Plan | Prompt total | AI platforms | Responses/month | AI Credits/month | Industry data credits/month | Data retention |
 | --- | --: | --- | --: | --: | --: | --- |
-| Basic | 30 | 1 (ChatGPT) | 900 | 3,000 | 3,000 | Up to 30 days |
+| Basic | 30 | 1 (ChatGPT) | 900 | 3,000 | Not included | Up to 30 days |
 | Grow | 50 | 2 (ChatGPT, Google AI Mode) | 3,000 | 10,000 | 25,000 | Up to 30 days |
 | Advanced | 100 | 4 (ChatGPT, Gemini, Google AI Mode, Google AI Overview) | 12,000 | 30,000 | 75,000 | Up to 90 days |
 | Plus | 500 | All 4 | 60,000 | 100,000 | 200,000 | 365 days |
@@ -159,8 +159,8 @@ Interpret these limits carefully:
 
 - **Prompt total is an organization-level monitoring quota**, not a separate allowance per project or platform. Check the organization's remaining quota before importing.
 - **Responses/month is monitoring response capacity, not a guarantee of completed Records**. Provider availability, failed or in-progress tasks, and narrow filters can make actual Records lower than the quota.
-- **AI Credits are for in-product AI analysis or generation**, separate from Responses and Prompt execution count. **MCP Credits are a separate organization-shared pool used by MCP, the CLI, and eligible future APIs.** Under the current metering configuration, many brand-monitoring data calls are billed per call, while navigation, writes, audits, GA4, Agent Readiness, and the free public-source tools can remain unbilled. Check `get_quota` and each tool's quota receipt instead of assuming a data read is free.
-- Current AI Credit validity is 30 days for Basic, Grow, and Advanced, and 90 days for Plus; Enterprise is custom. This is separate from monitoring-data retention. Current default MCP Credits are 3,000 (Basic), 25,000 (Grow), 75,000 (Advanced), 200,000 (Plus), and custom by plan (Enterprise); the organization shares the pool and unused credits do not roll over.
+- **AI Credits are for in-product AI analysis or generation**, separate from Responses and Prompt execution count. **Industry data credits are a separate organization-shared pool, used only by public industry intelligence through MCP, the CLI and the APIs.** Reading your own project's data (monitoring, prompts and answers, citations, competitors, audits, GA4, Agent Readiness, writes and the public source tools) is free. Check `get_quota` and the quota receipt on industry data calls for the balance.
+- Current AI Credit validity is 30 days for Basic, Grow, and Advanced, and 90 days for Plus; Enterprise is custom. This is separate from monitoring-data retention. Reading your own project's data through MCP, the CLI or the API is free. Only public industry data uses industry data credits: none on Basic (industry data is not included), 25,000 (Grow), 75,000 (Advanced), 200,000 (Plus), and custom by plan (Enterprise); the organization shares the pool and unused credits do not roll over.
 - Add-on capabilities such as sentiment analysis, Shopping product-card analysis, Agent, and reports have their own plan gates or quotas. Do not infer their availability from Prompt total or Responses/month; verify the plan comparison and current account state.
 - The detail drawer's **Last 30 Days** and custom ranges cannot exceed the plan's retention window. **AI real search queries** may show up to 90 days when available, but are still limited by the history actually retained for the account.
 - **All platforms** means all platforms allowed by the current project and plan, not every AI platform in the product. The platform selector can therefore differ by plan.

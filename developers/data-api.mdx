@@ -4,7 +4,7 @@ sidebarTitle: "Overview"
 description: "Read monitoring data, synchronize completed answers, and create or run prompts through versioned REST resources with project-bound API keys."
 ---
 
-The Data API exposes monitoring resources and typed reports over HTTP. It shares GEOly's authorization, metric definitions and billing with the product. No hosted agent runs between your request and the data.
+The Data API exposes monitoring resources and typed reports over HTTP. It shares GEOly's authorization and metric definitions with the product, and every endpoint is free: it serves your own project's data, which uses no credits. No hosted agent runs between your request and the data.
 
 ## Authentication and specification
 
@@ -48,7 +48,7 @@ Reports accept JSON bodies and do not create resources. Other GEOly tools, inclu
 Successful responses use `{data, page?, meta}`. Errors use `{error:{code,message,details?},meta}`. Branch on status and `error.code`, not message text.
 
 - `Request-Id` matches `meta.request_id`.
-- `meta.quota` is the actual billing outcome. A 404 is not necessarily free.
+- `meta.quota` is the receipt for this call. Data API endpoints are free, so a 404 is not charged either.
 - `meta.schema_conformant=false` means output drift was detected. Do not advance a synchronization checkpoint on such a response.
 - Names ending in `_pct` use 0–100, `_ratio` uses 0–1, and sentiment polarity uses -1 to 1.
 - `business_date` is the UTC+8 business day. `record_date_at` is its stored timestamp; do not relabel it as the business date.
@@ -88,14 +88,14 @@ Parameters:
 - `include`: `answer_text`, `citations`, or `answer_text,citations`.
 - `cursor`: the returned continuation or saved synchronization cursor. Keep `limit`, `business_date_from` and `include` unchanged while using it.
 
-The feed uses a watermark at least five minutes behind database time; a long-running database transaction that has already written holds it at five minutes before its start until it ends, and polls in that time return nothing newer but are still billed. Every request scans a bounded candidate batch. **An empty data array can still have a next cursor.**
+The feed uses a watermark at least five minutes behind database time; a long-running database transaction that has already written holds it at five minutes before its start until it ends, and polls in that time return nothing newer. Polls are free, including empty pages. Every request scans a bounded candidate batch. **An empty data array can still have a next cursor.**
 
 1. Upsert returned rows by id and change time.
 2. Persist the processed data and `page.sync_cursor` together.
 3. Follow `page.next_cursor` until null, then poll later using the saved sync cursor and unchanged filters. Polling every 5 to 15 minutes is enough; more frequent polls only pay for empty pages.
 4. Stop checkpoint advancement if `schema_conformant` is false.
 
-Start the first sync with `updated_since` (for example the last 30 days) rather than relying on `business_date_from`, which still scans from `updated_since` and bills every empty page.
+Start the first sync with `updated_since` (for example the last 30 days) rather than relying on `business_date_from`, which still scans from `updated_since` and returns empty pages until it reaches your dates.
 
 **`mention_rank` is a read-time value.** Rank write-backs do not advance the record's change time, so a rank can change while `changed_at` stays the same, and the feed will not emit the record again for it. In production, ranks are usually filled in about an hour after a record's last update; historical rescans (alias changes, entity promotions) can reach back days or weeks. The feed also does not emit deletions, records that leave the completed state (for example a same-day rerun that then fails), child-only citation or text edits, or backdated corrections. Reconcile by starting a separate pass **without a cursor** from an `updated_since` rewound by an overlap of at least 24 hours (longer after a rescan), or by re-reading records by date. A rewound `updated_since` sent together with a saved cursor is ignored and reconciles nothing.
 
@@ -128,9 +128,9 @@ Unknown or abandoned in-flight claims are not automatically reexecuted, even aft
 
 ## Billing
 
-OpenAPI `x-geoly-cost` declares the nominal price of each operation in MCP credits, the same as the matching GEOly MCP tool (`tier` "free" with `base` 0 means no MCP credits are charged, which includes the two write endpoints). The receipt in `meta.quota` is authoritative; its `charge` is `charged`, `min_fee`, `free`, `refunded`, `refund_pending` or `unbilled`. A call that finds no data, or asks for an AI platform the project has not purchased, pays the operation's minimum fee (`min_fee`). Record reads and the feed use light per-call pricing (currently 1 credit, including empty feed polls). Monitoring triggers consume monitoring credits through the existing workflow. Some error responses are still billed: a not-found from the record detail or the prompt overview counts as one call, and a report that rejects its parameters after reading data is billed as settled, so always read `meta.quota`. Other rejected requests, including every 429, 500 and 503, are not charged.
+Every Data API operation is free. The API reads and writes your own project's data, and reading your own project uses no industry data credits. OpenAPI `x-geoly-cost` declares each operation's price (`tier` "free", `base` 0). The receipt in `meta.quota` is still authoritative: for these endpoints `charge` is `free`, or `unbilled` when a call is rejected before it runs, and `remaining`, `resets_at` and `unlimited` are `null`. Triggering a monitoring run (`POST /api/v1/prompts/{prompt_id}/runs`) uses no credits, but it consumes your monitoring allowance as usual. The guards and rate limits below still apply.
 
-Honor Retry-After on 429/503. Read retries may be billed again. For writes, inspect `details.write_outcome` and use the same idempotency key; HTTP status alone does not prove that no side effect occurred.
+Honor Retry-After on 429/503. For writes, inspect `details.write_outcome` and use the same idempotency key; HTTP status alone does not prove that no side effect occurred.
 
 ## Rate limits, budgets and timeouts
 
@@ -141,4 +141,4 @@ Honor Retry-After on 429/503. Read retries may be billed again. For writes, insp
 
 Every authenticated response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until the window resets). Every executed call also carries `X-DB-Budget-Limit`, `X-DB-Budget-Used` and `X-DB-Budget-Reset`; slow down as `Used` approaches `Limit` instead of waiting for a 429. A 429 is never charged and always carries Retry-After.
 
-One call runs for at most about 45 seconds on the server, so set your HTTP client timeout to at least 60 seconds. A timeout returns `503 TOOL_TIMEOUT` (not charged); narrow the window or filters before retrying. JSON request bodies are limited to 64 KB. API result bodies have a 4 MB hard ceiling. Unsupported methods, including HEAD and OPTIONS on resource routes, return 405 without invoking a billable read.
+One call runs for at most about 45 seconds on the server, so set your HTTP client timeout to at least 60 seconds. A timeout returns `503 TOOL_TIMEOUT` (not charged); narrow the window or filters before retrying. JSON request bodies are limited to 64 KB. API result bodies have a 4 MB hard ceiling. Unsupported methods, including HEAD and OPTIONS on resource routes, return 405 without running the read.

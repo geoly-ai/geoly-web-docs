@@ -190,9 +190,9 @@ JSON 使用对象数组，每个对象至少包含 `text` 或 `prompt`：
 
 下面的数字是[当前定价页](https://www.geoly.ai/zh/pricing)展示的默认额度；价格、可用平台、组织覆盖配置和附加权益可能调整，实际使用时以**当前定价页和账户页面**为准。
 
-| 套餐 | Prompt 总数 | AI 平台 | Responses/月 | AI Credits/月 | MCP Credits/月 |
+| 套餐 | Prompt 总数 | AI 平台 | Responses/月 | AI Credits/月 | 行业数据额度/月 |
 | --- | ---: | --- | ---: | ---: | ---: |
-| Basic | 30 | 1（ChatGPT） | 900 | 3,000 | 公开行业工具需 Grow 及以上 |
+| Basic | 30 | 1（ChatGPT） | 900 | 3,000 | 不含 |
 | Grow | 50 | 2（ChatGPT、Google AI Mode） | 3,000 | 10,000 | 25,000 |
 | Advanced | 100 | 4（ChatGPT、Gemini、Google AI Mode、Google AI Overview） | 12,000 | 30,000 | 75,000 |
 | Plus | 500 | 全部 4 个 | 60,000 | 100,000 | 200,000 |
@@ -202,8 +202,8 @@ JSON 使用对象数组，每个对象至少包含 `text` 或 `prompt`：
 
 - **Prompt 总数是组织级监测 Prompt 配额**，不是每个项目、每个平台各有一份；导入前应先确认组织剩余配额。
 - **Responses/月是监测回答容量，不是保证拿到的完成记录数**。平台不可用、任务失败、仍在进行或筛选范围过窄，都可能让实际 Records 少于额度。
-- **AI Credits 是产品内 AI/Agent 推理或生成能力使用的独立额度池**，与 Responses、Prompt 执行次数不同；**MCP Credits 是 MCP、CLI 及后续 API 调用的独立组织共享额度**。当前配置下，很多品牌监控读取按调用计入 MCP Credits；导航、写入、审计、GA4、Agent Ready 和免费公开信源工具仍可能不扣额度。两者都不能直接换算成可执行 Prompt 数，具体消耗和重置以账户页、工具的 quota 回执及 `get_quota` 为准。
-- MCP Credits 当前为：Basic 3,000、Grow 25,000、Advanced 75,000、Plus 200,000、Enterprise 按方案定制；额度由组织共享，未用额度不自动结转。具体工具是否计费、计费单位和可用平台仍以账户页面、工具回执和当前套餐配置为准。AI Credits 是独立额度池，用于产品内 AI/Agent 推理或生成能力，具体有效期、消耗和结算以账户页面与调用回执为准。
+- **AI Credits 是产品内 AI/Agent 推理或生成能力使用的独立额度池**，与 Responses、Prompt 执行次数不同；**行业数据额度是独立的组织共享额度，只有通过 MCP、CLI 和 API 查公开行业情报时才会消耗**；查自己项目的数据（监测、提示词与回答、引用、竞品、网站诊断、GA4、Agent Ready、写入操作和公开信源工具）都免费。两者都不能直接换算成可执行 Prompt 数，具体消耗和重置以账户页、行业数据调用的 quota 回执及 `get_quota` 为准。
+- 通过 MCP、CLI 或 API 查自己项目的数据免费，只有公开行业数据扣**行业数据额度**：Basic 不含行业数据查询，Grow 25,000、Advanced 75,000、Plus 200,000、Enterprise 按方案定制；额度由组织共享，未用额度不自动结转。具体工具的价格和可用平台以账户页面、工具回执和当前套餐配置为准。AI Credits 是独立额度池，用于产品内 AI/Agent 推理或生成能力，具体有效期、消耗和结算以账户页面与调用回执为准。
 - 情绪分析、Shopping 商品卡、Agent、报告等附加能力有各自的套餐开关或额度，不能从 Prompt 总数或 Responses/月自行推断；需要按套餐对比表和当前账户状态确认。
 - 详情页的 **Last 30 Days** 或自定义日期不能突破账号实际可用历史。**AI 实际检索词**在有数据时可能展示近 90 天，但仍以当前账号实际保留和可用的数据为准。公开行业洞察的 90 天窗口需要 Advanced 及以上；不要把定价页中的 365 天说明扩展到所有模块。
 - **All Platforms** 表示当前项目和套餐允许的平台，不代表系统中所有 AI 平台；不同套餐看到的平台选择器可能不同。

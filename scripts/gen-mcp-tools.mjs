@@ -389,11 +389,13 @@ Every tool returns one JSON object as text. A few conventions apply across tools
 - **Not ready is not zero.** \`status: "not-ready"\`, \`kpiState: "computing"\` or a \`null\` rate means there is nothing to measure yet. It never means 0%.
 - **Long results are cut, and say so.** When a page does not fit, the response carries \`_truncated: true\` with \`_totalCount\`, \`_shownCount\` and a \`_message\` on how to get the rest.
 - **Errors explain the next step.** An invalid value returns an error that lists the valid ones (for example the project's countries or topic ids). Errors and timeouts are not charged.
-- **Credits.** A metered call returns a \`_quota\` receipt with the cost and your remaining balance. MCP clients can also read it from \`_meta["geoly/quota"]\`, and the outcome from \`_meta["geoly/outcome"]\`.
+- **Industry data credits.** A call that uses industry data credits returns a \`_quota\` receipt with the cost and your remaining balance. MCP clients can also read it from \`_meta["geoly/quota"]\`, and the outcome from \`_meta["geoly/outcome"]\`.
 
 ## Cost
 
-The cost line under each tool is the price of one call. "Per call" prices don't depend on page size, so request the largest page you need. "Per row" prices charge the rows returned. Some tools cost double for windows over 90 days. Check your balance with \`get_quota\` (free). [Plans and MCP Credits](/developers/mcp/introduction#plans-and-mcp-credits) explains the monthly allowance.
+Reading your own project's data is free. Monitoring, prompts and answers, citations, competitors, audits, website traffic, every write tool, discovery tools and the three public source tools all show **free** in their cost line.
+
+Only the public industry intelligence tools use **industry data credits**. Their cost line is the price of one call: "per call" prices don't depend on page size, so request the largest page you need; "per row" prices charge the rows actually returned. Some tools cost double for windows over 90 days. Check your balance with \`get_quota\` (free). [Plans and industry data credits](/developers/mcp/introduction#plans-and-industry-data-credits) explains the monthly allowance.
 
 `,
   zh: `---
@@ -441,11 +443,13 @@ ${GROUPS.map((g) => `- **${g.zh}**：${g.tools.map((n) => `\`${n}\``).join('、'
 - **没准备好不等于 0**：\`status: "not-ready"\`、\`kpiState: "computing"\` 或某个比率为 \`null\`，都表示暂时没有可算的数据，绝不是 0%。
 - **结果太长会截断并注明**：一页放不下时返回 \`_truncated: true\`，附 \`_totalCount\`、\`_shownCount\` 和告诉你怎么取剩余部分的 \`_message\`。
 - **报错会说明下一步**：传了非法值时，报错里会列出合法值（比如项目已有的国家或 topic id）。报错和超时都不扣费。
-- **额度**：计费调用会返回 \`_quota\` 回执，含本次费用和剩余额度。MCP 客户端也可以从 \`_meta["geoly/quota"]\` 读到它，从 \`_meta["geoly/outcome"]\` 读到调用结果。
+- **行业数据额度**：扣行业数据额度的调用会返回 \`_quota\` 回执，含本次费用和剩余额度。MCP 客户端也可以从 \`_meta["geoly/quota"]\` 读到它，从 \`_meta["geoly/outcome"]\` 读到调用结果。
 
 ## 费用
 
-每个工具下的「费用」是单次调用的价格。按次计费的工具不受每页条数影响，需要多少就一次取够；按行计费的工具按返回的行数收费；部分工具在窗口超过 90 天时价格翻倍。剩余额度用 \`get_quota\`（免费）查询，每月额度见 [MCP 介绍](/zh/developers/mcp/introduction) 里的「套餐与 MCP 额度」。
+查自己项目的数据免费。监测数据、提示词与回答、引用、竞品、网站诊断、网站流量、所有写入工具、发现类工具，以及三个公开信源工具，「费用」一栏都写着免费（free）。
+
+只有公开行业情报工具会扣**行业数据额度**。它们的「费用」是单次调用的价格：按次计费的不受每页条数影响，需要多少就一次取够；按行计费的按实际返回的行数收费；部分工具在窗口超过 90 天时价格翻倍。剩余额度用 \`get_quota\`（免费）查询，每月额度见 [MCP 介绍](/zh/developers/mcp/introduction#套餐与行业数据额度) 里的「套餐与行业数据额度」。
 
 `,
 };
