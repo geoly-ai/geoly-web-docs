@@ -1,9 +1,9 @@
 ---
 title: "GEOly CLI: Use GEOly from Your Own Agent"
-description: "Install GEOly CLI and authorize access for your agent. Protect locally stored credentials and receipts; hosted runs use AI Credits while billable data-tool calls use MCP Credits."
+description: "Install GEOly CLI and authorize access for your agent. Protect locally stored credentials and receipts; reading your own project is free, industry data tools use industry data credits, and hosted runs use AI Credits."
 ---
 
-The GEOly CLI (`geoly`) lets the agent you already work with ask GEOly for your brand's AI visibility data. Install it, authorize once, and Claude Code, Codex, Cursor, OpenCode, or an agent you built yourself can run `geoly` commands to read visibility, prompts, AI answers, citations, competitors, audits, and public industry data. The CLI stores OAuth credentials in the current user's environment on the machine where it runs; an agent host with terminal or file access may see command output or local receipts. Do not paste access tokens into prompts. Hosted `geoly run` reasoning uses AI Credits, while billable `geoly call` data tools use MCP Credits.
+The GEOly CLI (`geoly`) lets the agent you already work with ask GEOly for your brand's AI visibility data. Install it, authorize once, and Claude Code, Codex, Cursor, OpenCode, or an agent you built yourself can run `geoly` commands to read visibility, prompts, AI answers, citations, competitors, audits, and public industry data. The CLI stores OAuth credentials in the current user's environment on the machine where it runs; an agent host with terminal or file access may see command output or local receipts. Do not paste access tokens into prompts. Reading your own project is free. Industry data tools use industry data credits, and hosted `geoly run` reasoning uses AI Credits.
 
 ## Paste this into your agent
 
@@ -491,11 +491,16 @@ geoly runs list          # recent runs for the organization (--limit 1–50, def
 
 ## Credits
 
-Some direct geoly call / MCP reads of own monitoring data are billed per call against MCP Credits. Paid public research uses registered tool/view rates; quota, navigation and eligible free tools retain their free scope. Current default monthly MCP Credits are Basic 3,000, Grow 25,000, Advanced 75,000 and Plus 200,000, subject to organization overrides. Basic credits do not unlock all public industry tools, which still require Grow or higher and resource permission. Hosted reasoning in geoly run / Agent API uses separate AI Credits; its own-data tools are not billed again as direct MCP calls, while third-party cost tools follow separate rules. Check get_quota, the account and receipts for both balances and resets.
+**Reading your own project's data is free.** `geoly call` on monitoring, prompts and answers, citations, competitors, audits, website traffic, discovery and the three public source tools uses no credits.
 
-GEOly CLI uses separate credit pools: hosted `geoly run` reasoning consumes AI Credits; billable `geoly call` / MCP data tools consume MCP Credits. Free tools and third-party-cost tools follow their current published rules. Check the current account, tool schema, and receipt before estimating cost.
+Two things use credits, from two separate pools:
 
-- **See the balance:** `geoly credits` (or **Settings → Organization → Billing** in GEOly) returns each organization you can reach with its plan, remaining credits, and reset date. `geoly credits --output raw` prints the same as plain text, two lines per organization (`MCP credits` and `AI credits`).
+- **Industry data credits:** `geoly call` on public industry intelligence tools (categories, public brands, search demand, the AI shopping shelf). Monthly allowance: Grow 25,000, Advanced 75,000, Plus 200,000; Basic does not include industry data. These tools also need the public data grant. Each tool's description shows its price.
+- **AI Credits:** the hosted agent's reasoning in `geoly run`. The tools it calls on your own project are free, the same as `geoly call`.
+
+Triggering a monitoring run (`trigger_prompt`) uses neither pool, but it consumes your monitoring allowance as usual. Check `get_quota`, the account and receipts for both balances and reset dates.
+
+- **See the balance:** `geoly credits` (or **Settings → Organization → Billing** in GEOly) returns each organization you can reach with its plan, remaining credits, and reset date. `geoly credits --output raw` prints the same as plain text, two lines per organization: `MCP credits` (the industry data credits pool; the label is unchanged) and `AI credits`.
 - **Cap a run:** `geoly run … --max-credits <n>`. The receipt's `credits_cost` never exceeds it; `credits_remaining` shows what is left.
 - **When credits run out**, commands that need them exit with code 7 and the hint gives the reset date. Plan allowances are on the [pricing page](https://www.geoly.ai/pricing).
 

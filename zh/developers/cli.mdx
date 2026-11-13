@@ -1,9 +1,9 @@
 ---
 title: "GEOly CLI：在你自己的 Agent 里调用 GEOly"
-description: "安装 GEOly CLI 并授权你的 Agent 使用。请保护本机凭据与回执；托管运行使用 AI Credits，需计费的数据工具调用使用 MCP Credits。"
+description: "安装 GEOly CLI 并授权你的 Agent 使用。请保护本机凭据与回执；查自己项目免费，行业数据工具扣行业数据额度，托管运行使用 AI Credits。"
 ---
 
-GEOly CLI（命令名 `geoly`）让你已经在用的 Agent 直接向 GEOly 要品牌的 AI 可见度数据。装好、授权一次之后，Claude Code、Codex、Cursor、OpenCode，或者你自己搭的 Agent，都可以通过 `geoly` 命令读取可见度、Prompt、AI 回答原文、引用、竞品、审计和公开行业数据。CLI 会把 OAuth 凭据保存在运行机器的当前用户环境中；具备终端或文件访问权限的 Agent 宿主可能读到命令输出或本地回执，因此不要把访问令牌写入提问文本。托管的 `geoly run` 推理使用 AI Credits，需计费的 `geoly call` 数据工具使用 MCP Credits。
+GEOly CLI（命令名 `geoly`）让你已经在用的 Agent 直接向 GEOly 要品牌的 AI 可见度数据。装好、授权一次之后，Claude Code、Codex、Cursor、OpenCode，或者你自己搭的 Agent，都可以通过 `geoly` 命令读取可见度、Prompt、AI 回答原文、引用、竞品、审计和公开行业数据。CLI 会把 OAuth 凭据保存在运行机器的当前用户环境中；具备终端或文件访问权限的 Agent 宿主可能读到命令输出或本地回执，因此不要把访问令牌写入提问文本。查自己项目的数据免费；行业数据工具扣行业数据额度，托管的 `geoly run` 推理使用 AI Credits。
 
 ## 直接粘给你的 Agent
 
@@ -488,11 +488,16 @@ geoly runs list          # 组织最近的运行（--limit 1–50，默认 20）
 
 ## Credits
 
-直接 geoly call / MCP 的部分自有监测读取按调用消耗 MCP Credits，公开行业分析按登记的工具/view 费率计费；免费导航、额度与获授权的免费工具仍有免费范围。Basic 当前默认每月 MCP Credits 为 3,000，Grow 25,000、Advanced 75,000、Plus 200,000，组织定制额度优先。Basic 的额度不解锁全部公开行业工具，公开行业仍有 Grow 及以上与资源权限要求。geoly run / Agent API 的托管推理使用独立 AI Credits，自家数据工具在该运行中不重复计为直接 MCP 消费；第三方成本工具按独立规则处理。以 get_quota、账户页及回执区分两池余额与重置时间。
+**查自己项目的数据免费。** 用 `geoly call` 查监测数据、提示词与回答、引用、竞品、网站诊断、网站流量、发现类工具和三个公开信源工具，都不消耗额度。
 
-GEOly CLI 使用独立的额度池：托管 `geoly run` 推理消耗 AI Credits；需计费的 `geoly call` / MCP 数据工具消耗 MCP Credits。免费工具和第三方成本工具以当前规则为准，估算成本前请查看账户、工具说明和回执。
+只有两类调用会消耗额度，分属两个独立的池：
 
-- **查看余额：** `geoly credits`（或在 GEOly 的 **设置 → 组织 → 套餐与账单** 查看）返回你能访问的每个组织的套餐、剩余 credits 和重置日期。`geoly credits --output raw` 以纯文本显示，每个组织两行（`MCP credits` 与 `AI credits`）。
+- **行业数据额度**：`geoly call` 调用公开行业情报工具（品类、公开品牌、搜索需求、AI 货架等）。每月额度：Grow 25,000、Advanced 75,000、Plus 200,000；Basic 不含行业数据查询。这些工具还需要授予公开数据的读取权限，每个工具的说明里写着价格。
+- **AI Credits**：`geoly run` 里托管 Agent 的推理。它在你项目上调用的工具和 `geoly call` 一样免费。
+
+触发采集（`trigger_prompt`）不扣这两个池，但照常消耗监测额度。两个池的余额和重置时间以 `get_quota`、账户页和回执为准。
+
+- **查看余额：** `geoly credits`（或在 GEOly 的 **设置 → 组织 → 套餐与账单** 查看）返回你能访问的每个组织的套餐、剩余 credits 和重置日期。`geoly credits --output raw` 以纯文本显示，每个组织两行：`MCP credits`（即行业数据额度，输出标签没有改）与 `AI credits`。
 - **给运行封顶：** `geoly run … --max-credits <n>`。回执中的 `credits_cost` 不会超过这个值，`credits_remaining` 显示剩余额度。
 - **credits 用完时，** 需要消耗 credits 的命令以退出码 7 结束，提示中会给出重置日期。各套餐额度见 [定价页](https://www.geoly.ai/zh/pricing)。
 

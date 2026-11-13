@@ -75,25 +75,28 @@ Every write tool is flagged `readOnlyHint: false`, and the two that replace exis
 
 See the [tools reference](/developers/mcp/tools) for every tool.
 
-## Plans and MCP Credits
+## Plans and industry data credits
 
-Reading your own data and public industry data uses **MCP Credits**, a monthly allowance shared by your organization. Navigation, discovery, audits, website traffic, every write tool, and the three public source tools are free.
+**Reading your own project's data is free.** Visibility, mentions, citations, prompts and answers, platforms, topics, competitors, audits, website traffic, every write tool, discovery and navigation, and the three public source tools use no credits.
 
-| Plan | MCP Credits per month |
+Only **public industry intelligence** uses credits: cross-brand data from GEOly's industry-level collection, such as category leaderboards, category whitespace, brand momentum, public brand profiles and comparisons, search demand and the AI shopping shelf. These calls draw on **industry data credits**, a monthly allowance shared by your organization.
+
+| Plan | Industry data credits per month |
 | - | - |
-| Basic | 3,000 |
+| Basic | Not included (no industry data) |
 | Grow | 25,000 |
 | Advanced | 75,000 |
 | Plus | 200,000 |
 | Enterprise | Unlimited, or as agreed in your contract |
 
-- **Price per tool.** Each tool's description ends with its cost: free, a fixed price per call (1, 3, or 10 credits), or a price per row returned. The [tools reference](/developers/mcp/tools) lists them all.
+- **Price per tool.** Each industry data tool's description ends with its cost: a fixed price per call, or 1, 3 or 10 credits per row actually returned. Summary results count as one row. The [tools reference](/developers/mcp/tools) lists them all.
 - **Public industry intelligence** needs Grow or above and the public data read grant.
 - **No charge for failures.** Errors and timeouts are not charged. A single call costs at most 2,500 credits.
-- **Check your balance** with `get_quota` (free). Every metered call also returns a `_quota` receipt with its cost and your remaining balance. A balance of `-1` means unlimited.
-- **When credits run out**, free tools keep working. Metered tools return a quota error until the allowance resets on your subscription date.
+- **Check your balance** with `get_quota` (free). Every call that uses credits also returns a `_quota` receipt with its cost and your remaining balance. A balance of `-1` means unlimited.
+- **When credits run out**, your own project's data and every other free tool keep working. Only industry data tools pause until the allowance resets on your subscription date, or until you upgrade.
+- **Triggering a monitoring run** (`trigger_prompt`) uses no industry data credits, but it does use your monitoring allowance as usual.
 
-MCP Credits are separate from AI Credits, which pay for AI features inside the GEOly app.
+Industry data credits are separate from AI Credits, which pay for AI features inside the GEOly app. API field names haven't changed: `get_quota` still reports this pool as `quota_limit` / `used` / `remaining`.
 
 ## The Agent Skill
 
@@ -115,5 +118,5 @@ See the [setup guide](/developers/mcp/setup).
 ## Requirements
 
 - A GEOly account in an organization with at least one project
-- A paid plan with MCP Credits (Grow or above for public industry intelligence)
+- A paid plan (Grow or above for public industry intelligence)
 - A client that supports remote MCP
