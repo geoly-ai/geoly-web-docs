@@ -23,7 +23,7 @@ curl --fail-with-body https://app.geoly.ai/api/v1/brand \
 
 | 方法和路径 | 用途 |
 | --- | --- |
-| [`GET /api/v1/quota`](/zh/api-reference/account/get-quota) | 积分与计费周期 |
+| [`GET /api/v1/quota`](/zh/api-reference/account/get-quota) | 额度与计费周期 |
 | [`GET /api/v1/brand`](/zh/api-reference/account/get-brand) | 密钥绑定的项目（及其自有品牌）和组织 |
 | [`GET /api/v1/topics`](/zh/api-reference/catalog/list-topics) | 监控主题 |
 | [`GET /api/v1/prompts`](/zh/api-reference/catalog/list-prompts) | 提示词目录，keyset 分页 |
@@ -141,4 +141,4 @@ curl --fail-with-body -X POST https://app.geoly.ai/api/v1/prompts \
 
 鉴权通过后的每个响应都带 `X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`（距窗口重置的秒数）；执行过的调用另带 `X-DB-Budget-Limit`、`X-DB-Budget-Used`、`X-DB-Budget-Reset`，`Used` 接近 `Limit` 时请主动放慢，不要等到 429。429 一律不扣费，并带 Retry-After。
 
-单次调用在服务端最长约 45 秒，HTTP 客户端超时请设为至少 60 秒。超时返回 `503 TOOL_TIMEOUT`（不扣费），请先缩小窗口或过滤条件再重试。JSON 请求体上限 64 KB，API 响应体硬上限 4 MB。资源路由不支持的方法，包括 HEAD/OPTIONS，返回 405，不执行收费读取。
+单次调用在服务端最长约 45 秒，HTTP 客户端超时请设为至少 60 秒。超时返回 `503 TOOL_TIMEOUT`（不扣费），请先缩小窗口或过滤条件再重试。JSON 请求体上限 64 KB，API 响应体硬上限 4 MB。资源路由不支持的方法，包括 HEAD/OPTIONS，返回 405，不执行读取。
