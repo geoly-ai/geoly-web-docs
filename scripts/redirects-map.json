@@ -37,5 +37,7 @@
   "/zh/docs/how-to-setup-catalog-optimization": "/zh/shopify/how-to-setup-catalog-optimization",
   "/zh/docs/catalog-optimization": "/zh/shopify/catalog-optimization",
   "/docs/how-to-setup-catalog-optimization": "/shopify/how-to-setup-catalog-optimization",
-  "/docs/catalog-optimization": "/shopify/catalog-optimization"
+  "/docs/catalog-optimization": "/shopify/catalog-optimization",
+  "/docs/prompt-volume": "/analytics/prompt-volume",
+  "/zh/docs/prompt-volume": "/zh/analytics/prompt-volume"
 }
