@@ -39,6 +39,7 @@
                 "icon": "activity",
                 "pages": [
                   "analytics/geoly-prompts",
+                  "analytics/prompt-volume",
                   "analytics/ai-engine-topic"
                 ]
               },
@@ -188,6 +189,7 @@
                 "pages": [
                   "zh/analytics/performance",
                   "zh/analytics/geoly-prompts",
+                  "zh/analytics/prompt-volume",
                   "zh/analytics/ai-engine-topic"
                 ]
               },
