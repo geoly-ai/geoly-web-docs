@@ -77,11 +77,11 @@ See the [tools reference](/developers/mcp/tools) for every tool.
 
 ## Plans and MCP Credits
 
-Reading your own data and public industry data uses **MCP Credits**, a monthly allowance shared by your organization. Navigation, discovery, audits, website traffic, every write tool, and the three public source tools are free.
+Calls about your own projects are free. Only public industry data uses **industry data credits**, a monthly allowance shared by your organization (`get_quota` calls them MCP Credits). Navigation, discovery, audits, website traffic, every write tool, and the three public source tools are free as well.
 
-| Plan | MCP Credits per month |
+| Plan | Industry data credits per month |
 | - | - |
-| Basic | 3,000 |
+| Basic | Not included |
 | Grow | 25,000 |
 | Advanced | 75,000 |
 | Plus | 200,000 |
@@ -93,7 +93,7 @@ Reading your own data and public industry data uses **MCP Credits**, a monthly a
 - **Check your balance** with `get_quota` (free). Every metered call also returns a `_quota` receipt with its cost and your remaining balance. A balance of `-1` means unlimited.
 - **When credits run out**, free tools keep working. Metered tools return a quota error until the allowance resets on your subscription date.
 
-MCP Credits are separate from AI Credits, which pay for AI features inside the GEOly app.
+Industry data credits are separate from AI Credits, which pay for AI features inside the GEOly app.
 
 ## The Agent Skill
 
@@ -115,5 +115,5 @@ See the [setup guide](/developers/mcp/setup).
 ## Requirements
 
 - A GEOly account in an organization with at least one project
-- A paid plan with MCP Credits (Grow or above for public industry intelligence)
+- An active GEOly plan or free trial (public industry data needs Grow or above)
 - A client that supports remote MCP
