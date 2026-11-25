@@ -1,0 +1,108 @@
+---
+title: "让 GEOly Agent 改 Shopify 主题"
+description: "让 GEOly Agent 在线上主题的副本里改主题文件（比如 robots.txt），预览副本后由你自己发布，或者让 Agent 发布。每一步都能撤销。"
+---
+
+GEOly Agent 可以替你改 Shopify 主题文件，比如在 `robots.txt` 里给 AI 爬虫加规则。它从不改你的线上主题：所有改动都写进线上主题的一份副本，副本发布之后顾客才看得到。
+
+整个流程是这样的：
+
+1. 你在对话里告诉 Agent 要改什么；
+2. Agent 把改动列在一张卡片上，你批准之前什么都不写；
+3. 改动写进主题的 **GEOly 工作副本**，你先预览这份副本；
+4. 你在 Shopify 后台自己发布副本，或者让 Agent 发布。发布每次都要你确认；
+5. 发布前可以撤销改动，发布后也可以撤销这次发布。
+
+<Note>
+下面的截图都是 GEOly 的英文界面。正文先写英文界面上的名称，括号里是中文界面的对应名称，方便你用任一语言的界面对照操作。
+</Note>
+
+## 一、开始前准备
+
+开始前请确认：
+
+- 店铺装了 GEOly 应用（**GEOly: AI Traffic Booster**）；
+- 店铺已经连到你的 GEOly 项目。在 GEOly 里打开 **Agent › Connectors**（连接器），在 **Your store**（你的店铺）下点 **Shopify store**（Shopify 店铺），填店铺地址拿到连接链接，打开链接后在 Shopify 后台的 GEOly 应用里点 **Connect**。需要店铺管理员帐户，链接 30 分钟内有效；在 GEOly 里需要是项目管理员。
+
+![连接器页，Your store 下是已连接的 Shopify 店铺](/images/agent-theme-changes/en-01-connectors.jpg "连接器页上已连接的店铺")
+
+点开已连接的店铺，可以看到 Agent 能用哪些工具：读店铺不用批准，每一处改动都要你在对话里批准。
+
+<Note>
+本页适用于用 Shopify 主题的店铺。无头店（比如用 Hydrogen 搭的）前台不由主题文件决定，Agent 会改为在前台代码仓库开 PR，见[连接 GitHub 操作手册](/zh/integrations/github-connector)。
+</Note>
+
+## 二、工作副本是怎么回事
+
+- Agent 第一次写主题文件时，GEOly 会把线上主题复制一份，变成一个未发布的主题，名字是 **GEOly working copy** 加日期，在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里能看到；
+- 之后的主题改动都写进同一份副本，项目里所有对话共用这一份；
+- 如果副本建好之后有人改了线上主题，下一次主题改动会写进一份新的副本。这样发布副本时，不会把线上主题退回旧版本；
+- GEOly 不会给店铺安装、上传或删除主题，只会复制线上主题、改这份副本。
+
+## 三、在对话里提出改动
+
+新开一个对话，说清楚要改什么、只改哪个文件，比如：
+
+> I want AI assistants to be able to crawl my Shopify store. Check the store's current robots.txt, then add explicit Allow rules for GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot, ClaudeBot and Google-Extended. Keep Shopify's default rules, and only change templates/robots.txt.liquid — don't touch any other theme file.
+
+用中文说也可以，比如「检查店铺现在的 robots.txt，给 GPTBot、PerplexityBot、ClaudeBot 等 AI 爬虫加上明确的 Allow 规则，保留 Shopify 默认规则，只改 templates/robots.txt.liquid」。
+
+![让 Agent 给 robots.txt 加 AI 爬虫规则](/images/agent-theme-changes/en-02-ask.jpg "在新对话里提出改动")
+
+Agent 会先读店铺、读这个主题文件、看店铺现在实际输出什么，再提出改动。
+
+## 四、核对并批准改动
+
+Agent 会弹出 **apply shopify changes** 卡片。**What will change**（这次会改什么）下面列出每个文件，以及是新建还是修改；点 **Show full changes**（查看完整改动）可以逐行看增删。
+
+![主题文件改动的审批卡，展开了逐行改动](/images/agent-theme-changes/en-03-approval-card.jpg "批准前先核对改动")
+
+- 点 **Approve**（批准），改动写进工作副本，一般几秒钟就好；
+- 点 **Deny**（拒绝），什么都不写。
+
+这一步线上主题不会变。如果你在 **Agent behavior**（Agent 行为）里开了 **Auto-approve actions**（自动批准改动），Agent 写主题文件时不会先问你，但也只写进工作副本；副本发布之前，线上主题都不会变。
+
+## 五、预览工作副本
+
+写好之后，Agent 会给出工作副本的预览链接，形如 `https://你的店铺.myshopify.com/?preview_theme_id=123456789`。也可以在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里找到这份副本，点 **Preview**（预览）。
+
+先打开预览链接，再在同一个浏览器标签页里打开改过的页面。改的是 `robots.txt` 的话，打开预览链接后再访问 `https://你的店铺.myshopify.com/robots.txt`，看到的就是副本里的版本。
+
+![打开预览链接后看到的副本 robots.txt](/images/agent-theme-changes/en-05-preview-robots.jpg "预览副本的 robots.txt")
+
+## 六、发布工作副本
+
+什么时候上线由你决定，有两种发法。
+
+**自己发布（默认）**：在 Shopify 后台打开 **Online Store › Themes**（在线商店 › 模板），找到 **GEOly working copy**，把它发布。
+
+**让 Agent 发布**：比如说「预览看过了，没问题，请发布工作副本」。Agent 会弹出 **publish shopify theme** 卡片。
+
+![发布卡只有 Approve 和 Deny](/images/agent-theme-changes/en-06-publish-card.jpg "每次发布都要你确认")
+
+- 每次发布都要你亲手点 **Approve**（批准）。这张卡没有 **Always allow**（始终允许），**Auto-approve actions**（自动批准改动）对它也不起作用；
+- 卡片锁定的是你看到的那份副本、那一版内容。之后副本里只要又写进了东西，就不会发布：Agent 会重新读副本，再问你一次；
+- 如果副本建好之后线上主题被改过，发布会被拒绝，因为发布会冲掉那些改动。这时让 Agent 把改动重新做一遍，它会写进一份新的副本。
+
+批准后几秒钟内，副本就成为线上主题。原来的线上主题原样留在主题库里。
+
+![Agent 确认工作副本已经是线上主题](/images/agent-theme-changes/en-07-published.jpg "工作副本已上线")
+
+## 七、撤销
+
+**发布前**：让 Agent 撤销那次改动，比如「撤销你在工作副本里对 robots.txt 的改动」。它会弹出 **undo shopify changes** 卡片，批准后副本里的文件恢复原样。线上主题从头到尾没被碰过。
+
+**Agent 发布之后**：让 Agent 撤销这次发布，比如「撤销这次发布，把原来的线上主题换回来」。它会单独弹一张卡片请你确认，批准后原来的线上主题重新发布，内容和之前一模一样；工作副本留在主题库里。
+
+![撤销发布的确认卡](/images/agent-theme-changes/en-08-undo-publish-card.jpg "撤销发布")
+
+![Agent 确认原来的线上主题已经换回来](/images/agent-theme-changes/en-09-undone.jpg "原来的线上主题重新上线")
+
+**你在 Shopify 后台自己发布的**：不是 Agent 发布的，Agent 撤销不了。请在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里把原来的主题重新发布。
+
+## 八、常见问题
+
+- **Agent 说改不了主题**：确认店铺已经在 **Agent › Connectors › Your store**（连接器 › 你的店铺）里连上，并且店铺用的是 Shopify 主题，不是无头店。
+- **发布被拒绝，提示副本变了**：你看过之后，副本里又被写进了东西，可能来自项目里的另一个对话。先问 Agent 副本里现在有什么，再让它发布一次。
+- **发布被拒绝，提示线上主题变了**：副本建好之后，有人改了或换了线上主题。让 Agent 把你的改动重新做一遍，它会写进基于当前线上主题的新副本。
+- **预览看到的还是线上版本**：要先打开预览链接，再在同一个标签页里打开页面。店铺设了访问密码的话，先输入密码。
