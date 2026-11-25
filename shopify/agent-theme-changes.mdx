@@ -30,10 +30,12 @@ This page is for stores that use a Shopify theme. On a headless storefront (for 
 
 ## How the working copy works
 
-- The first time the Agent writes a theme file, GEOly duplicates your live theme into a new, unpublished theme named **GEOly working copy** with the date. It appears in Shopify admin under **Online Store › Themes**.
+- The first time the Agent writes a theme file, GEOly duplicates your live theme into a new, unpublished theme named **GEOly working copy** with the date. It appears in Shopify admin under **Online Store › Themes**, in **Draft themes**.
 - Later theme changes go into the same copy, from any chat in the project.
 - If someone changes the live theme after the copy was made, the next theme change goes into a fresh copy. This way, publishing a copy never brings back an older version of your live theme.
 - GEOly doesn't install, upload, or delete themes. It only duplicates your live theme and edits that copy.
+
+![The GEOly working copy under Draft themes in Shopify admin](/images/agent-theme-changes/en-13-admin-themes.jpg "The working copy in your theme library")
 
 ## Step 1: Ask the Agent for the change
 
@@ -93,6 +95,31 @@ After you approve, the copy becomes your live theme within seconds. Your previou
 ![The Agent confirms that the previous live theme is back](/images/agent-theme-changes/en-09-undone.jpg "The previous live theme is live again")
 
 **After you published the copy yourself in Shopify admin.** The Agent can't undo a publish it didn't make. In Shopify admin, open **Online Store › Themes** and publish your previous theme again.
+
+## Change text on your storefront
+
+Most of the text shoppers see on your theme pages lives in theme files: the headings, text, and button labels in the sections you set up in the theme editor, the announcement bar, and footer headings. The Agent changes this text the same way. The change goes into the working copy after you approve it, and goes live only when the copy is published.
+
+For example:
+
+> The big banner at the top of my store's homepage still says "Generated test data". Change the banner heading to "Gear built for every season" and the line under it to "Snowboards, wax and accessories, tested on real mountains." Only change that banner text — leave everything else on the homepage as it is.
+
+The card shows which file changes (for the homepage, `templates/index.json`) and exactly which lines.
+
+![The approval card for a homepage text change, showing the two changed lines](/images/agent-theme-changes/en-11-text-card.jpg "Only the banner heading and text change")
+
+Open the preview link to check the new text. Shopify's preview bar at the bottom shows the working copy's name and **Draft**.
+
+![The homepage previewed from the working copy, with the new banner text](/images/agent-theme-changes/en-12-text-preview.jpg "Preview the new text before you publish")
+
+The Agent can't change these this way:
+
+- Labels that come from the theme's language files, such as **Add to cart** or **Sold out**, and the theme's global settings. Change them in the theme editor.
+- Translations of your store into other languages.
+
+<Note>
+Product and collection descriptions, pages, and blog posts aren't theme files. The Agent changes them directly in your store after you approve, without a working copy, and you can ask it to undo them.
+</Note>
 
 ## Troubleshooting
 
