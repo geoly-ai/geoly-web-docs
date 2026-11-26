@@ -92,7 +92,7 @@ The feed uses a watermark at least five minutes behind database time; a long-run
 
 1. Upsert returned rows by id and change time.
 2. Persist the processed data and `page.sync_cursor` together.
-3. Follow `page.next_cursor` until null, then poll later using the saved sync cursor and unchanged filters. Polling every 5 to 15 minutes is enough; more frequent polls only pay for empty pages.
+3. Follow `page.next_cursor` until null, then poll later using the saved sync cursor and unchanged filters. Polling every 5 to 15 minutes is enough; more frequent polls only return empty pages.
 4. Stop checkpoint advancement if `schema_conformant` is false.
 
 Start the first sync with `updated_since` (for example the last 30 days) rather than relying on `business_date_from`, which still scans from `updated_since` and returns empty pages until it reaches your dates.

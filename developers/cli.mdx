@@ -1,6 +1,6 @@
 ---
 title: "GEOly CLI: Use GEOly from Your Own Agent"
-description: "Install GEOly CLI and authorize access for your agent. Protect locally stored credentials and receipts; reading your own project is free, industry data tools use industry data credits, and hosted runs use AI Credits."
+description: "Install GEOly CLI and authorize access for your agent. Protect locally stored credentials and receipts; hosted runs use AI Credits, and only industry data calls use industry data credits."
 ---
 
 The GEOly CLI (`geoly`) lets the agent you already work with ask GEOly for your brand's AI visibility data. Install it, authorize once, and Claude Code, Codex, Cursor, OpenCode, or an agent you built yourself can run `geoly` commands to read visibility, prompts, AI answers, citations, competitors, audits, and public industry data. The CLI stores OAuth credentials in the current user's environment on the machine where it runs; an agent host with terminal or file access may see command output or local receipts. Do not paste access tokens into prompts. Reading your own project is free. Industry data tools use industry data credits, and hosted `geoly run` reasoning uses AI Credits.
@@ -491,11 +491,11 @@ geoly runs list          # recent runs for the organization (--limit 1–50, def
 
 ## Credits
 
-**Reading your own project's data is free.** `geoly call` on monitoring, prompts and answers, citations, competitors, audits, website traffic, discovery and the three public source tools uses no credits.
+**Reading your own project's data is free.** `geoly call` on monitoring, prompts and answers, citations, competitors, audits, website traffic, discovery, write tools and the three public source tools uses no credits.
 
 Two things use credits, from two separate pools:
 
-- **Industry data credits:** `geoly call` on public industry intelligence tools (categories, public brands, search demand, the AI shopping shelf). Monthly allowance: Grow 25,000, Advanced 75,000, Plus 200,000; Basic does not include industry data. These tools also need the public data grant. Each tool's description shows its price.
+- **Industry data credits:** `geoly call` on public industry intelligence tools (categories, public brands, search demand, the AI shopping shelf). Default monthly allowance: Grow 25,000, Advanced 75,000, Plus 200,000, subject to organization overrides; Basic does not include industry data. These tools also need the public data grant. Each tool's description shows its price.
 - **AI Credits:** the hosted agent's reasoning in `geoly run`. The tools it calls on your own project are free, the same as `geoly call`.
 
 Triggering a monitoring run (`trigger_prompt`) uses neither pool, but it consumes your monitoring allowance as usual. Check `get_quota`, the account and receipts for both balances and reset dates.

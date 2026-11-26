@@ -77,13 +77,13 @@ See the [tools reference](/developers/mcp/tools) for every tool.
 
 ## Plans and industry data credits
 
-**Reading your own project's data is free.** Visibility, mentions, citations, prompts and answers, platforms, topics, competitors, audits, website traffic, every write tool, discovery and navigation, and the three public source tools use no credits.
+Calls about your own projects are free. Only public industry data uses **industry data credits**, a monthly allowance shared by your organization. Navigation, discovery, audits, website traffic, every write tool, and the three public source tools are free as well.
 
-Only **public industry intelligence** uses credits: cross-brand data from GEOly's industry-level collection, such as category leaderboards, category whitespace, brand momentum, public brand profiles and comparisons, search demand and the AI shopping shelf. These calls draw on **industry data credits**, a monthly allowance shared by your organization.
+Public industry data is the cross-brand data from GEOly's own industry-level collection, such as category leaderboards, category whitespace, brand momentum, public brand profiles and comparisons, search demand and the AI shopping shelf.
 
 | Plan | Industry data credits per month |
 | - | - |
-| Basic | Not included (no industry data) |
+| Basic | Not included |
 | Grow | 25,000 |
 | Advanced | 75,000 |
 | Plus | 200,000 |
@@ -96,7 +96,7 @@ Only **public industry intelligence** uses credits: cross-brand data from GEOly'
 - **When credits run out**, your own project's data and every other free tool keep working. Only industry data tools pause until the allowance resets on your subscription date, or until you upgrade.
 - **Triggering a monitoring run** (`trigger_prompt`) uses no industry data credits, but it does use your monitoring allowance as usual.
 
-Industry data credits are separate from AI Credits, which pay for AI features inside the GEOly app. API field names haven't changed: `get_quota` still reports this pool as `quota_limit` / `used` / `remaining`.
+Industry data credits are separate from AI Credits, which pay for AI features inside the GEOly app. Field names haven't changed: `get_quota` reports this pool as `quota_limit` / `used` / `remaining`, the Data API calls it `mcp_credits`, and `geoly credits` still labels it `MCP credits`.
 
 ## The Agent Skill
 
@@ -118,5 +118,5 @@ See the [setup guide](/developers/mcp/setup).
 ## Requirements
 
 - A GEOly account in an organization with at least one project
-- A paid plan (Grow or above for public industry intelligence)
+- An active GEOly plan or free trial (public industry data needs Grow or above)
 - A client that supports remote MCP

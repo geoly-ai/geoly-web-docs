@@ -92,7 +92,7 @@ GET /api/v1/records 按变更时间和 id 扫描已完成记录；回答晚完�
 
 1. 按 id 和 changed_at 更新或插入数据。
 2. 将处理后的数据与 page.sync_cursor 一起持久化。
-3. 沿 page.next_cursor 翻到 null，再在下一轮用已保存的 sync_cursor 和相同筛选条件轮询。每 5–15 分钟轮询一次即可，更频繁只会为空页付费。
+3. 沿 page.next_cursor 翻到 null，再在下一轮用已保存的 sync_cursor 和相同筛选条件轮询。每 5–15 分钟轮询一次即可，更频繁只会多拿到空页。
 4. schema_conformant=false 时停止推进游标。
 
 初次同步请用 updated_since 限定起点（例如最近 30 天），不要只靠 business_date_from：后者仍从 updated_since 开始扫，在扫到你要的日期之前只会返回空页。
