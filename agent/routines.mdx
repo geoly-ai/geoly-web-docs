@@ -1,0 +1,88 @@
+---
+title: "Agent routines"
+sidebarTitle: "Routines"
+description: "Have the GEOly Agent do recurring work on a schedule, such as a weekly visibility report. Review each run's result, run it now, and get the result by email."
+---
+
+A routine is an instruction the GEOly Agent runs on a schedule, for example "Every Monday at 9:00, compare last week's visibility with the week before and list the biggest changes." Each run is a new conversation with the result, so you can review it and step in when it needs you.
+
+Open **Routines** in the Agent sidebar, or go to `app.geoly.ai/agent/routines`.
+
+- Routines are private. **My routines** lists the routines you created in the current project; other members don't see them.
+- You can have up to 20 routines per project.
+- Each run uses your organization's [AI Credits](/agent/overview#ai-usage), like a chat. Skipped runs are not charged.
+
+## Create a routine
+
+Click **New routine** and choose how to write it:
+
+<Tabs>
+  <Tab title="Describe to Agent">
+    The Agent panel opens with a starting prompt such as "Every Monday at 9:00". Describe what the routine should do and how often. The agent asks what it needs, then shows a card to save the routine. Nothing is saved until you click **Approve**, even if you turned on auto-approve.
+  </Tab>
+  <Tab title="Write it yourself">
+    Fill in the form:
+
+    - **Name**, for example `Weekly visibility report`.
+    - **Instructions**: the task, what to compare, and what the result should include. Each run only sees these instructions, so make them understandable on their own. Type `/` to use a [skill](/agent/skills).
+    - **Schedule**: every day, every weekday, every week on a day, or every month on a date, at a whole hour. The time uses your browser's timezone, and the form shows the **Next run**.
+    - **Connectors** and **Behavior** tabs: see below.
+
+    Then click **Create routine**.
+  </Tab>
+</Tabs>
+
+If you don't have any routines yet, you can also **Start from a template**. Clicking one adds it right away:
+
+| Template | What it does | Schedule |
+| --- | --- | --- |
+| **Monthly action review** | At the start of each month, reviews which [actions](/actions/overview) you completed last month and picks what to do first next. | Monthly, on the 1st at 9:00 |
+| **Sentiment check** | A weekly look at how AI talks about your brand, flagging topics where negative takes are growing. | Weekly, on Friday at 9:00 |
+
+You can edit a template routine like any other.
+
+### What a run can do
+
+No one is around to approve while a routine runs, so a run doesn't change anything in GEOly. It reads your project's data and the web, and anything that needs changing goes into the result as suggested changes.
+
+On the **Connectors** tab, turn on **Use my connectors** to let runs use your [connectors](/agent/connectors). Only tools you set to **Always allow** are used, and any of them that change things in other apps (like sending a message or creating a ticket) run without asking. If the instructions change, or a skill they use is edited (including skills shared with you), save the routine again before connectors are used again.
+
+On the **Behavior** tab:
+
+- **Quality**: **Fast** or **Deep** (the default), the same as in a chat.
+- **Email me the results**: after each successful run, the result is also sent to your account email. It still shows up in the runs list.
+
+## Manage a routine
+
+Click a routine to open its page:
+
+- **Enabled** turns the schedule on or off. A paused routine doesn't run on schedule.
+- **Run now** starts a run within a minute, even when the routine is paused. It doesn't change the next scheduled run.
+- **More actions** has **Edit**, **Edit with Agent**, and **Delete**.
+
+The page shows the instructions, the schedule (**Repeats**, **Next run**), whether it uses your connectors, and its **Runs**:
+
+| Column | What it shows |
+| --- | --- |
+| **Started** | When the run started. |
+| **Trigger** | **Scheduled** or **Run now**. |
+| **Duration** | How long it took. |
+| **Status** | **Running**, **Succeeded**, **Stopped**, **Failed**, **Interrupted**, or **Skipped** with the reason. |
+
+Click a run to open its conversation. Earlier runs are in your chat history. When a run finishes, you also get a notification in GEOly.
+
+## Skipped runs
+
+A run is skipped, and not charged, when:
+
+- The organization's subscription isn't active (runs resume once it's renewed), or the project has expired. GEOly also sends you a notification.
+- The creator no longer has access to the project.
+- The run was overtaken by the next one, or waited too long behind other runs for this project.
+
+The reason is shown next to **Skipped** in the runs list.
+
+## Related
+
+- [GEOly Agent](/agent/overview)
+- [Skills](/agent/skills)
+- [Connectors](/agent/connectors)

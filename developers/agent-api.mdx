@@ -17,7 +17,7 @@ The [GEOly CLI](/developers/cli) is the official client of this API: `geoly run`
 | **GEOly CLI**: `geoly call`, and **[GEOly MCP](/developers/mcp/introduction)** | Your own model or agent, calling GEOly data tools one by one | Raw data with your own reasoning |
 | **[Data API](/developers/data-api)** (REST resources and reports under `/api/v1`) | Nobody: plain HTTP | Raw data for your own scripts, BI, and backends |
 
-All of them work on the same organizations, brands, and permissions.
+All of them work on the same organizations, projects, and permissions.
 
 ## Quick start
 
@@ -39,7 +39,7 @@ Send a Bearer token with every request. Two kinds of credentials work:
 | Credential | Where it comes from | Scope |
 | --- | --- | --- |
 | **OAuth access token** | Sign in with the GEOly CLI (`geoly auth login`). The consent screen is the same as for [GEOly MCP](/developers/mcp/setup): you choose the organization and approve read (and, if you need it, write) permissions. | The organizations and permissions you approved. Valid for about 14 days; `geoly auth status` shows when it expires, and signing in again renews it. |
-| **API key** | **Settings → Developers → API keys**, the same keys as the [Data API](/developers/data-api). | One brand. The key's read and write permissions apply. |
+| **API key** | **Settings → Developers → API keys**, the same keys as the [Data API](/developers/data-api). Only organization owners and admins can create or revoke keys. | One project. The key's read and write permissions apply. |
 
 ```http
 Authorization: Bearer <access_token or API key>
@@ -47,8 +47,8 @@ Authorization: Bearer <access_token or API key>
 
 Browser session cookies are not accepted. A missing, invalid, or expired credential returns `401`.
 
-- An API key is bound to one brand. Passing a different `brand_id` returns `403 BRAND_NOT_ALLOWED_FOR_TOKEN`.
-- A key stops working when its brand is deleted or when the member who created it leaves the organization.
+- An API key is bound to one project. Passing a different `brand_id` (the project id) returns `403 BRAND_NOT_ALLOWED_FOR_TOKEN`.
+- API keys belong to the organization, not to the person who created them. A key keeps working until an owner or admin revokes it, it reaches the expiration chosen when it was created, or its project is deleted.
 
 ## Endpoints
 
@@ -90,13 +90,13 @@ Idempotency-Key: weekly-report-2026-11-09
 | --- | --- | --- | --- |
 | `question` | Yes | Up to 4,000 characters | The question or task |
 | `org_id` | When your access spans several organizations | | Whose data to read and whose credits to use |
-| `brand_id` | When the organization has several brands | | Which brand the run is about |
+| `brand_id` | When the organization has several projects | | Which project the run is about (the project id) |
 | `context` | No | Up to 16,000 characters | Background, requirements, or output format for the agent |
 | `max_credits` | No | Integer, 25–2000 | Hard ceiling for this run. Without it, the run can use up to what the organization has left, at most 2,000 |
 | `spec` | No | One of the names [below](#fixed-format-deliverables-spec) | Ask for a fixed-format deliverable checked by the server |
 | `allow_writes` | No | `true` only | Let the agent use the write tools your credential allows. Anything other than the literal `true` means read-only |
 
-Unknown fields are ignored. When `org_id` or `brand_id` is needed and missing, or wrong, the `400` error lists the valid options by name, for example `This organization has multiple brands. Pass brand_id explicitly …`.
+Unknown fields are ignored. When `org_id` or `brand_id` is needed and missing, or wrong, the `400` error lists the valid options by name, for example `This organization has multiple projects. Pass brand_id (the project id) explicitly. Available: …`.
 
 ### Streamed (Server-Sent Events), recommended
 
@@ -168,7 +168,7 @@ GET /api/v1/agent/runs?org_id=<org_id>&limit=20
 GET /api/v1/agent/runs/{run_id}
 ```
 
-`GET /api/v1/agent/runs` returns `{ "runs": [ … ] }`, newest first. Each row has `run_id`, `status`, `stopped`, `steps`, `credits_cost`, `created_at`, `finished_at`, `question` (first 200 characters), and `brand_id`. `limit` is 1–50 (default 20); pass `org_id` when your access spans several organizations, and `brand_id` to narrow to one brand. An API key only sees its own brand's runs.
+`GET /api/v1/agent/runs` returns `{ "runs": [ … ] }`, newest first. Each row has `run_id`, `status`, `stopped`, `steps`, `credits_cost`, `created_at`, `finished_at`, `question` (first 200 characters), and `brand_id`. `limit` is 1–50 (default 20); pass `org_id` when your access spans several organizations, and `brand_id` when the organization has several projects. `brand_id` only selects where to look; the list isn't narrowed to that project. An API key only sees its own project's runs.
 
 `GET /api/v1/agent/runs/{run_id}` returns the stored run:
 
@@ -200,22 +200,22 @@ GET /api/v1/agent/runs/{run_id}
 Send an `Idempotency-Key` header to make retries safe:
 
 - Format: 8–128 characters of `A-Z a-z 0-9 _ - : .`. A header that is present but malformed (including empty) is rejected with `400 IDEMPOTENCY_KEY_INVALID`.
-- Scope: the same organization, brand, and key.
+- Scope: the same organization, project, and key.
 - **While the original run is still running**, a request with the same key always returns that run.
 - **After it finishes**, the same key replays it for 10 minutes from when it started; after that, the same key starts a new run.
 - A replay doesn't start or charge a new run. It is returned as JSON, whatever you sent in `Accept`, with `"replayed": true` in the body and the response header `Idempotent-Replayed: true`. The body has the same shape as `GET /api/v1/agent/runs/{run_id}`; if its `status` is `running`, poll that endpoint.
 - If the key can't be checked for a moment, the request is refused with `503 IDEMPOTENCY_UNAVAILABLE` rather than risking a double run. Retry with the same key.
 
-Choose a key that identifies the job, such as `weekly-report-<brand>-<date>`.
+Choose a key that identifies the job, such as `weekly-report-<project>-<date>`.
 
 ## Credits
 
-Agent API runs use your organization's **AI Credits**, the same pool as in-app [Agent](/agent/overview) chats and `geoly run`. GEOly's own data tools that the agent calls inside a run are not billed again as MCP calls.
+Agent API runs use your organization's **AI Credits**, the same pool as in-app [Agent](/agent/overview) chats and `geoly run`. GEOly's data tools that the agent calls inside a run, including public industry data, are not charged separately and don't use industry data credits.
 
 - **Cap a run** with `max_credits` (25–2000). `credits_cost` in the receipt never exceeds it.
-- **See what is left** in every receipt (`credits_remaining`), with `geoly credits`, or on the Agent [**Usage**](/agent/overview#ai-usage) page, which lists API usage under the member who owns the credential.
+- **See what is left** in every receipt (`credits_remaining`), with `geoly credits`, or on the Agent [**Usage**](/agent/overview#ai-usage) page, which counts API usage under the member who signed in or created the key.
 - A run that fails is not charged.
-- If the organization has fewer than 25 credits left, the run is refused with `402 INSUFFICIENT_CREDITS` (the body includes `remaining` and, when known, `period_end`).
+- If the organization has fewer than 25 credits left, the run is refused with `402 INSUFFICIENT_CREDITS` (the body includes `remaining`).
 
 ## Fixed-format deliverables (`spec`)
 
@@ -223,12 +223,9 @@ With `spec`, the agent follows a specification kept on the server: fixed section
 
 | `spec` | Deliverable | Put in `question` |
 | --- | --- | --- |
-| `geo-weekly-brand-health` | Weekly brand health: visibility, mention rate, citation rate, by platform, competitor gaps, next steps | Brand (via `org_id` / `brand_id`); optionally the period |
-| `geo-content-brief` | A content brief for one keyword: audience, SERP and AI citation research, outline, FAQ, AEO notes | `primary_keyword`, `domain`; optionally `article_title`, `target_prompt`, `country` |
-| `geo-keyword-research-report` | Keyword research: volumes, intent clusters, live SERP, AI query fan-out, content opportunities | `topic`; optionally `domain`, `country` |
-| `geo-serp-gap` | A page against Google's top 10 and AI Overview sources: content gaps | `url`, `query`; optionally `country` |
+| `geo-weekly-brand-health` | Weekly brand health, this week versus last week: visibility (mention rate), citation rate, by platform, sentiment, competitors ahead of you, and next steps | The project (via `org_id` / `brand_id`); optionally the period |
 
-Write the inputs into `question`, for example `"url: https://example.com/blog/x, query: best standing desk for small apartments, country: us"`. An unknown name returns `400 SPEC_NOT_FOUND: … Available: …`.
+An unknown name returns `400 SPEC_NOT_FOUND: … Available: …`, listing the names you can use.
 
 ## Errors
 
@@ -242,9 +239,9 @@ Errors are JSON: `{ "error": "<code or message>" }`, sometimes with extra fields
 | 400 | `SPEC_NOT_FOUND: …` | Use one of the listed spec names. |
 | 400 | A sentence about `org_id` / `brand_id` | Ambiguous or wrong target; the message lists the options. |
 | 401 | `Missing Authorization header`, `Invalid token`, … | Missing, invalid, or expired credential. Sign in again with `geoly auth login`, or check the API key. |
-| 402 | `INSUFFICIENT_CREDITS` | AI Credits for this period are used up (body: `remaining`, `period_end`). Wait for the reset or upgrade the plan. |
-| 402 | `This organization has no active subscription, …` | The organization has no active subscription. |
-| 403 | `ORG_SELECTION_REQUIRED`, `BRAND_NOT_ALLOWED_FOR_TOKEN`, … | The credential doesn't cover this organization or brand. Re-authorize and choose the organization, or use a key for that brand. |
+| 402 | `INSUFFICIENT_CREDITS` | AI Credits for this period are used up (body: `remaining`, and `period_end` when known). Wait for the reset or upgrade the plan. |
+| 402 | `This organization does not have an active free trial or subscription right now …` | The organization has no active trial or subscription. |
+| 403 | `ORG_SELECTION_REQUIRED`, `BRAND_NOT_ALLOWED_FOR_TOKEN`, … | The credential doesn't cover this organization or project. Re-authorize and choose the organization, or use a key for that project. |
 | 404 | `BRAND_NOT_FOUND`, `RUN_NOT_FOUND` | Not found, or not visible to this credential. |
 | 413 | `QUESTION_TOO_LONG`, `CONTEXT_TOO_LONG` | Over 4,000 / 16,000 characters. |
 | 429 | `Rate limit exceeded. …` | Too many requests; back off and retry. |
@@ -253,7 +250,7 @@ Errors are JSON: `{ "error": "<code or message>" }`, sometimes with extra fields
 
 ## Rate limits and concurrency
 
-- Requests count toward a per-minute limit for each token or key (currently 120, or 300 when an organization the credential can reach is on Enterprise), shared with GEOly MCP calls made with the same credential. Over the limit you get `429`; back off before retrying.
+- Requests count toward a per-minute limit (currently 120, or 300 when an organization the credential can reach is on Enterprise). OAuth sign-ins are counted per user, so all of a user's sign-ins share one limit; API keys are counted per key. The limit is shared with [GEOly MCP](/developers/mcp/introduction) and [Data API](/developers/data-api) calls made with the same credential. Over the limit you get `429`; back off before retrying.
 - There is no separate cap on concurrent runs. Each run reserves up to its own budget when it starts, so several runs at once each draw on the organization's credits.
 
 ## Example: Python
@@ -312,9 +309,9 @@ curl https://app.geoly.ai/api/v1/agent/runs \
 
 ## Limits and boundaries
 
-- **Scope follows the credential.** The API reaches only the organizations, brands, and permissions the token or key grants.
+- **Scope follows the credential.** The API reaches only the organizations, projects, and permissions the token or key grants.
 - **Read-only by default.** Write tools are used only with `allow_writes: true` and write permission for that resource: a Write grant on a single-organization OAuth consent, or an API key created with write permission. Running monitoring on demand (`trigger_prompt`) is never available to the hosted agent.
-- **Plans.** An active subscription is required. Public industry intelligence is used only when the organization's plan includes it (Grow and above).
+- **Plans.** An active subscription is required. Public industry intelligence is used only when the organization's plan includes it (Grow and above) and the credential is allowed to read public data.
 - **Bounded runs.** At most 2,000 credits and 20 steps per run, with a time limit (longer for `spec` runs). An early stop is reported in `stopped_reason`.
 - **Fixed model.** The API uses the model GEOly selects; you can't bring your own.
 - **Runs are stored** and can be read back through `GET /api/v1/agent/runs` within your credential's scope.

@@ -1,113 +1,140 @@
 ---
 title: "行动"
 sidebarTitle: "行动"
-description: "行动页把 GEOly 发现的问题变成一份待办清单，帮助品牌补上进不了 AI 回答的缺口，先从让 AI 读懂网站的技术修复做起。"
+description: "行动页是一份待办清单，帮品牌补上进不了 AI 回答的缺口：网站修复、自家页面改进、争取上榜的机会，以及你自己加的任务。"
 ---
 
-**Actions**（行动）是一份待办清单，用来补上让品牌进不了 AI 回答的缺口。GEOly 会读取品牌网站，找出让 AI 难以读取和理解的问题，把每个问题整理成一条行动，附上受影响的页面、证据和修改方法。每条行动怎么处理由团队决定，也可以交给 [GEOly Agent](/zh/agent/overview)。
+**Actions**（行动）是一份待办清单，用来补上让品牌进不了 AI 回答的缺口。GEOly 会读取你的网站和你在监测的 AI 回答，找出让 AI 读不到、不引用或不提到你的问题，把每个问题整理成一条行动，附上受影响的页面、证据和修改方法。你也可以自己加行动、跟踪效果，或把任何一条交给 [GEOly Agent](/zh/agent/overview)。
 
 <Note>
-下面的截图是 GEOly 的英文界面。正文先写英文界面上的名称，括号里是中文界面的对应名称。
+正文先写英文界面上的名称，括号里是中文界面的对应名称。
 </Note>
 
-点击左侧图标栏的 **Actions**（行动），或直接打开 `app.geoly.ai/actions`。
+点击左侧图标栏的 **Actions**（行动），或直接打开 `app.geoly.ai/actions`。行动空间有两个页面：**Actions**（行动）和 **Impact**（效果，见下文「跟踪效果」）。
 
-![行动页：顶部四个目标、读取进度提示，以及按状态分组的行动](/images/actions/actions.jpg "行动页")
+## 目标
 
-## 四个目标
-
-行动分为四个目标，显示在页面顶部：
+页面顶部的卡片显示每个目标的进度，点一张卡片可以只看这个目标下的行动。
 
 | 目标 | 包含什么 |
 | --- | --- |
-| **Help AI read your site**（让 AI 读懂你的网站） | 帮助 AI 爬虫读取并理解网站的技术修复。 |
-| **Improve your own pages**（改进自家页面） | 品牌自己发布内容的地方：自家页面，以及社交与社区账号。 |
-| **Get mentioned elsewhere**（在别处被提到） | 在别人网站上争取的位置，比如 AI 已经信任的媒体和参考类网站。 |
-| **Correct wrong claims**（纠正错误说法） | 自家页面和其他网站上与已确认事实冲突的说法。 |
+| **Help AI read your site**（让 AI 读懂你的网站） | 帮助 AI 爬虫读取和理解网站的技术修复。 |
+| **Let AI crawlers in**（让 AI 爬虫进得来） | `robots.txt` 等有没有拦住主要的 AI 爬虫。卡片上显示还有几项要修，并标 **Blocking**（阻塞），或显示 **Not blocking AI crawlers**（没有拦着 AI 爬虫）。 |
+| **Improve your own pages**（改进自家页面） | 自己能发布内容的地方。目前提供的是：改进你已有的页面，让它回答 AI 正在问的问题。 |
+| **Get mentioned elsewhere**（在别处被提到） | 在别人网站上争取露面的机会。目前提供的是：AI 引用的页面里列了别的品牌却没有你。 |
+| **Correct wrong claims**（纠正错误说法） | 自家页面和其他网站上与已确认事实冲突的说法。这个目标显示 **Not available yet**（暂未开放），还在开发中。 |
 
-<Note>
-目前的行动都来自 **Help AI read your site**（让 AI 读懂你的网站）。另外三个目标显示 **Not available yet**（暂未开放），仍在开发中，做好后会出现在这个页面上。
-</Note>
+## 行动从哪里来
 
-## GEOly 怎么找出要修的问题
+### 网站修复
 
-GEOly 会读取品牌网站（主站，以及监测的国家和地区对应的站点），逐页检查。检查项包括，例如：
+GEOly 会读取你的网站（主站和你监测的国家站点），逐页检查。检查项举例：
 
-- `robots.txt` 里阻止 AI 爬虫读取网站的规则；
-- 站点地图或导航里打不开的页面；
-- 不运行 JavaScript 时 HTML 里几乎没有正文的页面；
-- 无法解析、或字符被转义了两次的结构化数据（JSON-LD）；
-- 页面上已有、但没有用结构化数据标注的 FAQ、评分或面包屑导航；
-- 缺失或重复的 meta 描述、缺失或重复的 H1 标题、跳级的标题层级；
-- 没有 alt 文本或说明的图片、只以纯文本出现的日期。
+- `robots.txt` 里拦住 AI 爬虫的规则（归在 **Let AI crawlers in** 下）；
+- 打不开的页面、站点地图里标了 `noindex` 的页面、canonical 指向首页，以及缺少站点地图；
+- 不执行 JavaScript 时 HTML 里几乎没有正文的页面；
+- 缺少、解析失败或字符被重复转义的结构化数据（JSON-LD），缺少 Organization schema，已有的 FAQ、评分或面包屑没有标成结构化数据；
+- 缺失或重复的 meta 描述、缺失或重复的 H1、标题层级跳级，以及缺少 Open Graph 类型标签；
+- 缺少 alt 文本或说明文字的图片，以及没有写成列表的商品规格。
 
-订阅有效的品牌创建后，第一次读取会自动开始。不必等它读完：读取过程中，页面会显示已检查的页数，发现的新问题会陆续加进列表。之后 GEOly 每周重新读取一次网站。
+有有效订阅的项目创建后会自动开始第一次读取。不用等它读完：读取过程中页面会显示已检查多少页，发现的问题会陆续加进来。之后 GEOly 每周重新读一次网站。
+
+### 页面改进
+
+当 AI 在你的某个话题下总是引用别家网站的文章而不是你的，GEOly 会在这个话题下挑一个你的页面，建议怎么改。这类行动的标题是 **Improve "页面" to answer what AI is asking**，归在 **Content optimization**（改旧页）下。详情里有：
+
+- **Your page**（你的页面）、它在这些话题里被 AI 引用的次数，以及 **Why this matters**（为什么重要）；
+- **What to do**（要做什么）：要补或要改的小节，附 AI 搜了什么、放在哪、关键词，以及 **Suggested meta title**（建议的 meta 标题）和 **Suggested meta description**（建议的 meta 描述）；
+- **Prompt samples from when this suggestion was generated**（生成这条建议时的提示词样本），以及 **Evidence**（证据）：同一批提示词下被引用最多的其他页面。
+
+如果 GEOly 读过之后你的页面又改过，行动上会注明。动手前请先打开页面核对。
+
+### 争取上榜
+
+当 AI 总是引用别的网站上的某个页面（比如一篇「最佳推荐」榜单），里面列了别的品牌却没有你，GEOly 会建议你争取进这个榜。这类行动归在 **Get listed**（争取上榜）下，按网站分组。详情里有涉及的 **Models**（模型）、**Impacted prompts**（受影响的提示词）、页面上的 **Evidence**（证据），以及怎么争取上榜。
+
+### 自己建的行动
+
+点 **New action**（新建行动）可以加自己的任务，或在它的菜单里选 **Create with Agent**（用 Agent 新建），描述给 Agent，让它起草。填写 **Title**（标题），可选填写说明和步骤，以及类型、**Topic**（话题）、**Page**（页面）、**Impact**（影响）、**Due date**（截止日）、**Repeat**（重复）、**Assignee**（指派）、**Tags**（标签）等。然后选择建好放进 **Planned**（计划中）或 **In progress**（进行中），或直接 **Mark as done**（记为已完成）。
+
+- **Repeat**（重复，每天、每周或每月）：标完成后自动建下一轮；
+- 没写完的草稿只存在当前浏览器里；
+- 自己建的行动标为 **Yours**（手动添加），可以编辑或删除。GEOly 建议的行动可以编辑，但不能删除。
 
 ## 看懂列表
 
-行动先按状态分组，再按目标分组。每一行里：
+行动先按状态分组，再按目标分组。用 **Group by**（分组）可以改成按 **Goal**（目标）、**Type**（类型）、**Impact**（影响）、**Owned / earned**（自有/站外）或 **Topic**（话题）分组；**Filter**（筛选）可以按类型、话题、AI 平台、自有/站外筛选；指派菜单可以看所有人的或只看自己的行动；**All statuses**（所有状态）按状态筛选。
 
-- **条形图标**表示严重程度，从 **Very low**（很低）到 **Very high**（很高）。严重程度只看问题本身，不随其他行动变化；
-- **Do this first**（先做这条）标在每个目标里排在最前的新建行动上；
-- **Cited N**（被引 N）表示过去 30 天里，GEOly 追踪的提示词对应的 AI 回答引用这些受影响页面的次数。次数越多，修好后越可能改变 AI 对品牌的描述；
-- **Your pages**（你的页面）、**Technical fix**（网站技术修复）等标签说明修复发生在哪里、属于哪类工作。
+每一行里：
 
-用顶部的 **All statuses**（所有状态）可以按状态筛选。
+- **竖条**表示严重度，从 **Very low**（很低）到 **Very high**（很高）。严重度是问题本身有多严重，不随其他行动变化；
+- **Do this first**（先做这条）标在最严重的那一条新行动上。严重度相同时，按受影响页面被 AI 引用的次数排；
+- **Cited N**（被引 N）表示近 30 天里，你在 GEOly 监测的提示词的 AI 回答引用受影响页面的次数；
+- **Your pages**（你的页面）、**Technical fix**（网站技术修复）、**Article**（文章）、**Yours**（手动添加）或网站名等标签，说明改动发生在哪里、是哪类工作。也可以给一行加 **Tags**（标签）。
 
-点一条行动可以打开详情：
+点一条行动可以打开详情。网站修复类会显示 **Overview**（概述）、**What to do**（要做什么）和证据（GEOly 读到的页面源码原样摘录，以及适用时要改成什么）、**Expected outcome**（预期效果，包括严重度和受影响页面被 AI 引用的次数），以及 **Affected pages**（受影响的页面）。顶部可以设置状态、影响、指派、截止日和标签。做完一步就在 **What to do** 里勾一步。
 
-- **Overview**（概述）：问题是什么、为什么重要；
-- **What to do**（要做什么）：修改方法，并附上受影响页面的证据：GEOly 读到的页面源码（原样摘录），适用时还会给出应改成什么。做完后勾上这一步；
-- **Affected pages**（受影响的页面）：已检查的页面里有多少存在这个问题，以及页面清单；
-- **Severity and citations**（严重度和被引次数）：严重程度，以及 AI 回答引用这些受影响页面的次数。
+想在别处用这份清单，可以用 **Export**（导出）导出 CSV、Excel（XLSX）或 JSON，导出的是符合当前筛选的行动。
 
 ## 状态
 
 | 状态 | 含义 |
 | --- | --- |
 | **New**（新建） | 还没处理的新建议。 |
-| **Planned**（计划中） | 已列入计划的工作。目前页面上还没有操作会把行动移到这里。 |
-| **In progress**（进行中） | 已接受、正在处理。 |
-| **Done**（已完成） | 已修好。 |
+| **Planned**（计划中） | 计划要做的事。自己建的行动默认放在这里。 |
+| **In progress**（进行中） | 正在处理。 |
+| **Done**（已完成） | 已经修好。 |
 | **Declined**（已拒绝） | 决定不做。 |
-| **Expired**（已过期） | 新建后 30 天没人处理，GEOly 自动关闭。 |
+| **Expired**（已过期） | 一直停在 **New**（新建）、30 天没人处理的建议，GEOly 会自动关闭。自己建的行动不会过期。 |
 
-能做的操作取决于状态：
+不同状态下可以做的操作：
 
 - **New**（新建）：**Accept**（接受）移到 **In progress**（进行中）；**Decline**（拒绝）移到 **Declined**（已拒绝）；
-- **In progress**（进行中）：**Done**（完成）记为今天完成，点旁边的箭头可以 **Pick an earlier date**（按更早的日期完成）；**Drop**（放弃）移到 **Declined**（已拒绝）；
-- **Declined**（已拒绝）和 **Expired**（已过期）：**Accept**（接受）移到 **In progress**（进行中）；已拒绝的行动也可以 **Restore**（恢复）回 **New**（新建）；
-- 勾完 **What to do**（要做什么）里的全部步骤，行动也会记为 **Done**（已完成）；在已完成的行动上取消勾选任一步骤，会回到 **In progress**（进行中）。
+- **Planned**（计划中）：**Start**（开始）移到 **In progress**（进行中），也可以 **Decline**（拒绝）；
+- **In progress**（进行中）：**Done**（完成）记为今天完成，旁边的箭头可以选 **Pick an earlier date**（按更早的日期完成）；**Drop**（放弃）移到 **Declined**（已拒绝）；
+- **Done**（已完成）：**Reopen**（重新打开）移回 **In progress**（进行中）；
+- **Declined**（已拒绝）：**Restore**（恢复）移回 **New**（新建），自己建的行动移回 **Planned**（计划中）；
+- **Expired**（已过期）：**Take over**（接手）移到 **In progress**（进行中）；
+- 也可以在详情的 **Status**（状态）菜单里直接选任一状态；
+- 勾完 **What to do**（要做什么）里的所有步骤，行动会自动标为 **Done**（已完成）；在已完成的行动上取消勾选任一步骤，会移回 **In progress**（进行中）。
 
-可以勾选多行一起修改，或用 **Accept all**（全部接受）和 **Decline all**（全部拒绝）处理当前显示的全部行动。GEOly 不会覆盖团队的处理结果：已接受、已完成或已拒绝的行动，重新读取网站后保持不变。
+可以勾选多行一起修改，也可以用 **Accept all**（全部接受）、**Decline all**（全部拒绝）、**Complete all**（全部完成）或 **Drop all**（全部放弃）修改所有符合当前筛选的行动，GEOly 会先请你确认。GEOly 不会推翻你的决定：已接受、已完成或已拒绝的行动，重新读取网站后也保持不变。
 
 ### 问题消失或再次出现
 
-- 如果最近一次读取没再发现某个问题，行动上会注明（例如「最近一次检查没再发现」）。确认已修好就标记完成，不再关心就拒绝；
-- 如果一个已确认修好的问题又出现了，行动会标上 **Back again**（又出现了）。
+- 如果最近一次读取没再发现某个问题，行动上会注明（例如 **Not found in the latest check**（最近一次检查没再发现））。确认已经修好就标为完成；不再关心可以拒绝。
+- 如果一个已确认修好的问题又出现了，行动会标为 **Back again**（又出现了）。
 
-## 把行动交给 Agent
+## 交给 Agent
 
-在行动详情里点 **Hand to Agent**（交给 Agent），会新开一段 [Agent](/zh/agent/overview) 对话，带上这条行动的说明、修改方法、证据、受影响页面和行动 ID，Agent 可以读取当时保存的证据，协助完成修改。如果已经把 GitHub、Webflow、Wix 等工具连成[连接器](/zh/agent/connectors)，也可以让 Agent 直接在那边准备修改；默认情况下，它用这些工具前会先征求同意。
+在行动详情里点 **Work with Agent**（交给 Agent），会开一段新的 [Agent](/zh/agent/overview) 对话，带上这条行动的说明、修改方法、证据、受影响的页面和行动 ID，Agent 可以读取保存下来的证据，帮你完成修改。如果你把 GitHub、Webflow 或你的 Shopify 店铺等工具接成了[连接器](/zh/agent/connectors)，可以让 Agent 直接在那边准备改动；它改任何东西之前都会先问你。
 
-想用其他工具处理时，点 **Copy as prompt**（复制为提示词），会复制同样的说明、修改方法、证据和受影响页面（不含行动 ID）。
+想用别的工具，点 **Copy as prompt**（复制为提示词），会复制同样的说明、修改方法、证据和受影响的页面（不含行动 ID）。
 
-## 总览页的「Your plan」
+## 总览页上的「你的计划」
 
-**Overview**（总览）页有一块 **Your plan**（你的计划），列出四个目标和各自待处理的行动。点一条行动可以查看详情，点 **Go to Actions**（去行动页）打开完整列表。
+**Overview**（总览）页有一个 **Your plan**（你的计划）区块，显示四个目标：**Help AI read your site**（让 AI 读懂你的网站）、**Improve your own pages**（改进自家页面）、**Get mentioned elsewhere**（在别处被提到）和 **Correct wrong claims**（纠正错误说法）。每个目标显示排在前面的新建议，以及计划中的行动完成了多少。鼠标移到一条建议上可以接受或拒绝，点它可以不离开总览页直接看详情，点 **Go to Actions**（去行动页）打开完整列表。
 
-![总览页的 Your plan，Help AI read your site 正在补全](/images/actions/overview-your-plan.jpg "总览页的 Your plan")
+## 跟踪效果
 
-## GEOly 读不了网站时
+在行动空间打开 **Impact**（效果，`app.geoly.ai/actions/impact`），可以看你处理行动期间 AI 可见度是怎么变化的。
+
+- **Total impact**（总体效果）图把一个指标（可见度、情感、平均排名或声量份额）和你的域名被引率画在一起。标记点显示行动开始（**In progress**，进行中）和完成（**Done**，完成）的日子，**Caliber break**（口径断点）标记表示某个指标的统计口径变了。图只展示时间上的对应，不说明是哪条行动带来了变化。
+- 可以选时间范围，用 **All filters**（全部筛选）按标签、平台、国家和话题筛选。图表菜单里有 **Export CSV**（导出 CSV）、**Save as image**（存成图片）和 **Copy chart**（复制图表）。
+- **Action tracker**（行动追踪）列出 **In progress**（进行中）和 **Done**（已完成）的行动，点一条可以看详情。
+
+侧栏 **Impact**（效果）旁边出现圆点，表示有还没看过的状态变化。
+
+## GEOly 读不到网站时
 
 读取失败时，页面会显示上一次成功读取的结果，行动状态不受影响。最常见的原因是网站拦截了 GEOly 的爬虫。放行方法：
 
 - 放行 User-Agent 中包含 `GeolyBot` 的请求；
-- 放行行动页上显示的出口 IP；
+- 放行行动页上显示的出口 IP 地址；
 - 不要在 `robots.txt` 里禁止 `GeolyBot`。
 
-放行后，GEOly 会在下一次每周读取时重新读取。想更快处理，或者网站换了域名、首页跳转到了别的网站，可以通过在线客服告诉我们。
+放行之后，GEOly 会重新读取：从没成功读取过的网站在 24 小时内重读，其他的在下一次每周读取时重读。想更快，或网站换了新域名、首页跳转到其他网站，请通过在线客服告诉我们。
 
 ## 在 GEOly 之外使用行动
 
-同一份行动列表也可以通过 [GEOly MCP](/zh/developers/mcp/introduction) 和 [GEOly CLI](/zh/developers/cli) 提供给 AI 助手：`list_actions` 列出行动，`get_action` 返回单条行动的完整信息。详见[工具参考](/zh/developers/mcp/tools)。
+AI 助手也能通过 [GEOly MCP](/zh/developers/mcp/introduction) 和 [GEOly CLI](/zh/developers/cli) 读到同一份清单：`list_actions` 列出行动，`get_action` 返回单条行动的完整内容。详见[工具参考](/zh/developers/mcp/tools)。
