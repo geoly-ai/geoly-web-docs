@@ -26,7 +26,7 @@ export const API_GROUPS = [
     name: { en: 'Account', zh: '账号' },
     icon: 'user',
     endpoints: [
-      ['GET /api/v1/brand', 'get-brand', 'Get brand', '获取品牌'],
+      ['GET /api/v1/brand', 'get-brand', 'Get project', '获取项目'],
       ['GET /api/v1/quota', 'get-quota', 'Get quota', '查询额度'],
     ],
   },

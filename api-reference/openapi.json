@@ -3,7 +3,7 @@
   "info": {
     "title": "GEOly Data API",
     "version": "1",
-    "description": "Typed endpoints of the GEOly Data API (`x-geoly-stability: stable`): the account behind the key (GET /api/v1/quota, /api/v1/brand), the brand catalog (GET /api/v1/topics, /api/v1/prompts), monitoring records (GET /api/v1/prompts/{prompt_id}/records, /api/v1/records/{record_id}) and the incremental record feed (GET /api/v1/records), writes (POST /api/v1/prompts, POST /api/v1/prompts/{prompt_id}/runs) and windowed reports (POST /api/v1/reports/*). Authenticate with an API key bound to one brand; the brand is implied by the key and never appears in paths.\n\nStability: within /api/v1 the shape and meaning of every declared field is stable — fields are never removed, renamed or retyped, units never change, and enums only grow (response enums are open: ignore unknown values and unknown fields). Metric definitions follow the product and are recorded in the changelog. Breaking changes only ship under /api/v2.\n\nEnvelope: `{ data, page?, meta }`. `meta.quota` is the billing outcome of the call; `meta.schema_conformant` is false only if the report output drifted from this document (the data is still returned).\n\nPagination: send `limit` (and `cursor` from `page.next_cursor` for the next page, with exactly the same filters). `page.next_cursor === null` is the only end-of-list signal; `page.capped: true` means the position limit was reached before the end. GET /api/v1/prompts uses a true keyset cursor (ordered by created_at, id): a row whose sort key is unchanged and that still matches the filters is never skipped or repeated because other rows were added or archived meanwhile, and there is no position limit. It is not a snapshot: every page re-applies the filters, so a row archived before you reach it drops out of an active listing. `x-geoly-pagination` describes each list.\n\nErrors use one envelope `{error:{code,message,details?},meta}`; `error.code` is drawn from the closed list in `x-geoly-error-codes`. Branch on the HTTP status and `error.code`, never on `message`. Stable keys of `error.details`: errors[] ({param, reason, allowed?, message}), reason, required, retry_after_seconds, max_bytes, actual_bytes, _quota, and resource / id (404 NOT_FOUND of a single-resource endpoint such as GET /api/v1/prompts/{prompt_id}).\n\nBilling: each call is billed at the price in `x-geoly-cost` ({tier, base, unit, long_window_multiplier, guard_rpm}: nominal price per call in credits, the same as the matching GEOly MCP tool (GET /api/v1/records has none: it is offered only on this API, so its price and guard are its own), against the MCP credits pool; tier \"free\" with base 0 = not charged — this includes operations whose matching MCP tool is registered as not charged (charged:false: POST /api/v1/prompts and POST /api/v1/prompts/{prompt_id}/runs), so no nominal price is declared for them; guard_rpm is the per-organization requests-per-minute guard of that endpoint — counted per organization together with the same organization's calls of the matching GEOly MCP tool on the other surfaces (MCP, Agent API)). The billing outcome of every call is in `meta.quota`. A monitoring run still consumes monitoring credits, a separate pool, as described on that operation.\n\nThe HTTP tool wrappers under /api/v1/tools and /api/v1/tools/{tool} are retired: every method answers 410 TOOL_SURFACE_RETIRED, and for a known tool details.replacement names the resource endpoint. Use these resource endpoints. MCP and Agent API remain available."
+    "description": "Typed endpoints of the GEOly Data API (`x-geoly-stability: stable`): the account behind the key (GET /api/v1/quota, /api/v1/brand), the project catalog (GET /api/v1/topics, /api/v1/prompts), monitoring records (GET /api/v1/prompts/{prompt_id}/records, /api/v1/records/{record_id}) and the incremental record feed (GET /api/v1/records), writes (POST /api/v1/prompts, POST /api/v1/prompts/{prompt_id}/runs) and windowed reports (POST /api/v1/reports/*). Authenticate with an API key bound to one project; the project is implied by the key and never appears in paths.\n\nProjects: a project is GEOly's monitoring unit — it tracks one own brand plus its competitors and is named after that brand. For historical reasons machine names still call the project a brand: GET /api/v1/brand and its data.brand object, the Brand schema and the API_KEY_BRAND_REQUIRED code. data.brand.id is the project id, never a public_brand id.\n\nStability: within /api/v1 the shape and meaning of every declared field is stable — fields are never removed, renamed or retyped, units never change, and enums only grow (response enums are open: ignore unknown values and unknown fields). Metric definitions follow the product and are recorded in the changelog. Breaking changes only ship under /api/v2.\n\nEnvelope: `{ data, page?, meta }`. `meta.quota` is the billing outcome of the call; `meta.schema_conformant` is false only if the report output drifted from this document (the data is still returned).\n\nPagination: send `limit` (and `cursor` from `page.next_cursor` for the next page, with exactly the same filters). `page.next_cursor === null` is the only end-of-list signal; `page.capped: true` means the position limit was reached before the end. GET /api/v1/prompts uses a true keyset cursor (ordered by created_at, id): a row whose sort key is unchanged and that still matches the filters is never skipped or repeated because other rows were added or archived meanwhile, and there is no position limit. It is not a snapshot: every page re-applies the filters, so a row archived before you reach it drops out of an active listing. `x-geoly-pagination` describes each list.\n\nErrors use one envelope `{error:{code,message,details?},meta}`; `error.code` is drawn from the closed list in `x-geoly-error-codes`. Branch on the HTTP status and `error.code`, never on `message`. Stable keys of `error.details`: errors[] ({param, reason, allowed?, message}), reason, required, retry_after_seconds, max_bytes, actual_bytes, _quota, and resource / id (404 NOT_FOUND of a single-resource endpoint such as GET /api/v1/prompts/{prompt_id}).\n\nBilling: each call is billed at the price in `x-geoly-cost` ({tier, base, unit, long_window_multiplier, guard_rpm}: nominal price per call in credits, the same as the matching GEOly MCP tool (GET /api/v1/records has none: it is offered only on this API, so its price and guard are its own), against the MCP credits pool; tier \"free\" with base 0 = not charged — this includes operations whose matching MCP tool is registered as not charged (charged:false: POST /api/v1/prompts and POST /api/v1/prompts/{prompt_id}/runs), so no nominal price is declared for them; guard_rpm is the per-organization requests-per-minute guard of that endpoint — counted per organization together with the same organization's calls of the matching GEOly MCP tool on the other surfaces (MCP, Agent API)). The billing outcome of every call is in `meta.quota`. A monitoring run still consumes monitoring credits, a separate pool, as described on that operation.\n\nThe HTTP tool wrappers under /api/v1/tools and /api/v1/tools/{tool} are retired: every method answers 410 TOOL_SURFACE_RETIRED, and for a known tool details.replacement names the resource endpoint. Use these resource endpoints. MCP and Agent API remain available."
   },
   "servers": [
     {
@@ -22,11 +22,11 @@
     },
     {
       "name": "Account",
-      "description": "The organization, credits and brand behind this API key."
+      "description": "The organization, credits and project behind this API key."
     },
     {
       "name": "Catalog",
-      "description": "Topics and prompts of the brand behind this API key (GET, no metrics computed; the price of each operation is in x-geoly-cost)."
+      "description": "Topics and prompts of the project behind this API key (GET, no metrics computed; the price of each operation is in x-geoly-cost)."
     },
     {
       "name": "Reports",
@@ -72,7 +72,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "depends",
-      "description": "The request is valid but the current state does not allow it. details.reason says why: platform_not_enabled (the AI platform is not purchased for this brand) and locale_required (pass country + language; details.availableLocales lists them) are charged the minimum call fee under the current billing rule (meta.quota.charge = \"min_fee\"); a write conflict (name already taken …, details.reason = the original tool code) or an organization without brands is not charged. On the report endpoints, details.reason = request_rejected (the report rejected the arguments only after looking them up, e.g. \"Brand not found\", \"No brand in scope.\") is billed as the report settled — usually the full base price of the report; meta.quota.charge says which."
+      "description": "The request is valid but the current state does not allow it. details.reason says why: platform_not_enabled (the AI platform is not purchased for this project) and locale_required (pass country + language; details.availableLocales lists them) are charged the minimum call fee under the current billing rule (meta.quota.charge = \"min_fee\"); a write conflict (name already taken …, details.reason = the original tool code) or an organization without projects is not charged. On the report endpoints, details.reason = request_rejected (the report rejected the arguments only after looking them up, e.g. \"Project <id> not found.\", \"No project in scope.\") is billed as the report settled — usually the full base price of the report; meta.quota.charge says which."
     },
     {
       "code": "UNAUTHORIZED",
@@ -112,7 +112,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "none",
-      "description": "A plan limit (brands, prompts …) is reached. Upgrade or free a slot."
+      "description": "A plan limit (projects, prompts …) is reached. Upgrade or free a slot."
     },
     {
       "code": "API_KEY_BRAND_REQUIRED",
@@ -120,7 +120,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "none",
-      "description": "The credential is not an API key bound to a brand (legacy org tokens and OAuth tokens are not served here)."
+      "description": "The credential is not an API key bound to a project (legacy org tokens and OAuth tokens are not served here)."
     },
     {
       "code": "ORG_SELECTION_REQUIRED",
@@ -144,7 +144,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "none",
-      "description": "The credential is not permitted to do this: denied at authentication (non-API-key credentials; details.reason carries the original reason), a resource read/write permission the key was not granted, or an id outside this key's brand / organization. Not charged."
+      "description": "The credential is not permitted to do this: denied at authentication (non-API-key credentials; details.reason carries the original reason), a resource read/write permission the key was not granted, or an id outside this key's project / organization. Not charged."
     },
     {
       "code": "REPORT_NOT_FOUND",
@@ -160,7 +160,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "depends",
-      "description": "The referenced id / name does not exist for this brand. Billing depends on how the tool reports it (see meta.quota.charge): a not-found returned in the tool result keeps the tool's own settlement, receipt also in error.details._quota — the call-priced prompt and record detail reads (POST /api/v1/reports/prompt-overview, GET /api/v1/records/{record_id}) are charged as one call (\"charged\"), audit detail and search-query filters the minimum call fee (\"min_fee\"); a not-found raised while the tool runs (topic_name, brand_id …) is refunded (\"refunded\"); one rejected while resolving the scope (before execution) is not charged (\"unbilled\"); free tools and free endpoints report \"free\"."
+      "description": "The referenced id / name does not exist in this project. Billing depends on how the tool reports it (see meta.quota.charge): a not-found returned in the tool result keeps the tool's own settlement, receipt also in error.details._quota — the call-priced prompt and record detail reads (POST /api/v1/reports/prompt-overview, GET /api/v1/records/{record_id}) are charged as one call (\"charged\"), audit detail and search-query filters the minimum call fee (\"min_fee\"); a not-found raised while the tool runs (topic_name, brand_id …) is refunded (\"refunded\"); one rejected while resolving the scope (before execution) is not charged (\"unbilled\"); free tools and free endpoints report \"free\"."
     },
     {
       "code": "METHOD_NOT_ALLOWED",
@@ -554,7 +554,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -746,7 +746,7 @@
       "post": {
         "operationId": "createPrompt",
         "summary": "Create a monitoring prompt",
-        "description": "Creates a prompt under the API key brand. Returns 201 and Location. Optional Idempotency-Key prevents duplicate execution; successful results replay for 24 hours. Unknown write outcomes are never automatically retried. tags_state reports whether every requested tag was read back (saved), some were not saved (partial) or the saved tags could not be confirmed (unavailable); tags_warning explains anything but saved. The prompt exists in all three cases.",
+        "description": "Creates a prompt in the project this API key is bound to. Returns 201 and Location. Optional Idempotency-Key prevents duplicate execution; successful results replay for 24 hours. Unknown write outcomes are never automatically retried. tags_state reports whether every requested tag was read back (saved), some were not saved (partial) or the saved tags could not be confirmed (unavailable); tags_warning explains anything but saved. The prompt exists in all three cases.",
         "tags": [
           "Catalog"
         ],
@@ -933,7 +933,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the write permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the write permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -969,7 +969,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -1269,7 +1269,7 @@
       },
       "get": {
         "operationId": "listPrompts",
-        "summary": "Prompts of the brand (keyset-paginated catalog)",
+        "summary": "Prompts of the project (keyset-paginated catalog)",
         "description": "The prompt list straight from the prompt table: text, country, status, topic, tags, timestamps and whether the text names the brand — no metrics (use POST /api/v1/reports/prompts for per-prompt visibility). Ordered by (created_at, id) ascending with a true keyset cursor: a row whose (created_at, id) stays the same and that still matches the filters is never skipped or repeated because others were added or archived meanwhile; there is no snapshot — a row archived before you reach it drops out of an active listing, and new rows appear at the end. Follow page.next_cursor until it is null; page.total counts every matching row. Free (no credits); no metrics are computed. Guarded at 200 requests per minute per organization: one bucket for GET /api/v1/prompts, GET /api/v1/prompts/{prompt_id} and the same organization's get_prompt_list view=catalog calls on the GEOly MCP / Agent API — separate from the prompts report's bucket.",
         "tags": [
           "Catalog"
@@ -1364,7 +1364,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Prompts of the brand (keyset-paginated catalog). `data` follows PromptList when meta.schema_conformant is true.",
+            "description": "Prompts of the project (keyset-paginated catalog). `data` follows PromptList when meta.schema_conformant is true.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -1490,7 +1490,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -1678,7 +1678,7 @@
             "name": "prompt_id",
             "in": "path",
             "required": true,
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "schema": {
               "type": "string",
               "minLength": 1,
@@ -1891,7 +1891,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the write permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the write permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -1927,7 +1927,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -2230,7 +2230,7 @@
       "get": {
         "operationId": "listPromptRecords",
         "summary": "Monitoring records of one prompt",
-        "description": "Paginated records, including pending and failed runs. At most 10,000 positions per query are reachable (page.capped); narrow the date window to continue. Cursors bind the brand, prompt, filters and limit. Pagination is not a snapshot: concurrent changes may skip or repeat records. Use explicit dates and deduplicate by id. Windows over 90 days use the long-window multiplier in x-geoly-cost. Billed per call at the price in x-geoly-cost, using the existing MCP credit meter. Billing outcomes are in meta.quota.",
+        "description": "Paginated records, including pending and failed runs. At most 10,000 positions per query are reachable (page.capped); narrow the date window to continue. Cursors bind the project, prompt, filters and limit. Pagination is not a snapshot: concurrent changes may skip or repeat records. Use explicit dates and deduplicate by id. Windows over 90 days use the long-window multiplier in x-geoly-cost. Billed per call at the price in x-geoly-cost, using the existing MCP credit meter. Billing outcomes are in meta.quota.",
         "tags": [
           "Records"
         ],
@@ -2274,7 +2274,7 @@
             "name": "prompt_id",
             "in": "path",
             "required": true,
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "schema": {
               "type": "string",
               "minLength": 1,
@@ -2497,7 +2497,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -2533,7 +2533,7 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: no prompt with this prompt_id for the brand of this API key (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
+            "description": "NOT_FOUND: no prompt with this prompt_id in the project this API key is bound to (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -2715,7 +2715,7 @@
             "name": "prompt_id",
             "in": "path",
             "required": true,
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "schema": {
               "type": "string",
               "minLength": 1,
@@ -2851,7 +2851,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -2887,7 +2887,7 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: no prompt with this prompt_id for the brand of this API key (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
+            "description": "NOT_FOUND: no prompt with this prompt_id in the project this API key is bound to (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -3069,7 +3069,7 @@
             "name": "record_id",
             "in": "path",
             "required": true,
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "schema": {
               "type": "string",
               "minLength": 1,
@@ -3217,7 +3217,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -3253,7 +3253,7 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: no record with this record_id for the brand of this API key (details.reason = \"not_found\", details.resource = \"record\", details.id echoes the record_id). Billing follows meta.quota.charge.",
+            "description": "NOT_FOUND: no record with this record_id in the project this API key is bound to (details.reason = \"not_found\", details.resource = \"record\", details.id echoes the record_id). Billing follows meta.quota.charge.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -3604,7 +3604,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -3640,7 +3640,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4053,7 +4053,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4208,8 +4208,8 @@
     "/api/v1/brand": {
       "get": {
         "operationId": "getBrand",
-        "summary": "The brand this API key is bound to",
-        "description": "Brand profile, owning organization (plan, subscription status), AI platforms with completed answers in the last 30 days (entitled = covered by the plan), the first / last record day and first-collection progress. Use it to check which brand a key reads. Record days are UTC record-day keys (*_utc_date = business day − 1). Free; no query parameters.",
+        "summary": "The project this API key is bound to",
+        "description": "Project profile (data.brand: the own brand the project is named after; data.brand.id is the project id), owning organization (plan, subscription status), AI platforms with completed answers in the last 30 days (entitled = covered by the plan), the first / last record day and first-collection progress. Use it to check which project a key reads. Record days are UTC record-day keys (*_utc_date = business day − 1). Free; no query parameters.",
         "tags": [
           "Account"
         ],
@@ -4232,7 +4232,7 @@
         },
         "responses": {
           "200": {
-            "description": "The brand this API key is bound to. `data` follows Brand when meta.schema_conformant is true.",
+            "description": "The project this API key is bound to. `data` follows Brand when meta.schema_conformant is true.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4358,7 +4358,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4513,8 +4513,8 @@
     "/api/v1/topics": {
       "get": {
         "operationId": "listTopics",
-        "summary": "Topics of the brand (all, unpaginated)",
-        "description": "Every monitored topic of the brand with its active and archived prompt counts — the left rail of the in-app /prompts page. A small set, returned whole (no pagination). Prompts without a topic are not a row here: count them with GET /api/v1/prompts?topic_id=_none (page.total). Free; no query parameters.",
+        "summary": "Topics of the project (all, unpaginated)",
+        "description": "Every monitored topic of the project with its active and archived prompt counts — the left rail of the in-app /prompts page. A small set, returned whole (no pagination). Prompts without a topic are not a row here: count them with GET /api/v1/prompts?topic_id=_none (page.total). Free; no query parameters.",
         "tags": [
           "Catalog"
         ],
@@ -4537,7 +4537,7 @@
         },
         "responses": {
           "200": {
-            "description": "Topics of the brand (all, unpaginated). `data` follows TopicList when meta.schema_conformant is true.",
+            "description": "Topics of the project (all, unpaginated). `data` follows TopicList when meta.schema_conformant is true.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4663,7 +4663,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4818,8 +4818,8 @@
     "/api/v1/prompts/{prompt_id}": {
       "get": {
         "operationId": "getPrompt",
-        "summary": "One prompt of the brand",
-        "description": "A single prompt by id, active or archived — the same row shape as GET /api/v1/prompts. 404 NOT_FOUND when the id does not exist for this key's brand. Free (no credits); no metrics are computed. Guarded at 200 requests per minute per organization: one bucket for GET /api/v1/prompts, GET /api/v1/prompts/{prompt_id} and the same organization's get_prompt_list view=catalog calls on the GEOly MCP / Agent API — separate from the prompts report's bucket.",
+        "summary": "One prompt of the project",
+        "description": "A single prompt by id, active or archived — the same row shape as GET /api/v1/prompts. 404 NOT_FOUND when the id does not exist in this key's project. Free (no credits); no metrics are computed. Guarded at 200 requests per minute per organization: one bucket for GET /api/v1/prompts, GET /api/v1/prompts/{prompt_id} and the same organization's get_prompt_list view=catalog calls on the GEOly MCP / Agent API — separate from the prompts report's bucket.",
         "tags": [
           "Catalog"
         ],
@@ -4855,7 +4855,7 @@
         ],
         "responses": {
           "200": {
-            "description": "One prompt of the brand. `data` follows Prompt when meta.schema_conformant is true.",
+            "description": "One prompt of the project. `data` follows Prompt when meta.schema_conformant is true.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -4981,7 +4981,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -5017,7 +5017,7 @@
             }
           },
           "404": {
-            "description": "NOT_FOUND: no prompt with this prompt_id for the brand of this API key (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
+            "description": "NOT_FOUND: no prompt with this prompt_id in the project this API key is bound to (details.reason = \"not_found\", details.resource = \"prompt\", details.id echoes the prompt_id). Billing follows meta.quota.charge.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -5172,7 +5172,7 @@
     "/api/v1/reports/overview": {
       "post": {
         "operationId": "runOverviewReport",
-        "summary": "Brand visibility overview (the /performance headline)",
+        "summary": "Brand visibility overview (the /overview headline)",
         "description": "Visibility score, mention rate, citation rate, share of voice and the per-platform breakdown for the window — the same numbers as the in-app overview. Every number counts the brands you track (your own brand + the competitors you added) under the current configuration; rank is among tracked brands only. data.kpi_state tells whether the KPIs are computed (ok), there are no counted answers in the window (no_data), the first count is still running (computing — no numbers yet, not 0), or the filtered read failed (unavailable). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
@@ -5332,7 +5332,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -5368,7 +5368,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -5791,7 +5791,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -5827,7 +5827,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -6091,7 +6091,7 @@
       "post": {
         "operationId": "runBrandBoardReport",
         "summary": "Brand leaderboard (who AI answers mention, and how often)",
-        "description": "Your brand and the competitors you track, ranked by mention rate in the window (caliber \"tracked_brand_v1\"; untracked brands never appear, rank is among tracked brands only). data.mode is \"confirmed\" for every filter combination (\"scoped_open_world\" is no longer returned); data.status says whether the board is ready (not_ready while the brand's first count is still running). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Your brand and the competitors you track, ranked by mention rate in the window (caliber \"tracked_brand_v1\"; untracked brands never appear, rank is among tracked brands only). data.mode is \"confirmed\" for every filter combination (\"scoped_open_world\" is no longer returned); data.status says whether the board is ready (not_ready while the project's first count is still running). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -6252,7 +6252,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -6288,7 +6288,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -6552,7 +6552,7 @@
       "post": {
         "operationId": "runCitationsReport",
         "summary": "Citation source board (which domains AI answers cite)",
-        "description": "Top cited root domains with movers, your share, citation type split and the daily trend over closed business days. With a topic filter the whole-brand stats block is null and data.filtered is true. GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Top cited root domains with movers, your share, citation type split and the daily trend over closed business days. With a topic filter the whole-project stats block is null and data.filtered is true. GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -6711,7 +6711,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -6747,7 +6747,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -7187,7 +7187,7 @@
             }
           },
           "403": {
-            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a brand) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
+            "description": "API_KEY_BRAND_REQUIRED (the key is not bound to a project) / PERMISSION_DENIED (the key lacks the read permission in x-geoly-required-permission; details.required names it). Not charged.",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -7223,7 +7223,7 @@
             }
           },
           "404": {
-            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist for this brand; billing in meta.quota.charge).",
+            "description": "REPORT_NOT_FOUND (unknown report name; not charged) / NOT_FOUND (a referenced id does not exist in this project; billing in meta.quota.charge).",
             "headers": {
               "Request-Id": {
                 "$ref": "#/components/headers/Request-Id"
@@ -7489,7 +7489,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "API key from Settings → Developer → API keys (prefix geom_). Each key is bound to one brand."
+        "description": "API key from Settings → Developer → API keys (prefix geom_). Each key is bound to one project."
       }
     },
     "headers": {
@@ -7758,7 +7758,7 @@
             "maxLength": 2
           },
           "topic_id": {
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "type": "string",
             "minLength": 1,
             "maxLength": 64
@@ -8763,7 +8763,7 @@
         "type": "object",
         "properties": {
           "prompt_id": {
-            "description": "Resource id for this API key brand.",
+            "description": "Resource id within the project this API key is bound to.",
             "type": "string",
             "minLength": 1,
             "maxLength": 64
@@ -9724,7 +9724,7 @@
                 "type": "null"
               }
             ],
-            "description": "The brand this API key is bound to. null only when meta.schema_conformant is false and the output could not be mapped."
+            "description": "The project this API key is bound to. null only when meta.schema_conformant is false and the output could not be mapped."
           },
           "meta": {
             "$ref": "#/components/schemas/CuratedMeta"
@@ -9797,7 +9797,7 @@
                 "type": "null"
               }
             ],
-            "description": "Topics of the brand (all, unpaginated). null only when meta.schema_conformant is false and the output could not be mapped."
+            "description": "Topics of the project (all, unpaginated). null only when meta.schema_conformant is false and the output could not be mapped."
           },
           "meta": {
             "$ref": "#/components/schemas/CuratedMeta"
@@ -9826,7 +9826,7 @@
                 "type": "null"
               }
             ],
-            "description": "Prompts of the brand (keyset-paginated catalog). null only when meta.schema_conformant is false and the output could not be mapped."
+            "description": "Prompts of the project (keyset-paginated catalog). null only when meta.schema_conformant is false and the output could not be mapped."
           },
           "page": {
             "$ref": "#/components/schemas/KeysetPage"
@@ -9920,7 +9920,7 @@
                 "type": "null"
               }
             ],
-            "description": "One prompt of the brand. null only when meta.schema_conformant is false and the output could not be mapped."
+            "description": "One prompt of the project. null only when meta.schema_conformant is false and the output could not be mapped."
           },
           "meta": {
             "$ref": "#/components/schemas/CuratedMeta"
@@ -9982,7 +9982,7 @@
             }
           },
           "country": {
-            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the brand has prompts in.",
+            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the project has prompts in.",
             "type": "string",
             "minLength": 1,
             "maxLength": 8
@@ -11031,7 +11031,7 @@
             }
           },
           "country": {
-            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the brand has prompts in.",
+            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the project has prompts in.",
             "type": "string",
             "minLength": 1,
             "maxLength": 8
@@ -12714,7 +12714,7 @@
             }
           },
           "country": {
-            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the brand has prompts in.",
+            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the project has prompts in.",
             "type": "string",
             "minLength": 1,
             "maxLength": 8
@@ -15477,13 +15477,13 @@
             ]
           },
           "country": {
-            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the brand has prompts in.",
+            "description": "ISO-2 country code of the prompts (e.g. US). Must be a country the project has prompts in.",
             "type": "string",
             "minLength": 1,
             "maxLength": 8
           },
           "include_competitors": {
-            "description": "Also compute share of voice and competitor mentions per prompt (slower on large brands).",
+            "description": "Also compute share of voice and competitor mentions per prompt (slower on large projects).",
             "default": false,
             "type": "boolean"
           }

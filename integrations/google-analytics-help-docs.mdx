@@ -8,10 +8,10 @@ GEOly connects to Google Analytics 4 (GA4) with read-only OAuth access so you ca
 
 1. Open **Integrations → GA4**.
 2. Connect the Google account that can access the required GA4 property.
-3. Select one or more available GA4 properties and bind them to the current brand.
+3. Select one or more available GA4 properties and bind them to the current project.
 4. After binding, open **Sources → AI Traffic** and select the property and reporting window.
 
-Only an `owner` or `admin` of the brand's organization can read the available properties, bind a property, or disconnect GA4. GEOly requests the Google Analytics read-only scope; it does not write to the GA4 property.
+Only an `owner` or `admin` of the project's organization can read the available properties, bind a property, or disconnect GA4. GEOly requests the Google Analytics read-only scope; it does not write to the GA4 property.
 
 ![GA4 connection workflow from Integrations through read-only Google authorization and property selection to AI Traffic](/images/google-analytics-help-docs/1f9e1aef1b.jpg "GEOly GA4 connection workflow diagram")
 
@@ -19,7 +19,7 @@ This workflow diagram explains the current navigation and authorization sequence
 
 ## Choose a property and reporting window
 
-The GA4 connection page lists the accounts and properties available to the authorized Google account. Select the property that contains the current brand's website data. If several properties are bound, use the property selector in AI Traffic to change the active property.
+The GA4 connection page lists the accounts and properties available to the authorized Google account. Select the property that contains the current project's website data. If several properties are bound, use the property selector in AI Traffic to change the active property.
 
 AI Traffic supports the available 7-day, 30-day, 90-day, and custom windows. Depending on the selected window, compare the current period with the previous period, previous month, or previous year. Keep the property, window, and comparison mode fixed when comparing results.
 

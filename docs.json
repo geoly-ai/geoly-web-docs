@@ -39,6 +39,7 @@
                 "icon": "activity",
                 "pages": [
                   "analytics/geoly-prompts",
+                  "analytics/prompt-volume",
                   "analytics/ai-engine-topic"
                 ]
               },
@@ -64,6 +65,7 @@
                 "pages": [
                   "agent/overview",
                   "agent/skills",
+                  "agent/routines",
                   "agent/connectors"
                 ]
               },
@@ -73,7 +75,8 @@
                 "pages": [
                   "shopify/ai-llms-txt",
                   "shopify/catalog-optimization",
-                  "shopify/how-to-setup-catalog-optimization"
+                  "shopify/how-to-setup-catalog-optimization",
+                  "shopify/agent-theme-changes"
                 ]
               },
               {
@@ -195,7 +198,8 @@
                 "pages": [
                   "zh/index",
                   "zh/get-started/geoly-platform",
-                  "zh/get-started/geoly-operation-manual"
+                  "zh/get-started/geoly-operation-manual",
+                  "zh/get-started/register-account"
                 ]
               },
               {
@@ -204,6 +208,7 @@
                 "pages": [
                   "zh/analytics/performance",
                   "zh/analytics/geoly-prompts",
+                  "zh/analytics/prompt-volume",
                   "zh/analytics/ai-engine-topic"
                 ]
               },
@@ -232,6 +237,7 @@
                 "pages": [
                   "zh/agent/overview",
                   "zh/agent/skills",
+                  "zh/agent/routines",
                   "zh/agent/connectors"
                 ]
               },
@@ -241,7 +247,8 @@
                 "pages": [
                   "zh/shopify/ai-llms-txt",
                   "zh/shopify/catalog-optimization",
-                  "zh/shopify/how-to-setup-catalog-optimization"
+                  "zh/shopify/how-to-setup-catalog-optimization",
+                  "zh/shopify/agent-theme-changes"
                 ]
               },
               {
@@ -308,7 +315,6 @@
                 "group": "开始使用",
                 "icon": "book-open",
                 "pages": [
-                  "zh/get-started/register-account",
                   "zh/developers/data-api",
                   "zh/developers/agent-api"
                 ]
@@ -369,10 +375,6 @@
       {
         "label": "Pricing",
         "href": "https://www.geoly.ai/pricing"
-      },
-      {
-        "label": "Changelog",
-        "href": "https://www.geoly.ai/changelog"
       }
     ],
     "primary": {

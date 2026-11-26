@@ -11,7 +11,7 @@ Cloudflare 集成用于回答“AI 爬虫是否来到网站、访问了哪些页
 
 开始前请确认：
 
-- 你是当前品牌所属组织的所有者或管理员；
+- 你是当前项目所属组织的所有者或管理员；
 - 网站域名已经接入 Cloudflare，并且你能登录该域名所在的 Cloudflare 帐户。
 
 连接只需要填两项：
@@ -70,7 +70,7 @@ Zone ID 必须来自你要分析的那个域名。多个域名各有自己的 Zo
 
 ## 四、在 GEOly 完成连接
 
-1. 确认左上角当前品牌正确。Cloudflare 连接绑定到当前品牌，多个品牌需要分别连接；
+1. 确认左上角当前项目正确。Cloudflare 连接绑定到当前项目，多个项目需要分别连接；
 2. 打开 Cloudflare 连接页：还没连接任何数据源时，在 **My website → AI Traffic**（我的网站 → AI 流量）的 Cloudflare 卡片上点击 **Connect now**（立即连接）；已连接过 GA4 等其他数据源时，在同一页的 **Platform Settings**（平台设置）标签里点击 **Connect Cloudflare in Integrations**（前往集成连接 Cloudflare）。也可以直接打开 `app.geoly.ai/integrations/cloudflare`；
 3. 把第二步复制的 Zone ID 粘贴到 **Zone ID**，把第三步复制的令牌粘贴到 **API Token**；
 4. 点击 **Connect Cloudflare**（连接 Cloudflare）。校验通过后会自动跳到 **AI Traffic**（AI 流量）的 Cloudflare 视图。
@@ -203,7 +203,7 @@ Zone ID 填错了，或者把域名、网址填进了 Zone ID 框。回到该域
 - 所选时间范围内没有命中当前识别规则的 AI 爬虫；
 - Cloudflare 套餐的保留时间短于所选范围；
 - 该域名最近才接入 Cloudflare；
-- 当前品牌连接了错误的 Zone；
+- 当前项目连接了错误的 Zone；
 - 相关请求使用了尚未被识别的 User-Agent。
 
 先缩短到最近 7 天并刷新，再核对 Cloudflare 控制台中的请求数据。
