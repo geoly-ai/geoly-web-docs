@@ -34,10 +34,12 @@ GEOly Agent 可以替你改 Shopify 主题文件，比如在 `robots.txt` 里给
 
 ## 二、工作副本是怎么回事
 
-- Agent 第一次写主题文件时，GEOly 会把线上主题复制一份，变成一个未发布的主题，名字是 **GEOly working copy** 加日期，在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里能看到；
+- Agent 第一次写主题文件时，GEOly 会把线上主题复制一份，变成一个未发布的主题，名字是 **GEOly working copy** 加日期，在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）的 **Draft themes**（草稿模板）里能看到；
 - 之后的主题改动都写进同一份副本，项目里所有对话共用这一份；
 - 如果副本建好之后有人改了线上主题，下一次主题改动会写进一份新的副本。这样发布副本时，不会把线上主题退回旧版本；
 - GEOly 不会给店铺安装、上传或删除主题，只会复制线上主题、改这份副本。
+
+![Shopify 后台 Draft themes 里的 GEOly 工作副本](/images/agent-theme-changes/en-13-admin-themes.jpg "主题库里的工作副本")
 
 ## 三、在对话里提出改动
 
@@ -67,6 +69,8 @@ Agent 会弹出 **apply shopify changes** 卡片。**What will change**（这次
 写好之后，Agent 会给出工作副本的预览链接，形如 `https://你的店铺.myshopify.com/?preview_theme_id=123456789`。也可以在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里找到这份副本，点 **Preview**（预览）。
 
 先打开预览链接，再在同一个浏览器标签页里打开改过的页面。改的是 `robots.txt` 的话，打开预览链接后再访问 `https://你的店铺.myshopify.com/robots.txt`，看到的就是副本里的版本。
+
+审批卡上显示的是文件源码，预览里看到的才是爬虫实际拿到的内容。发布 `robots.txt` 改动之前，请拿预览和线上的 `robots.txt` 对比一下，确认三点：开头的 Shopify 说明还在，每一行 `User-agent` 都单独占一行，Shopify 的默认规则一条不少。
 
 ![打开预览链接后看到的副本 robots.txt](/images/agent-theme-changes/en-05-preview-robots.jpg "预览副本的 robots.txt")
 
@@ -100,7 +104,34 @@ Agent 会弹出 **apply shopify changes** 卡片。**What will change**（这次
 
 **你在 Shopify 后台自己发布的**：不是 Agent 发布的，Agent 撤销不了。请在 Shopify 后台 **Online Store › Themes**（在线商店 › 模板）里把原来的主题重新发布。
 
-## 八、常见问题
+## 八、改店铺页面上的文字
+
+主题页面上顾客看到的大部分文字都存在主题文件里：主题编辑器里各个区块的标题、正文、按钮文字，公告栏，页脚标题。Agent 改这些文字也是同一套流程：你批准后写进工作副本，副本发布后才上线。
+
+比如：
+
+> The big banner at the top of my store's homepage still says "Generated test data". Change the banner heading to "Gear built for every season" and the line under it to "Snowboards, wax and accessories, tested on real mountains." Only change that banner text — leave everything else on the homepage as it is.
+
+用中文说也可以，比如「把首页顶部大横幅的标题改成……，下面那行改成……，首页其他地方都别动」。
+
+卡片上会写明改的是哪个文件（首页是 `templates/index.json`），具体改了哪几行。
+
+![首页文字改动的审批卡，只改了两行](/images/agent-theme-changes/en-11-text-card.jpg "只改横幅的标题和正文")
+
+打开预览链接看新文字。底部的 Shopify 预览条会显示工作副本的名字和 **Draft**（草稿）。
+
+![用工作副本预览首页，横幅已是新文字](/images/agent-theme-changes/en-12-text-preview.jpg "发布前先预览新文字")
+
+下面这些用这种方式改不了：
+
+- 来自主题语言文件的按钮文字，比如 **Add to cart**（加入购物车）、**Sold out**（售罄），以及主题的全局设置。请在主题编辑器里改；
+- 店铺的多语言翻译。
+
+<Note>
+商品描述、集合描述、页面和博客文章不是主题文件。你批准后，Agent 会直接改到店里，不经过工作副本，也可以让它撤销。
+</Note>
+
+## 九、常见问题
 
 - **Agent 说改不了主题**：确认店铺已经在 **Agent › Connectors › Your store**（连接器 › 你的店铺）里连上，并且店铺用的是 Shopify 主题，不是无头店。
 - **发布被拒绝，提示副本变了**：你看过之后，副本里又被写进了东西，可能来自项目里的另一个对话。先问 Agent 副本里现在有什么，再让它发布一次。
