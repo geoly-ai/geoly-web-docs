@@ -3,7 +3,7 @@
   "info": {
     "title": "GEOly Data API",
     "version": "1",
-    "description": "Typed endpoints of the GEOly Data API (`x-geoly-stability: stable`): the account behind the key (GET /api/v1/quota, /api/v1/brand), the project catalog (GET /api/v1/topics, /api/v1/prompts), monitoring records (GET /api/v1/prompts/{prompt_id}/records, /api/v1/records/{record_id}) and the incremental record feed (GET /api/v1/records), writes (POST /api/v1/prompts, POST /api/v1/prompts/{prompt_id}/runs) and windowed reports (POST /api/v1/reports/*). Authenticate with an API key bound to one project; the project is implied by the key and never appears in paths.\n\nProjects: a project is GEOly's monitoring unit — it tracks one own brand plus its competitors and is named after that brand. For historical reasons machine names still call the project a brand: GET /api/v1/brand and its data.brand object, the Brand schema and the API_KEY_BRAND_REQUIRED code. data.brand.id is the project id, never a public_brand id.\n\nStability: within /api/v1 the shape and meaning of every declared field is stable — fields are never removed, renamed or retyped, units never change, and enums only grow (response enums are open: ignore unknown values and unknown fields). Metric definitions follow the product and are recorded in the changelog. Breaking changes only ship under /api/v2.\n\nEnvelope: `{ data, page?, meta }`. `meta.quota` is the billing outcome of the call; `meta.schema_conformant` is false only if the report output drifted from this document (the data is still returned).\n\nPagination: send `limit` (and `cursor` from `page.next_cursor` for the next page, with exactly the same filters). `page.next_cursor === null` is the only end-of-list signal; `page.capped: true` means the position limit was reached before the end. GET /api/v1/prompts uses a true keyset cursor (ordered by created_at, id): a row whose sort key is unchanged and that still matches the filters is never skipped or repeated because other rows were added or archived meanwhile, and there is no position limit. It is not a snapshot: every page re-applies the filters, so a row archived before you reach it drops out of an active listing. `x-geoly-pagination` describes each list.\n\nErrors use one envelope `{error:{code,message,details?},meta}`; `error.code` is drawn from the closed list in `x-geoly-error-codes`. Branch on the HTTP status and `error.code`, never on `message`. Stable keys of `error.details`: errors[] ({param, reason, allowed?, message}), reason, required, retry_after_seconds, max_bytes, actual_bytes, _quota, and resource / id (404 NOT_FOUND of a single-resource endpoint such as GET /api/v1/prompts/{prompt_id}).\n\nBilling: each call is billed at the price in `x-geoly-cost` ({tier, base, unit, long_window_multiplier, guard_rpm}: nominal price per call in credits, the same as the matching GEOly MCP tool (GET /api/v1/records has none: it is offered only on this API, so its price and guard are its own), against the MCP credits pool; tier \"free\" with base 0 = not charged — this includes operations whose matching MCP tool is registered as not charged (charged:false: POST /api/v1/prompts and POST /api/v1/prompts/{prompt_id}/runs), so no nominal price is declared for them; guard_rpm is the per-organization requests-per-minute guard of that endpoint — counted per organization together with the same organization's calls of the matching GEOly MCP tool on the other surfaces (MCP, Agent API)). The billing outcome of every call is in `meta.quota`. A monitoring run still consumes monitoring credits, a separate pool, as described on that operation.\n\nThe HTTP tool wrappers under /api/v1/tools and /api/v1/tools/{tool} are retired: every method answers 410 TOOL_SURFACE_RETIRED, and for a known tool details.replacement names the resource endpoint. Use these resource endpoints. MCP and Agent API remain available."
+    "description": "Typed endpoints of the GEOly Data API (`x-geoly-stability: stable`): the account behind the key (GET /api/v1/quota, /api/v1/brand), the project catalog (GET /api/v1/topics, /api/v1/prompts), monitoring records (GET /api/v1/prompts/{prompt_id}/records, /api/v1/records/{record_id}) and the incremental record feed (GET /api/v1/records), writes (POST /api/v1/prompts, POST /api/v1/prompts/{prompt_id}/runs) and windowed reports (POST /api/v1/reports/*). Authenticate with an API key bound to one project; the project is implied by the key and never appears in paths.\n\nProjects: a project is GEOly's monitoring unit — it tracks one own brand plus its competitors and is named after that brand. For historical reasons machine names still call the project a brand: GET /api/v1/brand and its data.brand object, the Brand schema and the API_KEY_BRAND_REQUIRED code. data.brand.id is the project id, never a public_brand id.\n\nStability: within /api/v1 the shape and meaning of every declared field is stable — fields are never removed, renamed or retyped, units never change, and enums only grow (response enums are open: ignore unknown values and unknown fields). Metric definitions follow the product and are recorded in the changelog. Breaking changes only ship under /api/v2.\n\nEnvelope: `{ data, page?, meta }`. `meta.quota` is the billing outcome of the call; `meta.schema_conformant` is false only if the report output drifted from this document (the data is still returned).\n\nPagination: send `limit` (and `cursor` from `page.next_cursor` for the next page, with exactly the same filters). `page.next_cursor === null` is the only end-of-list signal; `page.capped: true` means the position limit was reached before the end. GET /api/v1/prompts uses a true keyset cursor (ordered by created_at, id): a row whose sort key is unchanged and that still matches the filters is never skipped or repeated because other rows were added or archived meanwhile, and there is no position limit. It is not a snapshot: every page re-applies the filters, so a row archived before you reach it drops out of an active listing. `x-geoly-pagination` describes each list.\n\nErrors use one envelope `{error:{code,message,details?},meta}`; `error.code` is drawn from the closed list in `x-geoly-error-codes`. Branch on the HTTP status and `error.code`, never on `message`. Stable keys of `error.details`: errors[] ({param, reason, allowed?, message}), reason, required, retry_after_seconds, max_bytes, actual_bytes, _quota, and resource / id (404 NOT_FOUND of a single-resource endpoint such as GET /api/v1/prompts/{prompt_id}).\n\nBilling: reading or writing your own project's data does not consume credits, so every operation in this API is currently free. Credits are spent only on industry data (public tools on MCP, not part of this API); that pool is called industry data credits (field name: mcp_credits in GET /api/v1/quota). `x-geoly-cost` ({tier, base, unit, long_window_multiplier, guard_rpm}) is the price per call, the same as the matching GEOly MCP tool (GET /api/v1/records has no MCP tool, so its price and guard are its own); tier \"free\" with base 0 = not charged. guard_rpm is the per-organization requests-per-minute guard of that endpoint — counted per organization together with the same organization's calls of the matching GEOly MCP tool on the other surfaces (MCP, Agent API). The billing outcome of every call is in `meta.quota`. A monitoring run still consumes monitoring credits, a separate pool, as described on that operation.\n\nThe HTTP tool wrappers under /api/v1/tools and /api/v1/tools/{tool} are retired: every method answers 410 TOOL_SURFACE_RETIRED, and for a known tool details.replacement names the resource endpoint. Use these resource endpoints. MCP and Agent API remain available."
   },
   "servers": [
     {
@@ -72,7 +72,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "depends",
-      "description": "The request is valid but the current state does not allow it. details.reason says why: platform_not_enabled (the AI platform is not purchased for this project) and locale_required (pass country + language; details.availableLocales lists them) are charged the minimum call fee under the current billing rule (meta.quota.charge = \"min_fee\"); a write conflict (name already taken …, details.reason = the original tool code) or an organization without projects is not charged. On the report endpoints, details.reason = request_rejected (the report rejected the arguments only after looking them up, e.g. \"Project <id> not found.\", \"No project in scope.\") is billed as the report settled — usually the full base price of the report; meta.quota.charge says which."
+      "description": "The request is valid but the current state does not allow it. details.reason says why: platform_not_enabled (the AI platform is not purchased for this project) and locale_required (pass country + language; details.availableLocales lists them) are charged the minimum call fee on a priced endpoint (meta.quota.charge = \"min_fee\"; free endpoints report \"free\"); a write conflict (name already taken …, details.reason = the original tool code) or an organization without projects is not charged. On the report endpoints, details.reason = request_rejected (the report rejected the arguments only after looking them up, e.g. \"Project <id> not found.\", \"No project in scope.\") is billed as the report settled (free while the report's x-geoly-cost is free); meta.quota.charge says which."
     },
     {
       "code": "UNAUTHORIZED",
@@ -96,7 +96,7 @@
       "retryable": true,
       "write_retry": "safe",
       "charged": "none",
-      "description": "MCP credits used up for this period. Retry after the quota resets, or upgrade."
+      "description": "Industry data credits (field name: mcp_credits) are used up for this period. Retry after the quota resets, or upgrade. Reading your own project does not use credits."
     },
     {
       "code": "ORG_NOT_ELIGIBLE",
@@ -160,7 +160,7 @@
       "retryable": false,
       "write_retry": null,
       "charged": "depends",
-      "description": "The referenced id / name does not exist in this project. Billing depends on how the tool reports it (see meta.quota.charge): a not-found returned in the tool result keeps the tool's own settlement, receipt also in error.details._quota — the call-priced prompt and record detail reads (POST /api/v1/reports/prompt-overview, GET /api/v1/records/{record_id}) are charged as one call (\"charged\"), audit detail and search-query filters the minimum call fee (\"min_fee\"); a not-found raised while the tool runs (topic_name, brand_id …) is refunded (\"refunded\"); one rejected while resolving the scope (before execution) is not charged (\"unbilled\"); free tools and free endpoints report \"free\"."
+      "description": "The referenced id / name does not exist in this project. Billing depends on how the tool reports it (see meta.quota.charge): a not-found returned in the tool result keeps the tool's own settlement, receipt also in error.details._quota — free on an endpoint whose x-geoly-cost is free (every own-project read, including POST /api/v1/reports/prompt-overview and GET /api/v1/records/{record_id}), otherwise one call (\"charged\") or the minimum call fee (\"min_fee\"); a not-found raised while the tool runs (topic_name, brand_id …) is refunded (\"refunded\"); one rejected while resolving the scope (before execution) is not charged (\"unbilled\"); free tools and free endpoints report \"free\"."
     },
     {
       "code": "METHOD_NOT_ALLOWED",
@@ -328,7 +328,7 @@
       "get": {
         "operationId": "listRecordsFeed",
         "summary": "Incremental completed records and subsequent changes",
-        "description": "Completed records ordered by changed_at then id, not by record date, so a late completion appears at its completion update. Uses a dedicated index and a safe watermark at least five minutes behind database time; a long-running database transaction that has already written holds the watermark at five minutes before its start until it ends, and polls in that time return nothing newer but are still billed. Scan work is bounded, so an empty page can have next_cursor. Follow next_cursor until it is null, then save page.sync_cursor and poll with it; every 5 to 15 minutes is enough, because nothing newer than the watermark is returned. Bound the first sync with updated_since rather than business_date_from, which filters inside each scanned batch and does not shorten the scan. With a cursor, updated_since is ignored; keep limit, business_date_from and include unchanged. Repeated records are updates: upsert by id. Analysis fields are read-time values: mention_rank backfills do not advance changed_at, so a rank change alone is not re-emitted. Deletions and records that leave completed are not emitted either. Reconcile by starting a separate pass without a cursor from an updated_since rewound at least 24 hours (a rewound updated_since sent together with a saved cursor is ignored and reconciles nothing), or by re-reading records by record date. Optional answer_text and citations expansions; citations cap at 30 with a flag. Every call, including an empty poll, is billed at the price in x-geoly-cost.",
+        "description": "Completed records ordered by changed_at then id, not by record date, so a late completion appears at its completion update. Uses a dedicated index and a safe watermark at least five minutes behind database time; a long-running database transaction that has already written holds the watermark at five minutes before its start until it ends, and polls in that time return nothing newer but still count as calls. Scan work is bounded, so an empty page can have next_cursor. Follow next_cursor until it is null, then save page.sync_cursor and poll with it; every 5 to 15 minutes is enough, because nothing newer than the watermark is returned. Bound the first sync with updated_since rather than business_date_from, which filters inside each scanned batch and does not shorten the scan. With a cursor, updated_since is ignored; keep limit, business_date_from and include unchanged. Repeated records are updates: upsert by id. Analysis fields are read-time values: mention_rank backfills do not advance changed_at, so a rank change alone is not re-emitted. Deletions and records that leave completed are not emitted either. Reconcile by starting a separate pass without a cursor from an updated_since rewound at least 24 hours (a rewound updated_since sent together with a saved cursor is ignored and reconciles nothing), or by re-reading records by record date. Optional answer_text and citations expansions; citations cap at 30 with a flag. Every call, including an empty poll, is priced at x-geoly-cost.",
         "tags": [
           "Records"
         ],
@@ -339,9 +339,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": 20
         },
@@ -2230,7 +2230,7 @@
       "get": {
         "operationId": "listPromptRecords",
         "summary": "Monitoring records of one prompt",
-        "description": "Paginated records, including pending and failed runs. At most 10,000 positions per query are reachable (page.capped); narrow the date window to continue. Cursors bind the project, prompt, filters and limit. Pagination is not a snapshot: concurrent changes may skip or repeat records. Use explicit dates and deduplicate by id. Windows over 90 days use the long-window multiplier in x-geoly-cost. Billed per call at the price in x-geoly-cost, using the existing MCP credit meter. Billing outcomes are in meta.quota.",
+        "description": "Paginated records, including pending and failed runs. At most 10,000 positions per query are reachable (page.capped); narrow the date window to continue. Cursors bind the project, prompt, filters and limit. Pagination is not a snapshot: concurrent changes may skip or repeat records. Use explicit dates and deduplicate by id. Windows over 90 days use the long-window multiplier in x-geoly-cost. The price per call is in x-geoly-cost. Billing outcomes are in meta.quota.",
         "tags": [
           "Records"
         ],
@@ -2241,10 +2241,10 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
-          "long_window_multiplier": 2,
+          "tier": "free",
+          "base": 0,
+          "unit": null,
+          "long_window_multiplier": null,
           "guard_rpm": null
         },
         "x-geoly-required-permission": "prompt:read",
@@ -2689,7 +2689,7 @@
       "get": {
         "operationId": "listLatestPromptRecords",
         "summary": "Latest monitoring record per platform",
-        "description": "One latest record per platform, without a date filter. A valid prompt with no records returns an empty array. Billed per call at the price in x-geoly-cost, using the existing MCP credit meter. Billing outcomes are in meta.quota.",
+        "description": "One latest record per platform, without a date filter. A valid prompt with no records returns an empty array. The price per call is in x-geoly-cost. Billing outcomes are in meta.quota.",
         "tags": [
           "Records"
         ],
@@ -2700,9 +2700,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": null
         },
@@ -3043,7 +3043,7 @@
       "get": {
         "operationId": "getRecord",
         "summary": "One monitoring record, optionally including its answer",
-        "description": "Answer text is only returned when include=answer_text. Citations, search sources and shopping are bounded (30/30/20), with total counts and truncation flags. Internal provider errors and raw analysis are excluded. Responses exceeding 4 MB are rejected before settlement; omit include to fetch metadata. Billed per call at the price in x-geoly-cost, using the existing MCP credit meter. Billing outcomes are in meta.quota.",
+        "description": "Answer text is only returned when include=answer_text. Citations, search sources and shopping are bounded (30/30/20), with total counts and truncation flags. Internal provider errors and raw analysis are excluded. Responses exceeding 4 MB are rejected before settlement; omit include to fetch metadata. The price per call is in x-geoly-cost. Billing outcomes are in meta.quota.",
         "tags": [
           "Records"
         ],
@@ -3054,9 +3054,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": null
         },
@@ -3445,7 +3445,7 @@
       "post": {
         "operationId": "runPromptOverviewReport",
         "summary": "Window overview of one prompt",
-        "description": "caliber and kpi_state distinguish legacy, mention-based and unavailable KPIs; with kpi_state own_pending the brand mention counts, rates and rank are null rather than placeholder zeros. Rates use percentages without conversion. Custom windows over 90 days are clamped by the tool; window echoes the actual interval. Source domains include the first page and total counts. GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "caliber and kpi_state distinguish legacy, mention-based and unavailable KPIs; with kpi_state own_pending the brand mention counts, rates and rank are null rather than placeholder zeros. Rates use percentages without conversion. Custom windows over 90 days are clamped by the tool; window echoes the actual interval. Source domains include the first page and total counts. GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -3456,9 +3456,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": null
         },
@@ -3904,7 +3904,7 @@
       "get": {
         "operationId": "getQuota",
         "summary": "Credit balance of this API key's organization",
-        "description": "MCP credits (the pool Data API calls are billed against) and AI credits of the organization that owns this API key: limit, used, remaining and reset time. Free; no query parameters.",
+        "description": "Industry data credits (field name: mcp_credits; spent only on industry data, while reading your own project is free) and AI credits of the organization that owns this API key: limit, used, remaining and reset time. Free; no query parameters.",
         "tags": [
           "Account"
         ],
@@ -5173,7 +5173,7 @@
       "post": {
         "operationId": "runOverviewReport",
         "summary": "Brand visibility overview (the /overview headline)",
-        "description": "Visibility score, mention rate, citation rate, share of voice and the per-platform breakdown for the window — the same numbers as the in-app overview. Every number counts the brands you track (your own brand + the competitors you added) under the current configuration; rank is among tracked brands only. data.kpi_state tells whether the KPIs are computed (ok), there are no counted answers in the window (no_data), the first count is still running (computing — no numbers yet, not 0), or the filtered read failed (unavailable). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Visibility score, mention rate, citation rate, share of voice and the per-platform breakdown for the window — the same numbers as the in-app overview. Every number counts the brands you track (your own brand + the competitors you added) under the current configuration; rank is among tracked brands only. data.kpi_state tells whether the KPIs are computed (ok), there are no counted answers in the window (no_data), the first count is still running (computing — no numbers yet, not 0), or the filtered read failed (unavailable). GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -5184,9 +5184,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "standard",
-          "base": 3,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": 20
         },
@@ -5632,7 +5632,7 @@
       "post": {
         "operationId": "runAnalyticsReport",
         "summary": "Daily visibility metrics by platform / total / topic",
-        "description": "Fixed columns per day (completed / mentioned answers, mention and citation rates, visibility score, sentiment buckets), optionally with the previous equal-length window. Rows carry both utc_date and business_date. Very long windows with breakdown=platform or topic may be capped (data.capped is then non-null and says what was kept). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Fixed columns per day (completed / mentioned answers, mention and citation rates, visibility score, sentiment buckets), optionally with the previous equal-length window. Rows carry both utc_date and business_date. Very long windows with breakdown=platform or topic may be capped (data.capped is then non-null and says what was kept). GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -5643,9 +5643,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "light",
-          "base": 1,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": 30
         },
@@ -6091,7 +6091,7 @@
       "post": {
         "operationId": "runBrandBoardReport",
         "summary": "Brand leaderboard (who AI answers mention, and how often)",
-        "description": "Your brand and the competitors you track, ranked by mention rate in the window (caliber \"tracked_brand_v1\"; untracked brands never appear, rank is among tracked brands only). data.mode is \"confirmed\" for every filter combination (\"scoped_open_world\" is no longer returned); data.status says whether the board is ready (not_ready while the project's first count is still running). GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Your brand and the competitors you track, ranked by mention rate in the window (caliber \"tracked_brand_v1\"; untracked brands never appear, rank is among tracked brands only). data.mode is \"confirmed\" for every filter combination (\"scoped_open_world\" is no longer returned); data.status says whether the board is ready (not_ready while the project's first count is still running). GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -6102,10 +6102,10 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "standard",
-          "base": 3,
-          "unit": "call",
-          "long_window_multiplier": 2,
+          "tier": "free",
+          "base": 0,
+          "unit": null,
+          "long_window_multiplier": null,
           "guard_rpm": null
         },
         "x-geoly-required-permission": "competitor:read",
@@ -6552,7 +6552,7 @@
       "post": {
         "operationId": "runCitationsReport",
         "summary": "Citation source board (which domains AI answers cite)",
-        "description": "Top cited root domains with movers, your share, citation type split and the daily trend over closed business days. With a topic filter the whole-project stats block is null and data.filtered is true. GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "Top cited root domains with movers, your share, citation type split and the daily trend over closed business days. With a topic filter the whole-project stats block is null and data.filtered is true. GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -6563,9 +6563,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "deep",
-          "base": 10,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": 20
         },
@@ -7011,7 +7011,7 @@
       "post": {
         "operationId": "runPromptsReport",
         "summary": "Prompt table with per-prompt metrics (paginated)",
-        "description": "The in-app prompts table: per-prompt visibility, mention rate, citation rate, latest record per platform and window-over-window deltas, plus a summary of the whole filtered set. Paginate with cursor until page.next_cursor is null; the same filters and limit must be sent with every page. GET with body payload — no resources created. Billed per call at the price in x-geoly-cost (the same as the matching GEOly MCP tool).",
+        "description": "The in-app prompts table: per-prompt visibility, mention rate, citation rate, latest record per platform and window-over-window deltas, plus a summary of the whole filtered set. Paginate with cursor until page.next_cursor is null; the same filters and limit must be sent with every page. GET with body payload — no resources created. The price per call is in x-geoly-cost (the same as the matching GEOly MCP tool).",
         "tags": [
           "Reports"
         ],
@@ -7022,9 +7022,9 @@
         ],
         "x-geoly-stability": "stable",
         "x-geoly-cost": {
-          "tier": "standard",
-          "base": 3,
-          "unit": "call",
+          "tier": "free",
+          "base": 0,
+          "unit": null,
           "long_window_multiplier": null,
           "guard_rpm": 200
         },
@@ -12669,7 +12669,7 @@
         "type": "object",
         "properties": {
           "time_range": {
-            "description": "Rolling window, or \"custom\" with start_date + end_date. 180d is billed at twice the base price.",
+            "description": "Rolling window, or \"custom\" with start_date + end_date.",
             "default": "30d",
             "type": "string",
             "enum": [
@@ -16169,7 +16169,7 @@
               "refund_pending",
               "unbilled"
             ],
-            "description": "[Extensible enum] charged = normal settlement (per row, or one call for a call-priced read — including a not-found from the prompt or record detail); min_fee = minimum call fee (no data / not found from a per-row report / platform not purchased / missing locale); free = free report or endpoint; refunded / refund_pending = failed and refunded; unbilled = rejected before execution, or not metered."
+            "description": "[Extensible enum] charged = normal settlement of a priced call (per row, or one call for a call-priced read); min_fee = minimum call fee (no data / not found from a per-row report / platform not purchased / missing locale); free = free report or endpoint; refunded / refund_pending = failed and refunded; unbilled = rejected before execution, or not metered."
           },
           "min_fee_reason": {
             "type": [
