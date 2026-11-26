@@ -70,6 +70,8 @@ Agent 会弹出 **apply shopify changes** 卡片。**What will change**（这次
 
 先打开预览链接，再在同一个浏览器标签页里打开改过的页面。改的是 `robots.txt` 的话，打开预览链接后再访问 `https://你的店铺.myshopify.com/robots.txt`，看到的就是副本里的版本。
 
+审批卡上显示的是文件源码，预览里看到的才是爬虫实际拿到的内容。发布 `robots.txt` 改动之前，请拿预览和线上的 `robots.txt` 对比一下，确认三点：开头的 Shopify 说明还在，每一行 `User-agent` 都单独占一行，Shopify 的默认规则一条不少。
+
 ![打开预览链接后看到的副本 robots.txt](/images/agent-theme-changes/en-05-preview-robots.jpg "预览副本的 robots.txt")
 
 ## 六、发布工作副本
