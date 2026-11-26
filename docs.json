@@ -76,7 +76,8 @@
                   "shopify/ai-llms-txt",
                   "shopify/catalog-optimization",
                   "shopify/how-to-setup-catalog-optimization",
-                  "shopify/agent-theme-changes"
+                  "shopify/agent-theme-changes",
+                  "shopify/agent-headless-changes"
                 ]
               },
               {
@@ -248,7 +249,8 @@
                   "zh/shopify/ai-llms-txt",
                   "zh/shopify/catalog-optimization",
                   "zh/shopify/how-to-setup-catalog-optimization",
-                  "zh/shopify/agent-theme-changes"
+                  "zh/shopify/agent-theme-changes",
+                  "zh/shopify/agent-headless-changes"
                 ]
               },
               {
