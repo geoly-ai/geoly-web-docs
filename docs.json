@@ -53,6 +53,23 @@
                 ]
               },
               {
+                "group": "Actions",
+                "icon": "zap",
+                "pages": [
+                  "actions/overview"
+                ]
+              },
+              {
+                "group": "Agent",
+                "icon": "bot",
+                "pages": [
+                  "agent/overview",
+                  "agent/skills",
+                  "agent/routines",
+                  "agent/connectors"
+                ]
+              },
+              {
                 "group": "Shopify app",
                 "icon": "shopping-bag",
                 "pages": [
@@ -119,7 +136,8 @@
                 "group": "Get started",
                 "icon": "book-open",
                 "pages": [
-                  "developers/data-api"
+                  "developers/data-api",
+                  "developers/agent-api"
                 ]
               },
               {
@@ -207,6 +225,23 @@
                 ]
               },
               {
+                "group": "行动",
+                "icon": "zap",
+                "pages": [
+                  "zh/actions/overview"
+                ]
+              },
+              {
+                "group": "Agent",
+                "icon": "bot",
+                "pages": [
+                  "zh/agent/overview",
+                  "zh/agent/skills",
+                  "zh/agent/routines",
+                  "zh/agent/connectors"
+                ]
+              },
+              {
                 "group": "Shopify 应用",
                 "icon": "shopping-bag",
                 "pages": [
@@ -280,7 +315,8 @@
                 "group": "开始使用",
                 "icon": "book-open",
                 "pages": [
-                  "zh/developers/data-api"
+                  "zh/developers/data-api",
+                  "zh/developers/agent-api"
                 ]
               },
               {

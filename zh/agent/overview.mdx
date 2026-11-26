@@ -1,0 +1,139 @@
+---
+title: "GEOly Agent"
+sidebarTitle: "Agent 工作区"
+description: "用自然语言询问品牌在 AI 搜索里的表现。GEOly Agent 读取项目在 GEOly 的数据，逐步展示过程，改动前先征得同意，还能按计划运行例行任务。"
+---
+
+GEOly Agent 是一个基于项目 GEOly 数据工作的对话助手。可以问它可见度为什么变了、竞品靠什么胜出、接下来先改什么。它会自己挑选需要的数据，展示每一步做了什么，并在回答里给出所用的数字。它读到的数据与 GEOly 页面上看到的一致，用的也是与 [GEOly MCP](/zh/developers/mcp/introduction) 相同的一套工具。
+
+<Note>
+下面的截图是 GEOly 的英文界面。正文先写英文界面上的名称，括号里是中文界面的对应名称。
+</Note>
+
+<Note>
+组织套餐包含 AI Credits 时才能使用 Agent。套餐不含 AI Credits 时，菜单里不会出现 Agent。
+</Note>
+
+## 打开 Agent
+
+- 点击左侧图标栏的 **Agent**，或直接打开 `app.geoly.ai/agent`；
+- 在其他页面点击顶栏的 **Agent**，或按 **⌘I**（Mac）/ **Ctrl+I**（Windows），Agent 会在右侧以面板打开，可以边看页面边提问。面板顶部可以切换到别的对话，点 **Open in Agent**（在 Agent 中打开）把这段对话移到 Agent 整页，或点 **Close**（关闭）收起面板。
+
+Agent 侧栏包括 **New chat**（新对话）、[**Skills**](/zh/agent/skills)（技能）、[**Routines**](/zh/agent/routines)（例行任务）、[**Connectors**](/zh/agent/connectors)（连接器）、**Context**（上下文，见下文「AI 上下文」）、**Usage**（用量，见下文「AI 用量」）以及对话历史。
+
+![Agent 起始页：输入框、Deep 模式菜单和四条起手建议](/images/agent/agent-home.jpg "Agent 起始页")
+
+## 开始对话
+
+在 **Ask anything**（问点什么）输入框里输入问题后回车，或者点输入框下方的起手建议。每条建议都会启动一个[技能](/zh/agent/skills)：
+
+| 起手建议 | 启动的技能 |
+| --- | --- |
+| **Build monitoring prompts for my brand**（帮我为品牌搭建一组监控提示词） | `/brand-prompt-setup` |
+| **Diagnose a visibility change**（诊断最近的可见度变化） | `/visibility-change` |
+| **Analyze a key competitor**（分析一个主要竞品） | `/analyze-competitor` |
+| **Decide what to do next**（接下来该优先做什么） | `/next-actions` |
+
+想让 Agent 针对具体对象时：
+
+- 输入 `@`，提及某个提示词、竞品、行业，或已连接的[连接器](/zh/agent/connectors)；
+- 输入 `/` 加命令运行[技能](/zh/agent/skills)，例如 `/visibility-change`；
+- 点击 **+**，选择 **Add file**（添加文件）或从 **Skills**（技能）里挑一个技能。同一个面板里还显示 Agent 额度还剩多少。每条消息最多附 3 个文件，单个不超过 10 MB，支持 `.txt`、`.md`、`.csv`、`.xlsx`、`.docx`、`.pptx`、`.pdf`、`.png`、`.jpg`、`.jpeg`。附件会随这段对话的每一轮一起发送，每次都计入额度。
+
+<Tip>
+把期望的结果说清楚：时间范围、平台和输出格式。例如「对比过去 30 天我们在 ChatGPT 和 Perplexity 上的可见度，按话题出一张表」。
+</Tip>
+
+## 选择 Fast 或 Deep
+
+点击输入框右侧的模式菜单，默认是 **Deep**。
+
+| 模式 | 说明 |
+| --- | --- |
+| **Fast**（快速） | 不先思考，更快，适合简单查数。 |
+| **Deep**（深度思考） | 先思考再回答，更准，但更慢、用量更多。 |
+
+运行技能的对话轮次，无论选了哪个模式，都按 **Deep** 运行；如果 Agent 在回答中途自己选用了技能，从下一条消息起按 Deep 运行。同一个菜单里还有 **Ask before acting**（改动前先确认）开关，见下文「审批」。
+
+## 查看 Agent 的工作过程
+
+Agent 工作时可以看到它在做什么：
+
+- **计划**：多步分析开始时，Agent 会在一张计划卡里列出步骤，做完一步勾一步，最后显示 **Plan complete**（计划完成）或 **Plan unfinished**（计划未完成）；
+- **步骤**：每次取数都显示为一个步骤，展开可以看到它查了什么、拿回了什么；
+- **推理**：**Deep** 模式下，展开 **Reasoning**（推理）可以看它是怎么得出结论的；
+- **提问**：需要做决定时，Agent 会给出一张带选项的 **Question**（问题）卡片，可以选一个答案、自己填写，或点 **Skip**（跳过）；
+- **图表和表格**：Agent 可以用图表或表格回答。图表的 **Export**（导出）菜单里有 **Save as image**（存为图片）、**Copy image**（复制图片）和 **Export CSV**（导出 CSV）；表格可以展开看全表，也可以导出 CSV；
+- **建议追问**：回答结束后，输入框里会出现建议的下一个问题，按 **Tab** 即可采用。
+
+Agent 也能搜索网页、读取对话里给出的链接。回答可能出错，重要的数字请回到出处核对。
+
+## 审批
+
+Agent 改动任何内容之前都会先征求同意。打开 **Ask before acting**（改动前先确认）时，Agent 在增删提示词、话题、竞品，触发采集，或调用外部工具前，会先在对话里弹出一张卡片，说明要做什么、用什么参数：
+
+- **Approve**（批准）：执行这一次；
+- **Approve ▾ → Always allow**（始终允许）：执行，并且在这段对话里之后同一个工具不再询问；
+- **Deny**（拒绝）：不执行。
+
+在模式菜单里关掉 **Ask before acting**，当前对话里的操作就不再逐次询问。如果希望新对话默认如此，在下文「Agent 行为」里打开 **Auto-approve actions**（自动批准改动），它只影响新对话。
+
+连接器的每个工具还有单独的权限，设为 **Never**（从不）的工具即使开了自动批准也不会被调用，详见[连接器](/zh/agent/connectors)页的「工具权限」。保存[例行任务](/zh/agent/routines)和给你发邮件这两件事，即使开了自动批准，也一律要你亲手批准。
+
+## Agent 行为
+
+点击 **Agent behavior**（Agent 行为，左侧图标栏里的滑杆图标，在 Agent 工作区内显示）。里面三个设置都只保存在当前浏览器：
+
+| 设置 | 作用 |
+| --- | --- |
+| **Auto-approve actions**（自动批准改动） | Agent 改动前不再等你批准，直接执行。只影响新对话。 |
+| **Browser notifications**（浏览器通知） | 你在别的标签页时，Agent 回复完成或需要你回应，会发一条浏览器通知。 |
+| **Email from chats**（对话中发邮件给我） | 你让 Agent 把内容（比如一份总结）发邮件给你时，它会在你批准每一封后发到你账号的邮箱。默认打开。 |
+
+Agent 在对话里提示时，也可以直接点 **Turn on notifications**（打开通知）。如果浏览器拦截了 GEOly 的通知，需要先在浏览器的网站设置里允许。
+
+## 管理对话
+
+对话列在 Agent 侧栏里，按 **Today**（今天）、**Yesterday**（昨天）、**Last 7 days**（近 7 天）和 **Older**（更早）分组。把鼠标移到某条对话上，打开它的菜单可以：
+
+- **Rename**（重命名）；
+- **Archive**（归档）：归档的对话移到 **Archived**（已归档），可以再 **Unarchive**（取消归档）；
+- **Delete permanently**（彻底删除）已归档的对话：删除后无法恢复，分享链接也随之失效。
+
+分享对话时点 **Share**（分享）：
+
+- **Export as Markdown**（导出 Markdown）：把对话下载为 Markdown 文件；
+- **Share Chat**（分享对话）：生成公开链接，**Revoke Link**（撤销链接）可以撤销。分享页面不包含来自连接器的内容；分享前 GEOly 也会提醒先确认对话内容可以公开。
+
+## AI 上下文
+
+Agent 侧栏的 **Context**（上下文，`app.geoly.ai/agent/context`）记录 Agent 应该知道的关于你、这个项目和你公司的信息，每次对话都会读取。
+
+| 分段 | 写什么 | 谁能改 |
+| --- | --- | --- |
+| **User context**（关于你） | 跟着你进每个项目的笔记，比如你的角色。最多 100 条，每条有名称（最多 60 字）和内容（最多 500 字）。 | 只有你自己 |
+| **Project context**（关于本项目） | 只在当前项目生效的说明，最多 4,000 字。关掉 **Use project context**（使用项目上下文）后，对话里不带这一段。 | 项目管理员和组织管理员 |
+| **Company context**（关于公司） | 组织里每个人共享的公司事实，最多 4,000 字。关掉 **Use company context**（使用公司上下文）后，对话里不带这一段。 | 组织所有者和管理员 |
+
+Agent 在对话中也会维护「关于你」：了解到以后用得上的关于你的信息时，它会记一条笔记，也会修改或删除自己记过的笔记。所有笔记都可以在上下文页里编辑或删除。要往「关于本项目」或「关于公司」里加内容时，Agent 会先请你批准。
+
+## AI 用量
+
+Agent 对话消耗组织的 **AI Credits**。组织内所有项目共用一个额度池，每个计费周期开始时重置。**Deep** 模式、附件和较长的分析会用掉更多额度。
+
+在 Agent 侧栏打开 **Usage**（用量，`app.geoly.ai/agent/usage`）可以看到：
+
+- **Agent credits**（Agent 额度）：本计费周期组织已用多少、还剩多少、何时重置；
+- **Credits used per day**（按天用量）图表；
+- **Usage this period**（本期用量）：可以 **By project**（按项目）或 **By member**（按成员）查看额度、对话数、消息数和占比；也可以在 **Billing period**（计费周期）里选择以前的周期。
+
+这个额度池同样覆盖[例行任务](/zh/agent/routines)、[GEOly CLI](/zh/developers/cli)（`geoly run`）和 [Agent API](/zh/developers/agent-api)。CLI 和 API 的额度记在登录账号或密钥所属的成员名下；而对话数、消息数只统计 GEOly 应用内的 Agent 对话，所以两列不成比例。
+
+本期额度用到 75% 后，输入框上方会出现提示，显示已用比例和重置日期。额度用完后，要等下个周期重置或升级套餐，才能继续发起新一轮对话。
+
+## 相关页面
+
+- [技能](/zh/agent/skills)：Agent 按项目数据运行的固定工作流。
+- [例行任务](/zh/agent/routines)：让 Agent 按计划重复做事。
+- [连接器](/zh/agent/connectors)：让 Agent 使用团队的其他工具。
+- [行动](/zh/actions/overview)：可以跟踪、也可以交给 Agent 处理的改进项。

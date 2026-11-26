@@ -1,0 +1,137 @@
+---
+title: "Agent connectors"
+sidebarTitle: "Connectors"
+description: "Connect the GEOly Agent to your other tools, such as SEO data, your CMS, your CRM, and your issue tracker. Each connection uses your own login, and you decide per tool what the agent may do."
+---
+
+Connectors let the GEOly Agent work with the other tools your team uses. With a connector, the agent can compare GEOly data with your SEO tools, read and update your CMS, file an issue for a fix, or save a summary to your workspace.
+
+Each connector is an MCP server, usually the vendor's own. When you connect, the server tells GEOly which tools it offers, and you choose what the agent may do with each one.
+
+Open **Connectors** in the Agent sidebar, or go to `app.geoly.ai/agent/connectors`.
+
+## Connections are personal
+
+- **Only you can use your connection.** Each connection uses your own login or key, so nobody else in the company can use it. It only works in your own chats and in the [routines](/agent/routines) you create.
+- **Up to 10 connections.** The page shows how many you have used.
+- **Choose where it's available.** When you connect, **Available in** lets you pick **All my projects** or only the current project.
+- **Name it** (optional). The name is shown to you and the agent, which helps when you connect the same tool twice, for example two Notion workspaces.
+
+To connect, you need a project selected in GEOly.
+
+## What's on the page
+
+From top to bottom:
+
+- **Connected**: your connections. Click one to [manage it](#manage-a-connection).
+- **Your store**: the project's [Shopify store](#your-shopify-store).
+- The catalog, in five groups. Type in **Search connectors** to find one by name.
+- **Custom**: [add any remote MCP server](#add-a-custom-mcp-server) that isn't in the catalog.
+
+| Group | Examples |
+| --- | --- |
+| **SEO and search data** | Ahrefs, Similarweb, Exa, Tavily |
+| **Content and publishing** | Contentful, Webflow, Sanity, WordPress.com |
+| **Marketing and CRM** | HubSpot, Klaviyo, Mailchimp, Attio |
+| **Workspace** | Notion, Linear, GitHub, GitLab, Atlassian |
+| **Data and infrastructure** | Cloudflare, PostHog, Amplitude, Mixpanel |
+
+The catalog grows over time; the page always shows the current list, with a one-line description of what the agent can do with each connector.
+
+## Connect a tool
+
+Click a connector to open **Set up this connection**. The left side says what the connector does and which server it connects to. Then:
+
+<Tabs>
+  <Tab title="Sign in">
+    Most connectors use the vendor's own sign-in (OAuth).
+
+    1. Choose **Available in** and, optionally, a **Name**.
+    2. Click **Continue**. GEOly takes you to the vendor to approve access, then brings you back.
+
+    The connector then appears under **Connected**. GEOly never sees your password for the other tool. For GitHub, you also choose which repositories the agent may use; see [Connect GitHub](/integrations/github-connector).
+  </Tab>
+  <Tab title="API key">
+    Some connectors, such as Exa and Tavily, use an API key.
+
+    1. Click **Get one** to open the vendor's dashboard and create a key.
+    2. Paste it into **API key**, choose **Available in** and, optionally, a **Name**.
+    3. Click **Connect**.
+
+    GEOly stores the key encrypted and doesn't show it again.
+  </Tab>
+  <Tab title="Store domain">
+    **Shopify Storefront** needs no sign-in. The agent only reads a store's public policies and FAQs, such as returns, shipping, and warranty, so it can check whether what AI answers say about them matches the store.
+
+    1. In **Store domain**, enter the store name (like `my-store`, which becomes `my-store.myshopify.com`) or its full domain (like `my-brand.com`).
+    2. Click **Connect**.
+
+    Connect each store once. No credentials are stored for this connection. To let the agent change your own store, connect it under [Your store](#your-shopify-store) instead.
+  </Tab>
+</Tabs>
+
+**Cloudflare** has two services, **Cloudflare API** (traffic and AI crawler data, DNS, cache, and firewall settings) and **Cloudflare Browser Run** (fetch and render pages in a real browser). Each service is connected separately and counts as its own connection.
+
+## Add a custom MCP server
+
+Under **Custom**, click **Can't find yours? Add a custom MCP** to connect any tool that offers a remote MCP server.
+
+1. Enter the **Server URL**, for example `https://mcp.example.com/mcp`. It must be a public `https://` address of the MCP endpoint itself (often ending in `/mcp` or `/sse`), not an internal address or one that redirects elsewhere.
+2. Choose the **Authentication**:
+   - **OAuth**: **Continue** takes you to the sign-in page the server chooses, then brings you back.
+   - **API key**: sent in an `Authorization: Bearer` header. Enter just the key.
+   - **Header**: enter a **Header name** (for example `X-API-Key`) and **Header value**. They are sent exactly as you enter them.
+3. Choose **Available in** and, optionally, a **Name**, then click **Continue** or **Connect**.
+
+<Warning>
+GEOly hasn't verified custom servers. Only connect servers you trust.
+</Warning>
+
+A service that is already in the catalog has to be connected from the catalog. Custom connections count toward your 10 connections.
+
+## Your Shopify store
+
+**Your store** connects the project's Shopify store through the GEOly app (**GEOly: AI Traffic Booster**). The agent can read the store and propose changes. Nothing is written to the store until you approve it in the chat, unless you turned on auto-approve, and publishing a theme always needs your approval. Unlike other connectors, the store belongs to the project rather than to one person, it doesn't count toward your 10 connections, and only project admins can connect or disconnect it.
+
+To connect the store and let the agent edit your theme, see [Edit your Shopify theme with the GEOly Agent](/shopify/agent-theme-changes).
+
+## Use connectors in a chat
+
+Once connected, just ask. The agent picks the right connector tool for the task, for example:
+
+- "Compare the domains AI cites for our top prompts with their Ahrefs backlink data."
+- "File a Linear issue for each page that is missing an FAQ schema."
+- "Save this week's visibility summary as a page in Notion."
+
+Type `@` in the input box and pick a connector under **Connectors** to point the agent at it directly.
+
+Connectors also work in [skills](/agent/skills). [Routines](/agent/routines) only use your connectors when you turn on **Use my connectors** in the routine, and then only tools set to **Always allow**.
+
+## Tool permissions
+
+Click a connection under **Connected** to manage it. Under **Tool permissions**, set each tool:
+
+| Permission | What happens |
+| --- | --- |
+| **Always allow** | The tool runs right away. |
+| **Ask** | The agent shows an approval card in the chat before it uses the tool. |
+| **Never** | The tool is hidden from the agent. |
+
+Tools you haven't changed are set to **Ask**, including tools the vendor adds later. Changes apply from your next message and only affect your own chats. With **Auto-approve actions** on, **Ask** tools also run without asking; only **Never** stops a tool.
+
+## Manage a connection
+
+The connection dialog shows the **Account**, where it's **Available in**, when it was **Last checked** and whether it was working, and how many **Tools** it has. Open the **⋯** menu for:
+
+- **Reauthorize** (sign-in connectors): sign in to the vendor again.
+- **Test connection**: check that the connection works now.
+- **Rename** or **Change availability**. Changes apply from your next message.
+- **Disconnect**: remove the connection from GEOly.
+
+A connection shows **Needs reauthorization** when the vendor no longer accepts GEOly's access, for example because it expired or you revoked it on the vendor's side. Open it and **Reauthorize**. If a vendor rejects an API key, disconnect and connect again with a new key.
+
+After you **Disconnect**, the agent can no longer use the tool. For a sign-in connection, revoke the app on the vendor's side as well if you want to remove access there. An API key keeps working at the vendor until you delete it in the vendor's settings.
+
+## Sharing chats that used connectors
+
+When you share a chat publicly, content that came from your connectors is not included in the shared page. GEOly also reminds you to check the chat before you share it, because the agent's own answers may quote that content.

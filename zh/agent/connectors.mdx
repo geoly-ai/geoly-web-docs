@@ -1,0 +1,141 @@
+---
+title: "Agent 连接器"
+sidebarTitle: "连接器"
+description: "把 GEOly Agent 连到团队的其他工具：SEO 数据、内容管理系统、CRM、任务管理等。每个连接都用个人账号登录，每个工具允许 Agent 做什么由连接人逐一决定。"
+---
+
+连接器让 GEOly Agent 能使用团队的其他工具。连上之后，Agent 可以把 GEOly 的数据和 SEO 工具对照、读写内容管理系统里的内容、为一项修复建 issue，或把总结存进团队的工作区。
+
+每个连接器都是一个 MCP 服务，多数由厂商官方提供。连接时，对方会告诉 GEOly 有哪些工具可用，每个工具 Agent 能不能用、要不要先问，都可以单独设置。
+
+<Note>
+正文先写英文界面上的名称，括号里是中文界面的对应名称。
+</Note>
+
+在 Agent 侧栏打开 **Connectors**（连接器），或直接打开 `app.geoly.ai/agent/connectors`。
+
+## 连接是个人的
+
+- **只有你能用自己的连接。** 每个连接都用你自己的账号或密钥，公司里其他人用不了；它只在你自己的对话和你建的[例行任务](/zh/agent/routines)里生效。
+- **最多 10 个连接。** 页面上会显示已用了几个。
+- **选择可用范围。** 连接时在 **Available in**（可用范围）里选 **All my projects**（我的全部项目）或只用于当前项目。
+- **可以起个名字**（可选）。名字你和 Agent 都看得到，同一个工具连了两次时方便区分，比如两个 Notion 工作区。
+
+连接前需要先在 GEOly 里选好一个项目。
+
+## 页面上有什么
+
+从上到下依次是：
+
+- **Connected**（已连接）：你的连接，点一个可以管理它（见下文「管理连接」）；
+- **Your store**（你的店铺）：这个项目的 Shopify 店铺（见下文「你的 Shopify 店铺」）；
+- 连接器目录，分五组。在 **Search connectors**（搜索连接器）里可以按名称查找；
+- **Custom**（自定义）：添加目录里没有的远程 MCP 服务（见下文「添加自定义 MCP 服务」）。
+
+| 分组 | 例子 |
+| --- | --- |
+| **SEO and search data**（SEO 与搜索数据） | Ahrefs、Similarweb、Exa、Tavily |
+| **Content and publishing**（内容与发布） | Contentful、Webflow、Sanity、WordPress.com |
+| **Marketing and CRM**（营销与 CRM） | HubSpot、Klaviyo、Mailchimp、Attio |
+| **Workspace**（协作） | Notion、Linear、GitHub、GitLab、Atlassian |
+| **Data and infrastructure**（数据与基础设施） | Cloudflare、PostHog、Amplitude、Mixpanel |
+
+目录会不断增加，以页面上的为准；每个连接器都有一句话说明 Agent 能用它做什么。
+
+## 连接一个工具
+
+点一个连接器，打开 **Set up this connection**（设置这个连接）。左侧说明这个连接器能做什么、连的是哪个服务。然后：
+
+<Tabs>
+  <Tab title="登录授权">
+    多数连接器用厂商自己的登录授权（OAuth）。
+
+    1. 选择 **Available in**（可用范围），按需填写 **Name**（名称）；
+    2. 点 **Continue**（继续）。GEOly 会跳到对方页面让你确认授权，完成后自动回来。
+
+    之后这个连接器会出现在 **Connected**（已连接）里。GEOly 不会拿到你在对方工具里的密码。GitHub 还要选择 Agent 可以用哪些仓库，见[连接 GitHub](/zh/integrations/github-connector)。
+  </Tab>
+  <Tab title="API key">
+    有些连接器（比如 Exa 和 Tavily）用 API key 连接。
+
+    1. 点 **Get one**（去获取）打开对方控制台，创建一个 key；
+    2. 粘贴到 **API key**，选择 **Available in**（可用范围），按需填写 **Name**（名称）；
+    3. 点 **Connect**（连接）。
+
+    GEOly 会加密保存这个 key，之后不再显示。
+  </Tab>
+  <Tab title="店铺域名">
+    **Shopify Storefront** 不需要登录。Agent 只读取店铺公开的政策和 FAQ，比如退货、配送和保修，用来核对 AI 回答里关于这些内容的说法是否和店铺一致。
+
+    1. 在 **Store domain**（店铺域名）里填店铺名（如 `my-store`，会补成 `my-store.myshopify.com`）或完整域名（如 `my-brand.com`）；
+    2. 点 **Connect**（连接）。
+
+    每家店连一次即可，这个连接不保存任何凭据。想让 Agent 改你自己的店铺，请在下文「你的 Shopify 店铺」里连接。
+  </Tab>
+</Tabs>
+
+**Cloudflare** 有两个服务：**Cloudflare API**（流量和 AI 爬虫数据，DNS、缓存和防火墙设置）和 **Cloudflare Browser Run**（用真实浏览器抓取、渲染页面）。每个服务单独连接，各算一个连接。
+
+## 添加自定义 MCP 服务
+
+在 **Custom**（自定义）下点 **Can't find yours? Add a custom MCP**（没找到？添加自定义 MCP），可以连接任何提供远程 MCP 服务的工具。
+
+1. 填 **Server URL**（服务器地址），例如 `https://mcp.example.com/mcp`。必须是 `https://` 开头的公开地址，而且就是 MCP 端点本身（常以 `/mcp` 或 `/sse` 结尾），不能是内网地址，也不能跳转到别的地址；
+2. 选择 **Authentication**（鉴权方式）：
+   - **OAuth**：点 **Continue**（继续）后跳到这个服务指定的登录页，完成后自动回来；
+   - **API key**：放在 `Authorization: Bearer` 请求头里发送，只填 key 本身；
+   - **Header**（请求头）：填 **Header name**（请求头名称，比如 `X-API-Key`）和 **Header value**（请求头的值），按你填的原样发送；
+3. 选择 **Available in**（可用范围），按需填写 **Name**（名称），再点 **Continue**（继续）或 **Connect**（连接）。
+
+<Warning>
+GEOly 没有核验过自定义服务，只连你信任的服务。
+</Warning>
+
+目录里已有的服务要从目录连接。自定义连接也算在 10 个连接里。
+
+## 你的 Shopify 店铺
+
+**Your store**（你的店铺）通过 GEOly 的 Shopify 应用（**GEOly: AI Traffic Booster**）连接这个项目的 Shopify 店铺。Agent 可以读店铺、提出改法。每处改动都要你在对话里批准才会写进店铺（开了自动批准时除外），发布主题则一律要你亲手批准。和其他连接器不同，店铺属于项目而不是某个人，不算在你的 10 个连接里，只有项目管理员能连接或断开。
+
+连接店铺、让 Agent 改主题的步骤见[让 GEOly Agent 改 Shopify 主题](/zh/shopify/agent-theme-changes)。
+
+## 在对话里使用连接器
+
+连好之后直接提要求即可，Agent 会为任务挑合适的连接器工具，例如：
+
+- 「把我们头部提示词里 AI 引用的域名，和它们在 Ahrefs 里的外链数据对照一下。」
+- 「每个缺少 FAQ 结构化数据的页面，都在 Linear 里建一个 issue。」
+- 「把这周的可见度总结存成 Notion 里的一个页面。」
+
+在输入框里输入 `@`，在 **Connectors**（连接器）下选一个连接器，可以直接指定 Agent 用它。
+
+连接器也能在[技能](/zh/agent/skills)里使用。[例行任务](/zh/agent/routines)只有打开了 **Use my connectors**（用我的连接器）才会用你的连接器，而且只用设为 **Always allow**（始终允许）的工具。
+
+## 工具权限
+
+点 **Connected**（已连接）里的一个连接即可管理它。在 **Tool permissions**（工具权限）里逐个设置：
+
+| 权限 | 效果 |
+| --- | --- |
+| **Always allow**（始终允许） | 直接执行。 |
+| **Ask**（询问） | 调用前先在对话里弹出审批卡。 |
+| **Never**（从不） | Agent 看不到这个工具。 |
+
+没改过的工具都是 **Ask**（询问），厂商后来新加的工具也一样。改动从下一条消息起生效，只影响你自己的对话。打开了 **Auto-approve actions**（自动批准改动）时，**Ask** 的工具也会直接执行，只有 **Never** 拦得住。
+
+## 管理连接
+
+连接的弹窗里会显示 **Account**（账号）、**Available in**（可用范围）、**Last checked**（上次检查）的时间和当时是否正常，以及有多少 **Tools**（工具）。打开 **⋯** 菜单可以：
+
+- **Reauthorize**（重新授权，登录授权类连接器）：到对方那边重新登录授权；
+- **Test connection**（测试连接）：马上检查连接是否正常；
+- **Rename**（重命名）或 **Change availability**（修改可用范围），改动从下一条消息起生效；
+- **Disconnect**（断开连接）：从 GEOly 移除这个连接。
+
+对方不再接受 GEOly 的授权时（比如授权过期，或你在对方那边撤销了），连接会显示 **Needs reauthorization**（需要重新授权），打开它并 **Reauthorize**（重新授权）即可。如果对方不再认某个 API key，请断开后用新的 key 重新连接。
+
+**Disconnect**（断开连接）之后 Agent 就不能再用这个工具。登录授权类的连接，如果也想在对方那边收回权限，需要到对方那边撤销应用授权；API key 在你到对方设置里删除之前仍然有效。
+
+## 分享用过连接器的对话
+
+公开分享对话时，来自连接器的内容不会出现在分享页里。分享前 GEOly 也会提醒你先确认，因为 Agent 自己的回答里可能引用了这些内容。
