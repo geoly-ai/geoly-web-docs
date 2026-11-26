@@ -1,0 +1,37 @@
+---
+title: "Prompt volume"
+description: "Volume estimates Google search demand behind a prompt and ranks it in five levels within your project. How it's calculated, when there's none, and how often it updates."
+---
+
+## What prompt volume means
+
+Volume shows how many people search for the need behind a prompt. It is estimated from Google search volume and ranked against the project's other prompts in five levels: very low, low, medium, high, very high.
+
+You'll see it in three places: the suggestion list on the Discovery page, the Volume column on All prompts (Active and Archived), and the header of a prompt's detail page.
+
+## How it's calculated
+
+1. **Core search phrase.** Each prompt is reduced to a core search phrase, usually 2–3 words — the words most people would actually type into a search engine. For "Best robot vacuum for pet hair under $300?" that's "pet hair vacuum".
+2. **Search volume.** We look up the monthly Google search volume for that phrase in the prompt's country and language. If there's no volume and the phrase has three or more words, we try once more without its last word.
+3. **Relative levels.** Within a project and country, the monitored prompts that have volume are sorted and split 10% / 20% / 40% / 20% / 10% into five levels; suggestions use the same cut-offs. If a country has fewer than 10 monitored prompts with volume, the whole project is ranked together; if the whole project has fewer than 10, suggestions are included in the ranking too.
+
+Volume is **relative within your project**, not an absolute number: "medium" in one project can mean a very different search volume in another.
+
+## When there's no volume
+
+- **Spinner**: we're working out the core search phrase and looking up volume. Suggestions on the Discovery page usually get a level within a minute; prompts you add yourself within about 10 minutes, longer for large imports.
+- **"—"**: no usable search data yet — the volume is too small to measure, we couldn't derive a search phrase, or the lookup is still being retried. A successful retry turns it into a level. Hover shows "No search data".
+- **"N/A"**: there's no search volume data for that country or language. When you pick markets, these show "No volume data for this market".
+
+Prompts without volume sort last.
+
+## How often it updates
+
+- Monitored prompts: volume is refreshed monthly.
+- Levels can also shift when you add, accept or archive prompts, since they're ranked against your current monitored prompts.
+- Prompts accepted from Discovery keep the search volume their suggestion already had; if you edited the text before accepting, it's looked up again for the new text.
+- Prompts added by hand or by CSV get a lookup automatically — usually about 10 minutes, longer when you import many at once.
+
+## How to use it
+
+Volume helps you look at the biggest needs first, but it isn't the only signal — a low-volume prompt can be exactly what your customers ask AI, and still worth tracking.

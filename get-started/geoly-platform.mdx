@@ -29,7 +29,7 @@ The exact screens, filters, platforms, and actions available to you depend on yo
 Two terms used in this guide:
 
 - A **completed record** is one finished AI response generated for a monitored Prompt.
-- **Scope** means the filters and Prompt set used for a result, such as the date range, platform, country, language, and selected brand.
+- **Scope** means the filters and Prompt set used for a result, such as the date range, platform, country, language, and selected project.
 
 ## Find the right screen
 
@@ -45,9 +45,9 @@ The icon rail on the far left switches between spaces: **Workspace** (your brand
 | Check which pages AI used | **Sources → Citations** | Which domains and pages appeared in the monitored answers |
 | Add or manage questions | **Prompts → All prompts** | Which questions GEOly will run for your brand |
 | Compare brands within a Topic | Open a Topic from **Explore** | The competitive signals available for that Topic |
-| Connect an MCP client or manage access | **Settings**, for example **Settings → Developers → MCP** | Available integrations and workspace settings |
+| Connect an MCP client or manage access | **Settings**, for example **Settings → Developers → MCP** | Available integrations and settings |
 
-Public research and monitored brand results are different types of data. **Explore** uses GEOly's public dataset. The Workspace pages use the selected brand's Prompts and completed records.
+Public research and monitored brand results are different types of data. **Explore** uses GEOly's public dataset. The Workspace pages use the selected project's Prompts and completed records.
 
 ## 1. Explore public data
 
@@ -80,15 +80,15 @@ Open **Prompts → All prompts** to:
 - Switch between the **Active** and **Archived** tabs, and filter by Topic or tags.
 - Check whether records have been completed.
 
-Active Prompts run every day. The list shows each Prompt's Visibility, Mention rate, Citation, the tracked Competitors that appeared, its Type (Branded or Non-branded), and its Tags.
+Active Prompts run every day. The list shows each Prompt's Visibility, Citation, the tracked Competitors that appeared, its Type (Branded or Non-branded), and its Tags.
 
-![GEOly Prompts → All prompts list with topics, visibility, mention rate, citation, competitors, type, and tags](/images/app-2026-11/prompts.jpg "GEOly Prompts list")
+![GEOly Prompts → All prompts list with topics, visibility, citation, competitors, type, and tags](/images/app-2026-11/prompts.jpg "GEOly Prompts list")
 
 Saving a Prompt does not create a completed answer immediately. Wait until records are available before reading its metrics. If a result is missing, check the date range, platform, country, language, Prompt status, and record availability before drawing a conclusion.
 
 ## 3. Review your brand overview
 
-Open **Home → Overview** after your Prompts have completed. This page gives you a summary of how your selected brand appeared in the selected monitoring scope.
+Open **Home → Overview** after your Prompts have completed. This page gives you a summary of how your brand appeared in the selected project's monitoring scope.
 
 Before comparing two results, keep these settings the same:
 
@@ -101,12 +101,12 @@ Before comparing two results, keep these settings the same:
 
 The top of the page shows your rank in AI visibility and five KPIs:
 
-- **Visibility (AIGVR):** a composite score of position, mention count, and whether the answer cites your site, averaged over the completed answers in the window.
-- **Mention rate:** the share of completed AI answers that mention the brand.
-- **Share of voice (SoV):** the brand's share of mentions among all brands that came up.
+- **Visibility:** the share of completed AI answers that mention the brand.
+- **Share of voice (SoV):** answers that mention you ÷ answers that mention each brand, added up across you and your confirmed competitors.
+- **Avg rank:** in answers that mention you, your average position among the brands you track, in order of appearance (lower is better).
 - **Strongest platform** and **Weakest platform:** the platforms where the brand is most and least visible in the window.
 
-Below the KPIs, **Visibility** shows a trend line and a **Brand ranking** of you and the brands you track. Further down are **Your plan**, **Citation sources**, and **How AI answers your questions**.
+Below the KPIs, **Visibility** shows a trend line and a **Brand ranking** of you and the brands you track; your row in the ranking has the same numbers as the KPIs. Further down are **Your plan**, **Citation sources**, and **How AI answers your questions**.
 
 ![GEOly Overview visibility trend, brand ranking, and Your plan](/images/app-2026-11/overview-visibility.jpg "GEOly Overview")
 
@@ -175,22 +175,22 @@ These are directional signals, not guaranteed traffic, revenue, rankings, or mar
 GEOly can show shopping results in two different places:
 
 - **Explore → Shopping** studies products observed in the public dataset.
-- **Shopping → Shopping** in the Workspace uses the selected brand's monitored Prompts and completed records.
+- **Shopping → Shopping** in the Workspace uses the selected project's monitored Prompts and completed records.
 
 Do not compare these two views as if they measured the same population or used the same data source.
 
-## 7. Use tools and manage your workspace
+## 7. Use tools and manage settings
 
 To connect an MCP client such as Claude, Cursor, or Codex, open **Settings → Developers → MCP**. The site tools are in the Workspace sidebar under **Agent analytics**: **Agent Readiness Check**, **GEO Audit**, and **AI Site Explorer**.
 
-Open **Settings** to manage the areas available to your account, such as:
+Open **Settings** to manage the settings available to your account, such as:
 
 - Your profile and security (**Account**)
-- The brand profile and the brands you track (**Brand → Brand profile** and **Brand → Brands**)
-- Billing, members, and organization details (**Organization**)
+- The brand profile and the brands you track (**Project → Brand profile** and **Project → Brands**)
+- Billing, members, projects, and organization details (**Organization**)
 - API keys and MCP (**Developers**)
 
-The available actions depend on your organization and permissions. If you cannot find a screen or action, check your account access and the current workspace before assuming that the feature is unavailable.
+The available actions depend on your organization and permissions. If you cannot find a screen or action, check your account access and the current project before assuming that the feature is unavailable.
 
 ## A simple example
 

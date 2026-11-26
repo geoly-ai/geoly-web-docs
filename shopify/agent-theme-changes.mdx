@@ -1,0 +1,102 @@
+---
+title: "Edit your Shopify theme with the GEOly Agent"
+description: "Let the GEOly Agent change theme files such as robots.txt in a copy of your live theme, preview the copy, then publish it yourself or ask the Agent to publish it. Every step can be undone."
+---
+
+The GEOly Agent can change your Shopify theme files for you, for example adding rules for AI crawlers to `robots.txt`. It never edits your live theme. Every change goes into a copy of your live theme, and shoppers only see it once that copy is published.
+
+The flow looks like this:
+
+1. You ask the Agent for a change in a chat.
+2. The Agent shows the change on a card. Nothing is written until you approve it.
+3. The change goes into **GEOly's working copy** of your theme. You preview the copy.
+4. You publish the copy yourself in Shopify admin, or you ask the Agent to publish it. A publish always needs your confirmation.
+5. You can undo the change before you publish, and undo the publish afterwards.
+
+## Before you start
+
+Make sure that:
+
+- The GEOly app (**GEOly: AI Traffic Booster**) is installed on your store.
+- Your store is connected to your GEOly project. In GEOly, open **Agent › Connectors**. Under **Your store**, click **Shopify store**. Enter your store address to get a connection link, open the link, and click **Connect** in the GEOly app in Shopify admin. You need a store admin account, and the link is valid for 30 minutes. In GEOly, you need to be a project admin.
+
+![The Connectors page with a connected Shopify store under Your store](/images/agent-theme-changes/en-01-connectors.jpg "Your connected store on the Connectors page")
+
+Click the connected store to see which tools the Agent can use. Reading your store is always allowed. Every change waits for your approval in the chat.
+
+<Note>
+This page is for stores that use a Shopify theme. On a headless storefront (for example, one built with Hydrogen), theme files don't control what shoppers see. The Agent changes the storefront code with a pull request instead. See [Connect GitHub to the GEOly Agent](/integrations/github-connector).
+</Note>
+
+## How the working copy works
+
+- The first time the Agent writes a theme file, GEOly duplicates your live theme into a new, unpublished theme named **GEOly working copy** with the date. It appears in Shopify admin under **Online Store › Themes**.
+- Later theme changes go into the same copy, from any chat in the project.
+- If someone changes the live theme after the copy was made, the next theme change goes into a fresh copy. This way, publishing a copy never brings back an older version of your live theme.
+- GEOly doesn't install, upload, or delete themes. It only duplicates your live theme and edits that copy.
+
+## Step 1: Ask the Agent for the change
+
+Start a new chat and describe what you want. Be specific about which file to change, for example:
+
+> I want AI assistants to be able to crawl my Shopify store. Check the store's current robots.txt, then add explicit Allow rules for GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot, ClaudeBot and Google-Extended. Keep Shopify's default rules, and only change templates/robots.txt.liquid — don't touch any other theme file.
+
+![Asking the Agent to add AI crawler rules to robots.txt](/images/agent-theme-changes/en-02-ask.jpg "Ask for the change in a new chat")
+
+The Agent first reads your store, the theme file, and what your store serves today. Then it proposes the change.
+
+## Step 2: Review and approve the change
+
+The Agent shows a card for **apply shopify changes**. Under **What will change**, it lists each file and whether the file will be created or changed. Click **Show full changes** to see every added and removed line.
+
+![The approval card for a theme file change, with the full line-by-line changes](/images/agent-theme-changes/en-03-approval-card.jpg "Review the change before you approve it")
+
+- Click **Approve** to write the change into the working copy. It usually takes a few seconds.
+- Click **Deny** to reject it. Nothing is written.
+
+Your live theme doesn't change at this point. If you turned on **Auto-approve actions** (in **Agent behavior**), the Agent writes theme file changes into the working copy without asking first. Your live theme still doesn't change until the copy is published.
+
+## Step 3: Preview the working copy
+
+When the change is written, the Agent gives you a preview link for the working copy, like `https://your-store.myshopify.com/?preview_theme_id=123456789`. You can also find the copy in Shopify admin under **Online Store › Themes** and click **Preview**.
+
+Open the preview link, then go to the page you changed in the same browser tab. For `robots.txt`, open `https://your-store.myshopify.com/robots.txt` after you open the preview link. It shows the copy's version of the file.
+
+![robots.txt from the working copy, opened after the preview link](/images/agent-theme-changes/en-05-preview-robots.jpg "Preview the working copy's robots.txt")
+
+## Step 4: Publish the working copy
+
+You decide when the copy goes live. There are two ways to publish it.
+
+**Publish it yourself (default).** In Shopify admin, open **Online Store › Themes**, find the **GEOly working copy**, and publish it.
+
+**Ask the Agent to publish it.** For example: "I checked the preview and it looks right. Please publish the working copy." The Agent shows a card for **publish shopify theme**.
+
+![The publish card, which only offers Approve and Deny](/images/agent-theme-changes/en-06-publish-card.jpg "Every publish needs your confirmation")
+
+- Every publish needs you to click **Approve**. This card has no **Always allow** option, and **Auto-approve actions** doesn't apply to it.
+- The card is tied to the copy and the content you were shown. If anything is written to the copy after that, nothing is published. The Agent reads the copy again and asks you again.
+- If your live theme was changed after the copy was made, the publish is refused, because publishing would undo those edits. Ask the Agent to make the change again. It goes into a fresh copy.
+
+After you approve, the copy becomes your live theme within seconds. Your previous live theme stays in the theme library, unchanged.
+
+![The Agent confirms that the working copy is now the live theme](/images/agent-theme-changes/en-07-published.jpg "The working copy is now live")
+
+## Undo a change
+
+**Before you publish.** Ask the Agent to undo the change, for example: "Undo the robots.txt change you made in the working copy." It shows a card for **undo shopify changes**. After you approve, the file goes back to how it was in the copy. Your live theme was never touched.
+
+**After the Agent published the copy.** Ask the Agent to undo the publish, for example: "Undo the publish and put the previous live theme back." It shows a separate card that you confirm. Your previous live theme is published again, exactly as it was. The working copy stays in the theme library.
+
+![The card to undo the publish](/images/agent-theme-changes/en-08-undo-publish-card.jpg "Undo the publish")
+
+![The Agent confirms that the previous live theme is back](/images/agent-theme-changes/en-09-undone.jpg "The previous live theme is live again")
+
+**After you published the copy yourself in Shopify admin.** The Agent can't undo a publish it didn't make. In Shopify admin, open **Online Store › Themes** and publish your previous theme again.
+
+## Troubleshooting
+
+- **The Agent says it can't change the theme:** check that your store is connected under **Agent › Connectors › Your store**, and that your store uses a Shopify theme rather than a headless storefront.
+- **The publish was refused because the copy changed:** something was written to the copy after you saw it, possibly from another chat in the project. Ask the Agent what's in the copy now, then ask it to publish again.
+- **The publish was refused because the live theme changed:** someone edited or replaced the live theme after the copy was made. Ask the Agent to make your change again. It goes into a fresh copy of the current live theme.
+- **The preview shows the live version:** open the preview link first, then the page, in the same browser tab. If your store has a password, enter it first.

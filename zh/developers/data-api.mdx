@@ -1,14 +1,16 @@
 ---
 title: "GEOly Data API"
 sidebarTitle: "概览"
-description: "通过品牌绑定 API key 访问版本化 REST 资源，读取监控数据、增量同步已完成回答，以及创建和触发提示词。"
+description: "通过绑定项目的 API key 访问版本化 REST 资源，读取监控数据、增量同步已完成回答，以及创建和触发提示词。"
 ---
 
 Data API 通过 HTTP 提供监控资源与固定结构的报表，复用产品中的鉴权、指标口径和计费，不经过托管 Agent 推理。
 
 ## 鉴权与规格
 
-在 **设置 → 开发者 → API 密钥** 创建绑定品牌的 key，通过 Bearer 头发送。品牌由密钥决定，不通过请求参数切换；缺少相应读写权限时会拒绝请求。
+在 **设置 → 开发者 → API 密钥** 创建 key，每个 key 绑定且只绑定一个项目，通过 Bearer 头发送。项目由密钥决定，不通过请求参数切换；缺少相应读写权限时会拒绝请求。
+
+项目（Project）是 GEOly 的监测单元：一个项目监测一个自有品牌及其竞品。由于历史原因，返回密钥所属项目的端点叫 `GET /api/v1/brand`。
 
 ```bash
 curl --fail-with-body https://app.geoly.ai/api/v1/brand \
@@ -22,7 +24,7 @@ curl --fail-with-body https://app.geoly.ai/api/v1/brand \
 | 方法和路径 | 用途 |
 | --- | --- |
 | [`GET /api/v1/quota`](/zh/api-reference/account/get-quota) | 积分与计费周期 |
-| [`GET /api/v1/brand`](/zh/api-reference/account/get-brand) | 密钥绑定的品牌和组织 |
+| [`GET /api/v1/brand`](/zh/api-reference/account/get-brand) | 密钥绑定的项目（及其自有品牌）和组织 |
 | [`GET /api/v1/topics`](/zh/api-reference/catalog/list-topics) | 监控主题 |
 | [`GET /api/v1/prompts`](/zh/api-reference/catalog/list-prompts) | 提示词目录，keyset 分页 |
 | [`GET /api/v1/prompts/{prompt_id}`](/zh/api-reference/catalog/get-prompt) | 一道监控中或已归档的提示词 |
@@ -60,7 +62,7 @@ curl --fail-with-body https://app.geoly.ai/api/v1/brand \
 
 记录游标内部仍是有界 offset，每个查询最多访问 10,000 个位置，并按整页向下取整。page.capped=true 表示需要缩小窗口。补录、删除、并发插入可能改变分页位置，即使升序也一样；按 id 去重，必要时重新核对窗口。
 
-每次续页都携带相同筛选条件和 limit。其他品牌、提示词或查询的游标会被拒绝。提示词存在但窗口无数据时返回空数组；确认不存在或属于其他品牌时返回 404。若额外的存在性确认失败，仅凭空数组不能判断提示词存在。
+每次续页都携带相同筛选条件和 limit。其他项目、提示词或查询的游标会被拒绝。提示词存在但窗口无数据时返回空数组；确认不存在或属于其他项目时返回 404。若额外的存在性确认失败，仅凭空数组不能判断提示词存在。
 
 ## 回答全文
 
@@ -113,7 +115,7 @@ curl --fail-with-body -X POST https://app.geoly.ai/api/v1/prompts \
 
 `POST /api/v1/prompts/{prompt_id}/runs` 接受空对象：有派发时返回 202，否则返回 200；Location 指向实际业务日的记录列表。执行前就被拒的情况返回对应 4xx，details.reason 给出原因、details.write_outcome 为 not_started，可以用同一个键重试：超出套餐提示词名额是 402 PLAN_LIMIT_REACHED；提示词已归档、没有允许或可用的平台是 400 FAILED_PRECONDITION。
 
-可选 Idempotency-Key 为 8–128 位字母、数字或 `_ - : .`。成功结果在 24 小时内可重放，重放前仍检查当前权限，并返回 Idempotent-Replayed: true。键按组织、品牌、操作隔离；未过期时，同键不同规范化参数返回 409。
+可选 Idempotency-Key 为 8–128 位字母、数字或 `_ - : .`。成功结果在 24 小时内可重放，重放前仍检查当前权限，并返回 Idempotent-Replayed: true。键按组织、项目、操作隔离；未过期时，同键不同规范化参数返回 409。
 
 - REQUEST_IN_PROGRESS：等待后用相同键重试。
 - IDEMPOTENCY_KEY_REUSED：键已用于另一份请求。
@@ -126,7 +128,7 @@ curl --fail-with-body -X POST https://app.geoly.ai/api/v1/prompts \
 
 ## 计费
 
-OpenAPI 的 `x-geoly-cost` 声明每个操作的名义价格（MCP credits，与对应的 GEOly MCP 工具同价；`tier` 为 "free"、`base` 为 0 表示不扣 MCP credits，两个写端点也是如此）。`meta.quota` 是本次实际回执，`charge` 取值为 `charged`、`min_fee`、`free`、`refunded`、`refund_pending` 或 `unbilled`。查无数据、或请求了品牌未购买的 AI 平台时，收该操作的底价（`min_fee`）。记录读取和 feed 按调用收 light 价，当前 1 credit（空 feed 轮询也收）。触发监控沿用原监控积分流程。部分错误响应仍会计费：记录详情和提示词概览的查无按一次调用计费，报表读过数据之后才拒绝参数的按实际结算，所以请始终以 `meta.quota` 为准。其他被拒绝的请求，包括所有 429、500、503，不扣费。
+OpenAPI 的 `x-geoly-cost` 声明每个操作的名义价格（MCP credits，与对应的 GEOly MCP 工具同价；`tier` 为 "free"、`base` 为 0 表示不扣 MCP credits，两个写端点也是如此）。`meta.quota` 是本次实际回执，`charge` 取值为 `charged`、`min_fee`、`free`、`refunded`、`refund_pending` 或 `unbilled`。查无数据、或请求了项目未购买的 AI 平台时，收该操作的底价（`min_fee`）。记录读取和 feed 按调用收 light 价，当前 1 credit（空 feed 轮询也收）。触发监控沿用原监控积分流程。部分错误响应仍会计费：记录详情和提示词概览的查无按一次调用计费，报表读过数据之后才拒绝参数的按实际结算，所以请始终以 `meta.quota` 为准。其他被拒绝的请求，包括所有 429、500、503，不扣费。
 
 429/503 请遵循 Retry-After。读请求重试可能再次计费；写请求应检查 details.write_outcome 并使用原幂等键，仅凭 HTTP 状态不能断定没有副作用。
 
