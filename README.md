@@ -1,6 +1,6 @@
 # GEOly Docs
 
-GEOly 产品文档站（Mintlify，https://docs.geoly.ai）。内容按顶部 Tab 分为：Documentation（使用教程，按分组展开）/ MCP Server（MCP、CLI）/ API Reference（GEOly Data API 概览 + 按资源分组的接口页），支持 en（根路径）与 zh（`/zh`）。
+GEOly 产品文档站（Mintlify，https://docs.geoly.ai）。内容按顶部 Tab 分为：Documentation（使用教程，按分组展开）/ Agencies（代理商套餐，`agencies/`）/ MCP Server（MCP、CLI）/ API Reference（GEOly Data API 概览 + 按资源分组的接口页），支持 en（根路径）与 zh（`/zh`）。
 
 ## 目录
 

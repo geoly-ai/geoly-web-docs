@@ -45,7 +45,8 @@ Future releases will continue to improve AI-generated Prompt rules and capabilit
 | One project (one brand), checking AI visibility | Basic | You need more platforms or more users |
 | More platforms or team collaboration | Grow | You need longer history or more automation |
 | Ongoing multi-platform optimization | Advanced | You need GEO Agent and more data |
-| Agency or multi-project team | Plus | You need multiple projects, all platforms, and API access |
+| Brand team with several projects | Plus | You need multiple projects, all platforms, and API access |
+| Agency running GEO for several client brands | [Agency Starter or Agency Scale](/agencies/overview) | You need more client projects or tracking credits |
 
 If you only want to check one result, start with the trial or Basic. If you need to track many questions, save citation evidence, and keep improving content, choose based on projects, platforms, and users. Use the [current pricing page](https://www.geoly.ai/pricing) and account page for exact limits and benefits.
 
@@ -158,6 +159,7 @@ The figures below are the default limits shown on the [current pricing page](htt
 Interpret these limits carefully:
 
 - **Prompt total is an organization-level monitoring quota**, not a separate allowance per project or platform. Check the organization's remaining quota before importing.
+- **Agency plans** (Agency Starter, Agency Scale) aren't in this table and have no organization-level Prompt total. Each client project gets its own prompt limit from a pool of tracking credits; see [Tracking credits](/agencies/tracking-credits).
 - **Responses/month is monitoring response capacity, not a guarantee of completed Records**. Provider availability, failed or in-progress tasks, and narrow filters can make actual Records lower than the quota.
 - **AI Credits are for in-product AI analysis or generation**, separate from Responses and Prompt execution count. **Industry data credits are a separate organization-shared pool for public industry data** through MCP, the CLI, and the API. The `geoly credits` output and older pages still call them MCP Credits. MCP, CLI, and API calls about your own projects don't use credits; only industry data queries do. Check `get_quota` and each tool's quota receipt for the actual charge.
 - AI Credits expire after 30 days on Basic, Grow, and Advanced, and after 90 days on Plus; Enterprise is custom. Default industry data credits are 25,000 (Grow), 75,000 (Advanced), 200,000 (Plus), and custom (Enterprise). Basic doesn't include industry data queries. The organization shares the pool, and unused industry data credits don't roll over.
