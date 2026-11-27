@@ -106,6 +106,25 @@
             ]
           },
           {
+            "tab": "Agencies",
+            "icon": "handshake",
+            "groups": [
+              {
+                "group": "Agency plans",
+                "icon": "handshake",
+                "pages": [
+                  "agencies/overview",
+                  "agencies/tracking-credits",
+                  "agencies/manage-projects",
+                  "agencies/pitch-projects",
+                  "agencies/members-and-access",
+                  "agencies/billing",
+                  "agencies/faq"
+                ]
+              }
+            ]
+          },
+          {
             "tab": "MCP Server",
             "icon": "plug",
             "groups": [
@@ -261,7 +280,7 @@
                 ]
               },
               {
-                "group": "代理商",
+                "group": "代理商工作台",
                 "icon": "handshake",
                 "pages": [
                   "zh/platform/geo-agency"
@@ -281,6 +300,25 @@
                 "icon": "book-marked",
                 "pages": [
                   "zh/get-started/what-is-ai-llms-txt"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "代理商",
+            "icon": "handshake",
+            "groups": [
+              {
+                "group": "代理商套餐",
+                "icon": "handshake",
+                "pages": [
+                  "zh/agencies/overview",
+                  "zh/agencies/tracking-credits",
+                  "zh/agencies/manage-projects",
+                  "zh/agencies/pitch-projects",
+                  "zh/agencies/members-and-access",
+                  "zh/agencies/billing",
+                  "zh/agencies/faq"
                 ]
               }
             ]

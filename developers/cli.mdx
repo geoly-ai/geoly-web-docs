@@ -495,7 +495,7 @@ geoly runs list          # recent runs for the organization (--limit 1–50, def
 
 Two things use credits, from two separate pools:
 
-- **Industry data credits:** `geoly call` on public industry intelligence tools (categories, public brands, search demand, the AI shopping shelf). Default monthly allowance: Grow 25,000, Advanced 75,000, Plus 200,000, subject to organization overrides; Basic does not include industry data. These tools also need the public data grant. Each tool's description shows its price.
+- **Industry data credits:** `geoly call` on public industry intelligence tools (categories, public brands, search demand, the AI shopping shelf). Default monthly allowance: Grow 25,000, Advanced 75,000, Plus 200,000, Agency Starter 75,000, Agency Scale 200,000, subject to organization overrides; Basic does not include industry data. These tools also need the public data grant. Each tool's description shows its price.
 - **AI Credits:** the hosted agent's reasoning in `geoly run`. The tools it calls on your own project are free, the same as `geoly call`.
 
 Triggering a monitoring run (`trigger_prompt`) uses neither pool, but it consumes your monitoring allowance as usual. Check `get_quota`, the account and receipts for both balances and reset dates.
