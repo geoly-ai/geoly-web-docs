@@ -205,7 +205,7 @@ JSON 使用对象数组，每个对象至少包含 `text` 或 `prompt`：
 - **代理商套餐**（Agency Starter、Agency Scale）不在这张表里，也没有组织级 Prompt 总数：每个客户项目的提示词上限从监测额度总池里分，见[监测额度](/zh/agencies/tracking-credits)。
 - **Responses/月是监测回答容量，不是保证拿到的完成记录数**。平台不可用、任务失败、仍在进行或筛选范围过窄，都可能让实际 Records 少于额度。
 - **AI Credits 是产品内 AI/Agent 推理或生成能力使用的独立额度池**，与 Responses、Prompt 执行次数不同；**行业数据额度是组织共享的另一池，只用于通过 MCP、CLI 和 API 查公开行业数据**，`geoly credits` 的输出和旧文档里仍叫 MCP Credits。查你自己项目的 MCP、CLI、API 调用不扣额度，只有查行业数据才扣。两者都不能直接换算成可执行 Prompt 数，具体消耗和重置以账户页、工具的 quota 回执及 `get_quota` 为准。
-- 行业数据额度当前为：Grow 25,000、Advanced 75,000、Plus 200,000、Enterprise 按方案定制；Basic 不含行业数据查询。额度由组织共享，未用额度不自动结转。AI Credits 的有效期：Basic、Grow、Advanced 30 天，Plus 90 天，Enterprise 定制。具体工具是否计费、计费单位和可用平台以账户页面、工具回执和当前套餐配置为准。
+- 行业数据额度当前为：Grow 25,000、Advanced 75,000、Plus 200,000、Agency Starter 75,000、Agency Scale 200,000、Enterprise 按方案定制；Basic 不含行业数据查询。额度由组织共享，未用额度不自动结转。AI Credits 的有效期：Basic、Grow、Advanced 30 天，Plus 90 天，Enterprise 定制。具体工具是否计费、计费单位和可用平台以账户页面、工具回执和当前套餐配置为准。
 - 情绪分析、Shopping 商品卡、Agent、报告等附加能力有各自的套餐开关或额度，不能从 Prompt 总数或 Responses/月自行推断；需要按套餐对比表和当前账户状态确认。
 - 表里的行业数据历史只管行业洞察：Basic、Grow 最多 60 天，Advanced 及以上 90 天。自有监控数据可选的时间范围不按套餐缩短。**AI 实际检索词**在有数据时可能展示近 90 天，但仍以当前账号实际保留和可用的数据为准。
 - **All Platforms** 表示当前项目和套餐允许的平台，不代表系统中所有 AI 平台；不同套餐看到的平台选择器可能不同。Basic、Grow 要换监控哪几个平台，见[基础管理](/zh/platform/basic-management)里的「选择监控的 AI 平台」。

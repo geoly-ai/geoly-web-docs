@@ -61,8 +61,8 @@ description: "监测额度怎么算、总池怎么分给各个客户项目、每
 
 - 调低别的项目的最多提示词或平台；
 - 暂停一个暂时不做的项目；
-- 从 Agency Starter [升级](/zh/agencies/billing)到 Agency Scale；
-- 在项目页点 **Contact us to raise the pool**（联系我们调高总池）。
+- Agency Starter：在「设置 → 项目」的 **Allocated credits / pool**（已分配额度 / 总池）卡片上点 **Upgrade plan**（升级套餐），会打开账单页，在那里[升级到 Agency Scale](/zh/agencies/billing)；也可以联系我们；
+- Agency Scale：在同一张卡片上点 **Contact us to raise the pool**（联系我们调高总池）。
 
 如果已分配的合计超过了总池（比如总池被调小了），已有分配照常采集；但在调低之前，不能再调高分配、加平台或新建项目。调低一律可以。
 
@@ -81,16 +81,18 @@ description: "监测额度怎么算、总池怎么分给各个客户项目、每
 - **Allocated credits / pool**（已分配额度 / 总池）：分给各项目的额度合计占总池多少。暂停、试跑、已到期的项目不计入。
 - **Used credits / pool**（已用额度 / 总池）：各项目在跑提示词实际占用的额度合计；总池包含还没分出去的部分。
 - **Client projects**（客户项目），例如 `4 / 10`：现有客户项目数 / 套餐上限。
-- **Pitch projects**（试跑项目），例如 `1 / 3 · up to 40 prompts each`：在跑的试跑项目数 / 3 个。
-- **Contact us to raise the pool**（联系我们调高总池）。
+- **Pitch projects**（试跑项目），例如 `1 / 3 · up to 40 prompts each · 5 starts left this month · resets Dec 1`：在跑的试跑项目数 / 3 个，本月还能开几次，哪天重置。
+- **Allocated credits / pool** 卡片右上角的按钮：Agency Starter 上是 **Upgrade plan**（升级套餐），点了打开账单页；Agency Scale 上是 **Contact us to raise the pool**（联系我们调高总池）。
 
-下面的项目列表分 **Active**（进行中）、**Pitch**（试跑）、**Paused**（已暂停）、**Expired**（已到期）、**All**（全部）几个标签。每个项目显示：
+下面的项目列表分 **Active**（进行中）、**Pitch**（试跑）、**Paused**（已暂停）几个标签；有已到期的客户项目时，还会多一个 **Expired**（已到期）。每个项目显示：
 
-- **Project**（项目）和 **Domain**（域名）；
+- **Project**（项目）和 **Domain**（域名）。设了到期时间的项目，名称后面会标 **Expires**（到期）加日期，比如 **Expires 2027-03-31**；
 - **Used / allocated prompts**（已用 / 已分配），比如 `40 / 50`：前面是在跑条数，后面是最多提示词。把鼠标移上去能看到这个项目的花费，比如「每月占 4,500 额度（50 条 × 3 个平台 × 30 天）」；
 - **Platforms**（平台）：这个项目监测的平台；
 - **Frequency**（频率）：**Daily**（每天）或 **Not collecting**（不采集）；
 - **Created**（创建时间）；
-- **Status**（状态）：**Active**（有效）、**Expires**（到期）加日期、**Paused**（已暂停）、**Pitch**（试跑中）加剩余天数、**Pitch ended**（试跑已结束）、**Expired**（已到期）或 **Deleting**（删除中）。
+- **Status**（状态），只在 **Pitch**（试跑）标签里有：**Pitch**（试跑中）加剩余天数、**Pitch ended**（试跑已结束）或 **Expired**（已到期）。
+
+刚删除的项目会留在 **Active**（进行中）标签的最后，标着 **Deleting**（删除中），等后台清完数据才消失。
 
 要改某个项目的最多提示词或平台，见[管理客户项目](/zh/agencies/manage-projects)。
