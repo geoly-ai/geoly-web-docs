@@ -37,6 +37,10 @@ How GEOly counts:
 - The project count includes expired and paused client projects, but not pitch projects.
 - Being exactly at the limit is fine.
 
+<Note>
+GEOly runs this check when you open checkout and again when your payment goes through. If you added prompts or projects in between and no longer fit, your plan still starts, but the client projects that don't fit are paused automatically, newest first. Their data is kept, and **Settings → Projects** shows how many were paused. Lower other projects' max prompts or delete projects you don't need, then resume them on the **Paused** tab.
+</Note>
+
 ## What happens to your existing projects
 
 When your organization moves to an agency plan, GEOly sets up each existing project for you:
@@ -56,9 +60,13 @@ Some of these projects may end up below the 900-credit minimum. They keep runnin
 
 You're charged the prorated difference right away, and the new limits apply at once. If the payment doesn't go through, nothing changes: you stay on Agency Starter. If the amount changes before you confirm, the dialog shows "The amount has been updated. Please confirm again."
 
+Some cards need extra verification when charged (for example 3D Secure). For now, an upgrade can't be completed with those cards here: the dialog asks you to switch to a card that doesn't need verification, or to contact us so we can upgrade you. Your plan doesn't change and you aren't charged.
+
 ## Downgrade from Agency Scale to Agency Starter
 
 Downgrades aren't self-serve. On the **Agency Starter** card, click **Contact us to downgrade**, and we'll help you switch.
+
+When the downgrade takes effect, GEOly checks again whether you fit Agency Starter. If you don't, the client projects that don't fit are paused automatically. Bring your credits and project count within Agency Starter before the downgrade takes effect.
 
 ## Switch between a brand plan and an agency plan
 
